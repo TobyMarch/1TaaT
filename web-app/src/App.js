@@ -52,7 +52,7 @@ function App() {
           <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div>
-          <label htmlFor="text">Text:</label>
+          <label htmlFor="task">Task:</label>
           <input type="text" id="text" value={task} onChange={(e) => setTask(e.target.value)} />
         </div>
         <div>
