@@ -1,7 +1,7 @@
 # 1TaaT
 One Thing at a Time.
 
-
+# 1TaaT - Backend
 
 
 
@@ -25,7 +25,6 @@ Axios - is a promise-based HTTP library that lets developers make requests to ei
 ### `App.js`
 
 App.js handles the input of the data: name, task, dueDate, addedDate, rating: 1-9, then sends it to the Java backend. 
-
 App.js also handles the Web-app layout for now. 
 
 ### `List.js`
