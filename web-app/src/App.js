@@ -1,6 +1,6 @@
 /* 
 App.js handles the input of the data 
-name, task, dueDate, addedDate, rating: sliderValue
+owner, task, dueDate, addedDate, rating: sliderValue
 then sends it to the Java backend. 
 
 App.js also handles the Web-app layout for now. 
@@ -11,7 +11,7 @@ import axios from 'axios';
 import './Style.css';
 
 function App() {
-  const [name, setName] = useState('');
+  const [owner, Owner] = useState('');
   const [task, setTask] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [addedDate, setAddedDate] = useState('');
@@ -26,14 +26,14 @@ function App() {
   const handleSubmit = async () => {
     try {
       await axios.post('http://54.209.180.136:8080/api/data', { 
-        name, 
+        owner, 
         task, 
         dueDate, 
         addedDate, 
         rating: sliderValue 
       });
 
-      setName('');
+      Owner('');
       setTask('');
       setDueDate('');
       setSliderValue(5);
@@ -45,11 +45,11 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div classowner="App">
       <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
         <div>
-          <label htmlFor="name">Name:</label>
-          <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} />
+          <label htmlFor="owner">owner:</label>
+          <input type="text" id="owner" value={owner} onChange={(e) => Owner(e.target.value)} />
         </div>
         <div>
           <label htmlFor="task">Task:</label>
