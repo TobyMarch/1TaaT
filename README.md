@@ -11,7 +11,8 @@ One Thing at a Time.
 The project was created using create-react-app. 
 
 The `/web-app/src` directory holds the most relevant code that will be used for the front end part of the project.
-The `/web-app/sample-java` directory has sample code for connecting the backend to the front end.
+The `/web-app/sample-java` directory has sample code for connecting the backend to the front end. 
+Run it using `mvn spring-boot:run` and `mvn dependency:resolve`
 
 ## Files 
 ### `App.js`
