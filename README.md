@@ -3,36 +3,30 @@ One Thing at a Time.
 
 # 1TaaT - Backend
 
-
-
-
-
+### backend documentation goes here
 
 
 
 # 1TaaT - Frontend
 
-The `/web-app/src` directory holds the most relevant code that will be used for the project.
+The `/web-app/src` directory holds the most relevant code that will be used for the front end part of the project.
 The project was created using create-react-app. 
 
-
-## Dependencies
-
-Axios - is a promise-based HTTP library that lets developers make requests to either their own or a third-party server to fetch data.
-
 ## Files 
-
 ### `App.js`
-
 App.js handles the input of the data: name, task, dueDate, addedDate, rating: 1-9, then sends it to the Java backend. 
 App.js also handles the Web-app layout for now. 
 
 ### `List.js`
-
 List.js handles all data received from the Java backend. It will take the data and display it as a specially formatted list. 
 
-## Start, Test, Build
+### `/sample-java` 
+This directory is sample java code for interacting with the front end.
 
+## Dependencies
+Axios - is a promise-based HTTP library that lets developers make requests to either their own or a third-party server to fetch data.
+
+## Start, Test, Build
 In the `/web-app` directory, you can run:
 
 #### `npm start`
