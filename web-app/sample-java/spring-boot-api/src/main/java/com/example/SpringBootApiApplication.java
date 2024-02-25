@@ -4,6 +4,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 @SpringBootApplication
 public class SpringBootApiApplication {
@@ -14,9 +15,10 @@ public class SpringBootApiApplication {
 
 }
 
-@RestControllers
-class DataController {
 
+@RestController
+class DataController {
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/api/data")
     public void receiveData(@RequestBody DataDTO data) {
         // Here you can process the received data
