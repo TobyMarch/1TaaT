@@ -8,9 +8,10 @@ One Thing at a Time.
 
 
 # 1TaaT - Frontend
+The project was created using create-react-app. 
 
 The `/web-app/src` directory holds the most relevant code that will be used for the front end part of the project.
-The project was created using create-react-app. 
+The `/web-app/sample-java` directory has sample code for connecting the backend to the front end.
 
 ## Files 
 ### `App.js`
@@ -28,6 +29,7 @@ Axios - is a promise-based HTTP library that lets developers make requests to ei
 
 ## Start, Test, Build
 In the `/web-app` directory, you can run:
+Make sure to run `npm install` if it is a new git repository, to add the node_modules.
 
 #### `npm start`
 Runs the app in the development mode.\
