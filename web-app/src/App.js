@@ -25,7 +25,7 @@ function App() {
  // send data too Java backend, change URL? 
   const handleSubmit = async () => {
     try {
-      await axios.post('http://54.209.180.136:8080/api/data', { 
+      await axios.post('http://127.0.0.1:8080/api/data', { //54.209.180.136
         owner, 
         task, 
         dueDate, 
