@@ -112,7 +112,7 @@ function App() {
 
         {/* Menu */}
         <button className="bottomRightButton" onClick={toggleMenu}>
-          Click me
+          +
         </button>
         {menuVisible && (
           <div className="menu">
