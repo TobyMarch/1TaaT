@@ -11,24 +11,62 @@ body {
 
 .App {
   text-align: center;
-  background-color: #b5ccba;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); 
-  height: 20vh;
+  background-color: #afe9afff;
+  height: 100vh;
   padding: 3vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 70%;
+}
+
+.bottomRightButton {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  background-color: #496149ff;
+  color: white;
+  border: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.bottomRightButton:hover {
+  background-color: #0056b3;
+}
 .List {
   text-align: center;
-  background-color: #a5ccba;
+  background-color: #afe9afff;
   height: 80vh;
   display: grid;
-  grid-template-columns: repeat(1, 1fr); 
+  grid-template-columns: repeat(1, 1fr);
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 3vmin);
   color: black;
+}
+
+.list ul {
+  background-color: #e5ffd5ff;
+  list-style-type: none;
+  padding: 0;
+}
+
+.list ul li {
+  margin-bottom: 10px;
+  background-color: #e5ffd5ff;
 }
 
 .App-header {
@@ -44,4 +82,53 @@ body {
 .App-link {
   color: #3339;
   text-decoration: none;
+}
+
+.bottom-right-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.bottom-right-button:hover {
+  background-color: #0056b3;
+}
+
+.List {
+  display: flex;
+  flex-direction: column;
+}
+
+.List.threeColumns {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.List div {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #e5ffd5ff;
+  border-radius: 10%;
+}
+
+.menu {
+  background-color: #e5ffd5ff;
+  position: absolute;
+  bottom: 60px;
+  right: 20px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 1;
+}
+.toggleButton {
+  margin-top: 10px;
 }

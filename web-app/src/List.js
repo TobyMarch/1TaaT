@@ -1,18 +1,33 @@
-/* 
-List.js handles all data received from the Java backend. 
-It will take the data and display it as a specially formatted list. 
-*/
-
+import React from 'react';
 import './Style.css';
 
-function List() {
+function List({ isThreeColumns, toggleColumns, menuVisible, toggleMenu }) {
   return (
-    <div className="List">
-        <ul>
-            <li>task 1</li>
-            <li>task 2</li>
-            <li>task 3</li>
-        </ul>
+    <div className={`List ${isThreeColumns ? 'threeColumns' : ''}`}>
+      {/* Sample divs */}
+      <div>Item 1</div>
+      <div>Item 2</div>
+      <div>Item 3</div>
+      <div>Item 4</div>
+      <div>Item 5</div>
+
+
+
+      {/* Menu */}
+      <button className="bottomRightButton" onClick={toggleMenu}>
+        Click me
+      </button>
+      {menuVisible && (
+        <div className="menu">
+          <ul>
+            <li>Option 1</li>
+            <li>Option 2</li>
+            <li>Option 3</li>
+            <li>Option 4</li>
+            <li>Option 5</li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
