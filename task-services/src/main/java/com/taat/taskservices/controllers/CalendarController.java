@@ -18,6 +18,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class CalendarController {
 
+  @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @GetMapping("/calendar/events")
   public ResponseEntity<List<Task>> getCalendarEvents() {
     List<Task> tasks = new ArrayList<>();
@@ -30,13 +31,14 @@ public class CalendarController {
       } else {
         for (Event event : events) {
           DateTime start = event.getStart().getDateTime();
-//          DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+          // DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
           if (start == null) {
             start = event.getStart().getDate();
-//            formatter = DateTimeFormatter.ISO_LOCAL_DATE;
+            // formatter = DateTimeFormatter.ISO_LOCAL_DATE;
           }
           tasks.add(new Task(event.getSummary(), start.toString(), 0, event.getId()));
-//          tasks.add(new Task(event.getSummary(), OffsetDateTime.parse(start.toString(), formatter), 0, event.getId()));
+          // tasks.add(new Task(event.getSummary(), OffsetDateTime.parse(start.toString(),
+          // formatter), 0, event.getId()));
         }
       }
     } catch (IOException | GeneralSecurityException e) {

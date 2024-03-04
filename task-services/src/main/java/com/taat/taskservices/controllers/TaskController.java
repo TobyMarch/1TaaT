@@ -17,12 +17,14 @@ public class TaskController {
   @Autowired
   private TaskRepository taskRepository;
 
+  @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @GetMapping("/tasks")
   public ResponseEntity<Flux<Task>> getTasks() {
     Flux<Task> tasks = taskRepository.findAll();
     return new ResponseEntity<>(tasks, HttpStatus.OK);
   }
 
+  @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @PostMapping("/tasks")
   public ResponseEntity<?> addNewTasks(@RequestBody List<Task> tasks) {
     taskRepository.insert(tasks).subscribe();
