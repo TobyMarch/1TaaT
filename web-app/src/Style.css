@@ -7,6 +7,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #afe9af;
 }
 
 .App {
@@ -23,6 +24,7 @@ body {
   display: flex;
   justify-content: space-between;
   width: 70%;
+  margin-top: 20px; /* Add margin to separate from the logo */
 }
 
 .bottomRightButton {
@@ -131,4 +133,60 @@ body {
 }
 .toggleButton {
   margin-top: 10px;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Set the height of the container to 100% of the viewport height */
+}
+
+.login-form {
+  text-align: center;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  width: 70%; /* Set the width of the form */
+  max-width: 400px; /* Set a maximum width to prevent the form from becoming too wide on large screens */
+}
+
+.login-form h2 {
+  margin-bottom: 20px;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.login-form button {
+  width: 100%;
+  padding: 10px;
+  background-color: #496149;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-form button:hover {
+  background-color: #0056b3;
+}
+
+.logo {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: auto;
+}
+
+.login-form p {
+  font-size: 20px;
+  color: #333;
 }

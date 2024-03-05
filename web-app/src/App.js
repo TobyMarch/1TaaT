@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Style.css';
+import logo from './img/logo.svg'; // Import the logo SVG
 import { ReactComponent as SVGSingle } from './img/single.svg';
 import { ReactComponent as SVGMulti } from './img/multi.svg';
-import { ReactComponent as SVGSettings } from './img/settings.svg'; // Import the settings SVG
+import { ReactComponent as SVGSettings } from './img/settings.svg';
 
 function App() {
   const [selectedOption, setSelectedOption] = useState('');
@@ -13,7 +14,7 @@ function App() {
   const [addedDate, setAddedDate] = useState('');
   const [sliderValue, setSliderValue] = useState(5);
   const [menuVisible, setMenuVisible] = useState(false);
-  const [isThreeColumns, setIsThreeColumns] = useState(false); // State for toggling columns
+  const [isThreeColumns, setIsThreeColumns] = useState(false);
 
   useEffect(() => {
     const currentDate = new Date().toISOString().split('T')[0];
@@ -56,6 +57,7 @@ function App() {
 
   return (
     <div className="App">
+    <img src={logo} alt="Logo" className="logo" /> {/* Display the logo */}
       <div className="buttons">
         {isThreeColumns ? (
           <SVGSingle onClick={toggleColumns} />
@@ -65,7 +67,7 @@ function App() {
       </div>
       <div className="dropdown">
         <select value={selectedOption} onChange={handleOptionChange}>
-          <option value="">Select an option</option>
+          <option value="">Filters</option>
           <option value="option1">Option 1</option>
           <option value="option2">Option 2</option>
           <option value="option3">Option 3</option>
