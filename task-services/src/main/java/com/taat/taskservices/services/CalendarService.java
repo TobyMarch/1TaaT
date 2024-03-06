@@ -1,11 +1,15 @@
 package com.taat.taskservices.services;
 
+import com.google.api.client.auth.oauth2.BearerToken;
 import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.TokenResponse;
+import com.google.api.client.auth.oauth2.TokenResponseException;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
-import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
-import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.*;
+import com.google.api.client.googleapis.compute.ComputeCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.BasicAuthentication;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
@@ -36,8 +40,16 @@ public class CalendarService {
 
   public static Calendar getCalendar() throws IOException, GeneralSecurityException {
     final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+//    Calendar service =
+//            new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+//                    .setApplicationName(APPLICATION_NAME)
+//                    .build();
+    TokenResponse response = requestAccessToken("");
+    Credential credentials = new Credential(
+            BearerToken.authorizationHeaderAccessMethod())
+            .setFromTokenResponse(response);
     Calendar service =
-            new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+            new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, credentials)
                     .setApplicationName(APPLICATION_NAME)
                     .build();
     return service;
@@ -74,6 +86,32 @@ public class CalendarService {
     Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 
     return credential;
+  }
+
+  public static GoogleTokenResponse requestAccessToken(String code) throws IOException {
+    try {
+      GoogleTokenResponse response = new GoogleAuthorizationCodeTokenRequest(
+              new NetHttpTransport(), new GsonFactory(),
+              "",
+              "",
+              code,
+              "")
+              .execute();
+      return response;
+    } catch (TokenResponseException e) {
+      if (e.getDetails() != null) {
+        System.err.println("Error: " + e.getDetails().getError());
+        if (e.getDetails().getErrorDescription() != null) {
+          System.err.println(e.getDetails().getErrorDescription());
+        }
+        if (e.getDetails().getErrorUri() != null) {
+          System.err.println(e.getDetails().getErrorUri());
+        }
+      } else {
+        System.err.println(e.getMessage());
+      }
+    }
+    return null;
   }
 }
 
