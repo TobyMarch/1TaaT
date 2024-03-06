@@ -72,7 +72,7 @@ public class CalendarController {
             start = event.getStart().getDate();
             // formatter = DateTimeFormatter.ISO_LOCAL_DATE;
           }
-          tasks.add(new Task(event.getSummary(), start.toString(), 0, event.getId()));
+//          tasks.add(new Task(event.getSummary(), start.toString(), 0, event.getId()));
           // tasks.add(new Task(event.getSummary(), OffsetDateTime.parse(start.toString(),
           // formatter), 0, event.getId()));
         }
@@ -173,7 +173,7 @@ public class CalendarController {
         start = event.getStart().getDate();
       }
       System.out.println(event.getSummary());
-      tasks.add(new Task(event.getSummary(), start.toString(), 0, event.getId()));
+//      tasks.add(new Task(event.getSummary(), start.toString(), 0, event.getId()));
     }
     return tasks;
   }
