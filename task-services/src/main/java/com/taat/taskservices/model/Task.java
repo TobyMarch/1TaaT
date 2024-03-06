@@ -9,38 +9,66 @@ import java.time.OffsetDateTime;
 @Document("tasksTest")
 public class Task {
 
-  private String summary;
-//  private DateTime start;
-  String start;
-  private int priority;
-  private String calendarId;
+//  private String summary;
+//  String start;
+//  private int priority;
+//  private String calendarId;
+  private String owner;
+  private String task;
+  private String dueDate;
+  private String addedDate;
+  private int sliderValue;
 
-  public Task(String summary, String start, int priority, String calendarId) {
-    this.summary = summary;
-    this.start = start;
-    this.priority = priority;
-    this.calendarId = calendarId;
+//  public Task(String summary, String start, int priority, String calendarId) {
+//    this.summary = summary;
+//    this.start = start;
+//    this.priority = priority;
+//    this.calendarId = calendarId;
+//  }
+
+
+  public Task(String owner, String task, String dueDate, String addedDate, int sliderValue) {
+    this.owner = owner;
+    this.task = task;
+    this.dueDate = dueDate;
+    this.addedDate = addedDate;
+    this.sliderValue = sliderValue;
   }
 
-  public String getSummary() {
-    return summary;
+//  public String getSummary() {
+//    return summary;
+//  }
+//
+//  public String getStart() {
+//    return start;
+//  }
+//
+//  public int getPriority() {
+//    return priority;
+//  }
+//
+//  public String getCalendarId() {
+//    return calendarId;
+//  }
+
+
+  public String getOwner() {
+    return owner;
   }
 
-  public String getStart() {
-    return start;
+  public String getTask() {
+    return task;
   }
 
-  public int getPriority() {
-    return priority;
+  public String getDueDate() {
+    return dueDate;
   }
 
-  public String getCalendarId() {
-    return calendarId;
+  public String getAddedDate() {
+    return addedDate;
   }
 
-  public void display() {
-    System.out.println(
-            this.summary + "\nstart: " + this.start + "\npriority: " + priority
-    );
+  public int getSliderValue() {
+    return sliderValue;
   }
 }

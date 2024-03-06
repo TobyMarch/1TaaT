@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-const CLIENT_ID = "1049783711075-nd5nmsc6gj474f8b5ntf9o2brmu3l9ol.apps.googleusercontent.com";
-const SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
-const USER_ID = "wablack";
+const CLIENT_ID = "";
+const SCOPES = "";
+const USER_ID = "";
 
 function Calendar() {
     const[tasks, setTasks] = useState([]);
