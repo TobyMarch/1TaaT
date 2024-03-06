@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Style.css';
+import { useNavigate } from 'react-router-dom';
 import App from './App';
 import logo from './img/logo.svg';
 
@@ -8,11 +9,13 @@ function Login() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
 
   const handleLogin = () => {
 
     if (username && password) {
       setLoggedIn(true);
+      navigate('/app');
     } else {
       alert('Invalid username or password');
     }
