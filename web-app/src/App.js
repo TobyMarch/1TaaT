@@ -1,24 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Style.css';
 import logo from './img/logo.svg';
 import { ReactComponent as SVGSingle } from './img/single.svg';
 import { ReactComponent as SVGMulti } from './img/multi.svg';
 import { ReactComponent as SVGSettings } from './img/settings.svg';
+import axios from "axios";
 
 function App() {
   const [selectedOption, setSelectedOption] = useState('');
   const [menuVisible, setMenuVisible] = useState(false);
   const [isThreeColumns, setIsThreeColumns] = useState(false);
+  const [items, setItems] = useState([]);
 
+  useEffect(() => {
+    try {
+      axios.get('http://127.0.0.1:8080/api/tasks')
+          .then((res) => {
+            setItems(res.data);
+          });
+    } catch (e) {
+      console.error('Error loading task data: ', e);
+      alert('Failed to load tasks');
+    }
+  }, []);
 
-  const items = [
-    { text: "Complete project report", dueDate: "2024-03-10" },
-    { text: "Meet with the design team", dueDate: "2024-03-12" },
-    { text: "Code review session", dueDate: "2024-03-15" },
-    { text: "Update project roadmap", dueDate: "2024-03-18" },
-    { text: "Client feedback meeting", dueDate: "2024-03-20" }
-  ];
+  // const items = [
+  //   { text: "Complete project report", dueDate: "2024-03-10" },
+  //   { text: "Meet with the design team", dueDate: "2024-03-12" },
+  //   { text: "Code review session", dueDate: "2024-03-15" },
+  //   { text: "Update project roadmap", dueDate: "2024-03-18" },
+  //   { text: "Client feedback meeting", dueDate: "2024-03-20" }
+  // ];
 
   const handleOptionChange = (e) => {
     setSelectedOption(e.target.value);
@@ -74,7 +87,7 @@ function App() {
         {isThreeColumns ? (
           <>
             <div className="item">
-              <p>{items[0].text}</p>
+              <p>{items[0].task}</p>
               <p className="dueDate">Due: {items[0].dueDate}</p>
             </div>
           </>
@@ -82,7 +95,7 @@ function App() {
           <>
             {items.map((item, index) => (
               <div className="item" key={index}>
-                <p>{item.text}</p>
+                <p>{item.task}</p>
                 <p className="dueDate">Due: {item.dueDate}</p>
               </div>
             ))}
