@@ -1,50 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Style.css';
-import logo from './img/logo.svg'; // Import the logo SVG
+import logo from './img/logo.svg';
 import { ReactComponent as SVGSingle } from './img/single.svg';
 import { ReactComponent as SVGMulti } from './img/multi.svg';
 import { ReactComponent as SVGSettings } from './img/settings.svg';
 
 function App() {
   const [selectedOption, setSelectedOption] = useState('');
-  const [owner, setOwner] = useState('');
-  const [task, setTask] = useState('');
-  const [dueDate, setDueDate] = useState('');
-  const [addedDate, setAddedDate] = useState('');
-  const [sliderValue, setSliderValue] = useState(5);
   const [menuVisible, setMenuVisible] = useState(false);
   const [isThreeColumns, setIsThreeColumns] = useState(false);
 
-  useEffect(() => {
-    const currentDate = new Date().toISOString().split('T')[0];
-    setAddedDate(currentDate);
-  }, []);
+
+  const items = [
+    { text: "Complete project report", dueDate: "2024-03-10" },
+    { text: "Meet with the design team", dueDate: "2024-03-12" },
+    { text: "Code review session", dueDate: "2024-03-15" },
+    { text: "Update project roadmap", dueDate: "2024-03-18" },
+    { text: "Client feedback meeting", dueDate: "2024-03-20" }
+  ];
 
   const handleOptionChange = (e) => {
     setSelectedOption(e.target.value);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post('http://127.0.0.1:8080/api/data', {
-        owner,
-        task,
-        dueDate,
-        addedDate,
-        rating: sliderValue
-      });
-
-      setOwner('');
-      setTask('');
-      setDueDate('');
-      setSliderValue(5);
-      const currentDate = new Date().toISOString().split('T')[0];
-      setAddedDate(currentDate);
-    } catch (error) {
-      console.error('Error submitting data:', error);
-    }
   };
 
   const toggleMenu = () => {
@@ -57,75 +34,59 @@ function App() {
 
   return (
     <div className="App">
-    <img src={logo} alt="Logo" className="logo" /> {/* Display the logo */}
-      <div className="buttons">
-        {isThreeColumns ? (
-          <SVGSingle onClick={toggleColumns} />
-        ) : (
-          <SVGMulti onClick={toggleColumns} />
-        )}
+      <div className="topBar">
+        <div className="leftItems">
+          <div className="buttons">
+            <button onClick={toggleColumns}>
+              {isThreeColumns ? <SVGSingle /> : <SVGMulti />}
+            </button>
+          </div>
+        </div>
+  <div className="filterDropdown">
+    <select onChange={handleOptionChange} value={selectedOption}>
+      <option value="">Priority</option>
+      <option value="option1">Most Recent </option>
+      <option value="option2">Other</option>
+    </select>
+  </div>
+        <img src={logo} alt="Logo" className="logo" />
       </div>
-      <div className="dropdown">
-        <select value={selectedOption} onChange={handleOptionChange}>
-          <option value="">Filters</option>
-          <option value="option1">Option 1</option>
-          <option value="option2">Option 2</option>
-          <option value="option3">Option 3</option>
-        </select>
-      </div>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="owner">Owner:</label>
-          <input type="text" id="owner" value={owner} onChange={(e) => setOwner(e.target.value)} />
-        </div>
-        <div>
-          <label htmlFor="task">Task:</label>
-          <input type="text" id="task" value={task} onChange={(e) => setTask(e.target.value)} />
-        </div>
-        <div>
-          <label htmlFor="dueDate">Due Date:</label>
-          <input type="date" id="dueDate" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
-        </div>
-        <div>
-          <label htmlFor="rating">Rating:</label>
-          <input
-            type="range"
-            id="rating"
-            value={sliderValue}
-            min="1"
-            max="9"
-            onChange={(e) => setSliderValue(parseInt(e.target.value))}
-          />
-          <span>{sliderValue}</span>
-        </div>
-        <button type="submit">Submit</button>
-      </form>
-      {/* Place the settings SVG inside the bottom right button */}
       <button className="bottomRightButton" onClick={toggleMenu}>
         <SVGSettings />
       </button>
-      <div className={`List ${isThreeColumns ? 'threeColumns' : ''}`}>
-        {/* Sample divs */}
-        <div>Item 1</div>
-        <div>Item 2</div>
-        <div>Item 3</div>
-        <div>Item 4</div>
-        <div>Item 5</div>
+      {menuVisible && (
+        <div className="menu">
+          <ul>
+            <li>
+              <Link to="/new">Add New Task</Link>
+            </li>
+             <li>
+              <Link to="/new">Share</Link>
+            </li>
+            <li>
+              <Link to="/new">Import From Google</Link>
+            </li>
 
-        {/* Menu */}
-        <button className="bottomRightButton" onClick={toggleMenu}>
-          +
-        </button>
-        {menuVisible && (
-          <div className="menu">
-            <ul>
-              <li>Option 1</li>
-              <li>Option 2</li>
-              <li>Option 3</li>
-              <li>Option 4</li>
-              <li>Option 5</li>
-            </ul>
-          </div>
+          </ul>
+        </div>
+      )}
+      <div className={`List ${isThreeColumns ? 'threeColumns' : ''}`}>
+        {isThreeColumns ? (
+          <>
+            <div className="item">
+              <p>{items[0].text}</p>
+              <p className="dueDate">Due: {items[0].dueDate}</p>
+            </div>
+          </>
+        ) : (
+          <>
+            {items.map((item, index) => (
+              <div className="item" key={index}>
+                <p>{item.text}</p>
+                <p className="dueDate">Due: {item.dueDate}</p>
+              </div>
+            ))}
+          </>
         )}
       </div>
     </div>

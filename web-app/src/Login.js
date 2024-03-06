@@ -29,7 +29,7 @@ function Login() {
       {!loggedIn ? (
         <div className="login-form">
           <img src={logo} alt="Logo" className="logo" />
-          <h2>Login</h2>
+          <h2>1TaaT Login</h2>
           <input
             type="text"
             placeholder="Username"
@@ -43,7 +43,7 @@ function Login() {
             onChange={(e) => setPassword(e.target.value)}
           />
           <button onClick={handleLogin}>Login</button>
-          <p>1TaaT</p>
+
         </div>
       ) : (
         <App onLogout={handleLogout} />
