@@ -7,8 +7,13 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: rgb(175,233,175);
+background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 100%);
 }
-
+button {
+  background-color: transparent;
+  border: none;
+}
 .App {
   text-align: center;
   background-color: #afe9afff;
@@ -17,12 +22,45 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100vw;
+   background: rgb(175,233,175);
+background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 100%);
+}
+.leftItems, .filterDropdown, .logo {
+  display: flex;
+  align-items: center;
+}
+
+.filterDropdown {
+  z-index:5;
+  flex-grow: 1;
+  justify-content: center;
+
+}
+.filterDropdown select {
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 0px solid #ccc;
+  width:180px;
+  height:40px;
+    box-shadow:
+    3px -3px 10px #fff6,
+    -5px 5px 11px #0022;
+
+}
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
 }
 
 .buttons {
   display: flex;
   justify-content: space-between;
   width: 70%;
+  margin-top: 20px;
 }
 
 .bottomRightButton {
@@ -47,7 +85,6 @@ body {
 }
 .List {
   text-align: center;
-  background-color: #afe9afff;
   height: 80vh;
   display: grid;
   grid-template-columns: repeat(1, 1fr);
@@ -106,29 +143,111 @@ body {
 }
 
 .List.threeColumns {
+  display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: space-between;
+  overflow-x: hidden;
+  max-height: 80vh;
 }
 
+
 .List div {
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  background-color: #e5ffd5ff;
-  border-radius: 10%;
+  width: 70vw;
+  height: 300px;
+  margin-bottom: 5%;
+  padding: 1%;
+  background-color: #ddd;
+  border-radius: 10px;
 }
 
 .menu {
-  background-color: #e5ffd5ff;
   position: absolute;
-  bottom: 60px;
-  right: 20px;
-  background-color: #fff;
-  border: 1px solid #ccc;
-  padding: 10px;
+  height: 170px;
+  bottom: 70px;
+  right: 10px;
+  padding: 5px;
   z-index: 1;
+  background-color: #eee;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+
+
+}
+.menu li{
+  margin-bottom: 5px;
+  list-style: none;
 }
 .toggleButton {
+  margin-top: 10px;
+}
+
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
+  width: 70%;
+  max-width: 400px;
+}
+
+.login-form h2 {
+  margin-bottom: 20px;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+}
+
+.login-form button {
+  width: 90%;
+  padding: 10px;
+  background-color: #496149;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+   box-shadow:
+    3px -3px 10px #fff6,
+    -5px 5px 11px #0022;
+}
+
+.login-form button:hover {
+  background-color: #f789;
+}
+
+.logo {
+  position: relative;
+  max-width: 50px;
+  margin: auto;
+
+}
+
+.login-form p {
+  font-size: 20px;
+  color: #333;
+}
+
+.input {
+  width: 90%;
+}
+
+.dueDate {
+  color: #888;
+  font-size: 0.8em;
   margin-top: 10px;
 }

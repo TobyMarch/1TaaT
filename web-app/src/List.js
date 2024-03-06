@@ -4,7 +4,6 @@ import './Style.css';
 function List({ isThreeColumns, toggleColumns, menuVisible, toggleMenu }) {
   return (
     <div className={`List ${isThreeColumns ? 'threeColumns' : ''}`}>
-      {/* Sample divs */}
       <div>Item 1</div>
       <div>Item 2</div>
       <div>Item 3</div>
@@ -12,8 +11,6 @@ function List({ isThreeColumns, toggleColumns, menuVisible, toggleMenu }) {
       <div>Item 5</div>
 
 
-
-      {/* Menu */}
       <button className="bottomRightButton" onClick={toggleMenu}>
         Click me
       </button>
