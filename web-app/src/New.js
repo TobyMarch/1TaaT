@@ -16,12 +16,13 @@ function New() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:8080/api/data', {
+      const data = {
         owner,
         task,
         dueDate,
         rating: sliderValue
-      });
+      };
+      await axios.post('http://127.0.0.1:8080/api/tasks', [data]);
 
       setOwner('');
       setTask('');
