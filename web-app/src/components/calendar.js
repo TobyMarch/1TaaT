@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ADD_USER_API_URL, GOOGLE_CLIENT_URL, USER_CALENDAR_API_URL, USER_CALENDAR_SAVED_API_URL, USER_TOKEN_REFRESH_API_URL } from '../URLConstants';
 
 const CLIENT_ID = "";
 const SCOPES = "";
@@ -11,19 +12,19 @@ function Calendar() {
         const script = document.createElement("script");
         script.async = true;
         script.defer = true;
-        script.src = "https://accounts.google.com/gsi/client";
+        script.src = GOOGLE_CLIENT_URL;
         document.body.appendChild(script);
       }, []);
 
     const handleSyncCalendar = async () => {
         try {
-            fetch(`http://localhost:8080/api/users/checkUserRefreshToken?userId=${USER_ID}`, { 
+            fetch(`${USER_TOKEN_REFRESH_API_URL}?userId=${USER_ID}`, { 
                 method: 'get'
             })
             .then(response => response.json())
             .then(data => {
                 if (data === true) {
-                    fetch(`http://localhost:8080/api/calendar?userId=${USER_ID}`, { 
+                    fetch(`${USER_CALENDAR_API_URL}?userId=${USER_ID}`, { 
                         method: 'get'
                     })
                     .then(response => response.json())
@@ -42,7 +43,7 @@ function Calendar() {
                             if (!response.code) {
                                 return;
                             }
-                            fetch(`http://localhost:8080/api/calendarSaved?code=${response.code}&userId=${USER_ID}`, { 
+                            fetch(`${USER_CALENDAR_SAVED_API_URL}?code=${response.code}&userId=${USER_ID}`, { 
                                 method: 'get'
                             })
                             .then(response => response.json())
@@ -67,7 +68,7 @@ function Calendar() {
             const data = {
                 userId: USER_ID
             }
-            fetch("http://localhost:8080/api/users/addUser", {
+            fetch(ADD_USER_API_URL, {
                 method: 'post',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(data)
