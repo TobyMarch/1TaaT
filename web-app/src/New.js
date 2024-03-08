@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Style.css';
+import { TASK_API_URL } from './URLConstants';
 
 function New() {
   const [owner, setOwner] = useState('');
@@ -22,7 +23,7 @@ function New() {
         dueDate,
         rating: sliderValue
       };
-      await axios.post('http://127.0.0.1:8080/api/tasks', [data]);
+      await axios.post(TASK_API_URL, [data]);
 
       setOwner('');
       setTask('');
