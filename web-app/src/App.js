@@ -6,6 +6,7 @@ import { ReactComponent as SVGSingle } from './img/single.svg';
 import { ReactComponent as SVGMulti } from './img/multi.svg';
 import { ReactComponent as SVGSettings } from './img/settings.svg';
 import axios from "axios";
+import { TASK_API_URL } from './URLConstants';
 
 function App() {
   const [selectedOption, setSelectedOption] = useState('');
@@ -15,10 +16,10 @@ function App() {
 
   useEffect(() => {
     try {
-      axios.get('http://127.0.0.1:8080/api/tasks')
-          .then((res) => {
-            setItems(res.data);
-          });
+      axios.get(TASK_API_URL)
+        .then((res) => {
+          setItems(res.data);
+        });
     } catch (e) {
       console.error('Error loading task data: ', e);
       alert('Failed to load tasks');
@@ -55,13 +56,13 @@ function App() {
             </button>
           </div>
         </div>
-  <div className="filterDropdown">
-    <select onChange={handleOptionChange} value={selectedOption}>
-      <option value="">Priority</option>
-      <option value="option1">Most Recent </option>
-      <option value="option2">Other</option>
-    </select>
-  </div>
+        <div className="filterDropdown">
+          <select onChange={handleOptionChange} value={selectedOption}>
+            <option value="">Priority</option>
+            <option value="option1">Most Recent </option>
+            <option value="option2">Other</option>
+          </select>
+        </div>
         <img src={logo} alt="Logo" className="logo" />
       </div>
       <button className="bottomRightButton" onClick={toggleMenu}>
@@ -73,7 +74,7 @@ function App() {
             <li>
               <Link to="/new">Add New Task</Link>
             </li>
-             <li>
+            <li>
               <Link to="/new">Share</Link>
             </li>
             <li>

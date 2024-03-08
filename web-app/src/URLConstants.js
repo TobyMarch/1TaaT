@@ -11,6 +11,8 @@ export const getTaskServiceUrl = () => {
 // Export the URL so it can be used throughout your application
 export const TASK_SVC_URL = getTaskServiceUrl();
 
+export const TASK_API_URL = TASK_SVC_URL + "/api/tasks";
+
 export const USER_CALENDAR_API_URL = TASK_SVC_URL + "/api/calendar";
 
 export const USER_CALENDAR_SAVED_API_URL = TASK_SVC_URL + "/api/calendarSaved";
