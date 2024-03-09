@@ -5,12 +5,15 @@ import { TASK_API_URL } from './URLConstants';
 
 function New() {
   const [owner, setOwner] = useState('');
-  const [task, setTask] = useState('');
+  const [title, setTitle] = useState('');
+  const [createdDate, setCreatedDate] = useState('');
+  const [startDate, setStartDate] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [sliderValue, setSliderValue] = useState(5);
+  const [priority, setPriority] = useState(5);
 
   useEffect(() => {
     const currentDate = new Date().toISOString().split('T')[0];
+    setCreatedDate(currentDate);
     setDueDate(currentDate);
   }, []);
 
@@ -19,16 +22,19 @@ function New() {
     try {
       const data = {
         owner,
-        task,
+        title,
+        createdDate,
+        startDate,
         dueDate,
-        rating: sliderValue
+        priority
       };
       await axios.post(TASK_API_URL, [data]);
 
       setOwner('');
-      setTask('');
+      setTitle('');
+      setStartDate('');
       setDueDate('');
-      setSliderValue(5);
+      setPriority(5);
       alert('Task added successfully');
     } catch (error) {
       console.error('Error submitting data:', error);
@@ -43,17 +49,21 @@ function New() {
         <form onSubmit={handleSubmit}>
 
           <div>
-            <label htmlFor="task">Task:</label>
-            <input type="text" id="task" value={task} onChange={(e) => setTask(e.target.value)} />
+            <label htmlFor="title">Task:</label>
+            <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+          </div>
+          <div>
+            <label htmlFor="dueDate">Start Date:</label>
+            <input type="datetime-local" id="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
           </div>
           <div>
             <label htmlFor="dueDate">Due Date:</label>
-            <input type="date" id="dueDate" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+            <input type="datetime-local" id="dueDate" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
           </div>
           <div>
-            <label htmlFor="rating">Rating:</label>
-            <input type="range" id="rating" value={sliderValue} min="1" max="9" onChange={(e) => setSliderValue(parseInt(e.target.value, 10))} />
-            <span>{sliderValue}</span>
+            <label htmlFor="rating">Priority:</label>
+            <input type="range" id="priority" value={priority} min="1" max="9" onChange={(e) => setPriority(parseInt(e.target.value, 10))} />
+            <span>{priority}</span>
           </div>
           <button type="submit">Submit</button>
         </form>
