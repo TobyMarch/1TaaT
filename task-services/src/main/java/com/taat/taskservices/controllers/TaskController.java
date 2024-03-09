@@ -1,35 +1,40 @@
 package com.taat.taskservices.controllers;
 
-import com.taat.taskservices.model.Task;
-import com.taat.taskservices.repository.TaskRepository;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.taat.taskservices.model.Task;
+import com.taat.taskservices.services.TaskService;
+
+import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("/api")
 public class TaskController {
 
   @Autowired
-  private TaskRepository taskRepository;
+  TaskService taskService;
 
   @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @GetMapping("/tasks")
   public ResponseEntity<Flux<Task>> getTasks() {
-    Sort priority = Sort.by(Sort.Direction.DESC, "priority");
-    Flux<Task> tasks = taskRepository.findAll(priority);
+    Flux<Task> tasks = taskService.getPrioritizedTasks();
     return new ResponseEntity<>(tasks, HttpStatus.OK);
   }
 
   @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @PostMapping("/tasks")
   public ResponseEntity<?> addNewTasks(@RequestBody List<Task> tasks) {
-    taskRepository.insert(tasks).subscribe();
+    taskService.createUpdateTasks(tasks).subscribe();
     return new ResponseEntity<>(HttpStatus.OK);
   }
 }
