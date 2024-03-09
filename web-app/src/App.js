@@ -88,7 +88,7 @@ function App() {
         {isThreeColumns ? (
           <>
             <div className="item">
-              <p>{items[0].task}</p>
+              <p>{items[0].title}</p>
               <p className="dueDate">Due: {items[0].dueDate}</p>
             </div>
           </>
@@ -96,7 +96,7 @@ function App() {
           <>
             {items.map((item, index) => (
               <div className="item" key={index}>
-                <p>{item.task}</p>
+                <p>{item.title}</p>
                 <p className="dueDate">Due: {item.dueDate}</p>
               </div>
             ))}

@@ -21,7 +21,7 @@ public class TaskController {
   @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @GetMapping("/tasks")
   public ResponseEntity<Flux<Task>> getTasks() {
-    Sort priority = Sort.by(Sort.Direction.DESC, "sliderValue");
+    Sort priority = Sort.by(Sort.Direction.DESC, "priority");
     Flux<Task> tasks = taskRepository.findAll(priority);
     return new ResponseEntity<>(tasks, HttpStatus.OK);
   }
