@@ -82,7 +82,7 @@ function App() {
           <>
             <div className="item">
               <p>{items[0].title}</p>
-              <p className="dueDate">Due: {items[0].dueDate}</p>
+              <p className="dueDate">Due: {items[0].dueDate.split('T')[0]}</p>
             </div>
           </>
         ) : (
