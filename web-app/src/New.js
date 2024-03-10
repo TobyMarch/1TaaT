@@ -12,7 +12,7 @@ function New() {
   const [priority, setPriority] = useState(5);
 
   useEffect(() => {
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = new Date().toISOString().split('.')[0];
     setCreatedDate(currentDate);
     setDueDate(currentDate);
   }, []);
