@@ -19,12 +19,6 @@ Run it using `mvn spring-boot:run` and `mvn dependency:resolve`
 App.js handles the input of the data: name, task, dueDate, addedDate, rating: 1-9, then sends it to the Java backend. 
 App.js also handles the Web-app layout for now. 
 
-### `List.js`
-List.js handles all data received from the Java backend. It will take the data and display it as a specially formatted list. 
-
-### `/sample-java` 
-This directory is sample java code for interacting with the front end.
-
 ## Dependencies
 Axios - is a promise-based HTTP library that lets developers make requests to either their own or a third-party server to fetch data.
 
