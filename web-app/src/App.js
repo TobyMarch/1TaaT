@@ -26,14 +26,6 @@ function App() {
     }
   }, []);
 
-  // const items = [
-  //   { text: "Complete project report", dueDate: "2024-03-10" },
-  //   { text: "Meet with the design team", dueDate: "2024-03-12" },
-  //   { text: "Code review session", dueDate: "2024-03-15" },
-  //   { text: "Update project roadmap", dueDate: "2024-03-18" },
-  //   { text: "Client feedback meeting", dueDate: "2024-03-20" }
-  // ];
-
   const handleOptionChange = (e) => {
     setSelectedOption(e.target.value);
   };
@@ -83,13 +75,14 @@ function App() {
 
           </ul>
         </div>
+
       )}
       <div className={`List ${isThreeColumns ? 'threeColumns' : ''}`}>
         {isThreeColumns ? (
           <>
             <div className="item">
               <p>{items[0].title}</p>
-              <p className="dueDate">Due: {items[0].dueDate}</p>
+              <p className="dueDate">Due: {items[0].dueDate.split('T')[0]}</p>
             </div>
           </>
         ) : (
@@ -97,7 +90,7 @@ function App() {
             {items.map((item, index) => (
               <div className="item" key={index}>
                 <p>{item.title}</p>
-                <p className="dueDate">Due: {item.dueDate}</p>
+                <p className="dueDate">Due: {item.dueDate.split('T')[0]}</p>
               </div>
             ))}
           </>
