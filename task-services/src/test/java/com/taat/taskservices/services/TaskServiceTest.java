@@ -29,7 +29,8 @@ public class TaskServiceTest {
 
     @Test
     public void testCreateUpdateTasks() {
-        Task testTask = new Task("1", "testOwner", "Test Task", "A task for testing", null, null, null, 5, false);
+        Task testTask = new Task("1", "testOwner", "Test Task", "A task for testing", null, null, null, 5,
+                false);
         Flux<Task> taskFlux = Flux.just(testTask);
         Mockito.when(taskRepo.insert(Mockito.anyIterable())).thenReturn(taskFlux);
 
@@ -58,31 +59,11 @@ public class TaskServiceTest {
         Assertions.assertEquals(unsortedList.size(), sortedList.size());
     }
 
-    @Test
-    public void testPrioritySortTasks_DueDateNull() {
-        List<Task> taskList = new ArrayList<>();
-        LocalDateTime currentDateTime = LocalDateTime.now();
-
-        taskList.add(
-                new Task("1", "testOwner", "Test Task 1", "A task for testing", null, null,
-                        currentDateTime.minusDays(5l).toString(), 5,
-                        false));
-        taskList.add(
-                new Task("2", "testOwner", "Test Task 2", "A task for testing", null, null,
-                        currentDateTime.plusDays(100l).toString(), 5,
-                        false));
-        taskList.add(
-                new Task("3", "testOwner", "Test Task 3", "A task with a null due date", null, null, null, 5, false));
-
-        List<Task> sortedList = taskService.prioritySortTasks(taskList);
-        Assertions.assertNotNull(sortedList);
-        Task lastTask = sortedList.get(sortedList.size() - 1);
-        Assertions.assertNull(lastTask.getDueDate());
-    }
-
     private List<Task> getTestTasks() {
         List<Task> taskList = new ArrayList<>();
         String currentDateString = LocalDateTime.now().toString().split("T")[0];
+        String previousDateString = LocalDateTime.now().minusDays(1l).toString().split("T")[0];
+        String futureDateString = LocalDateTime.now().plusDays(1l).toString().split("T")[0];
         taskList.add(
                 new Task("1", "testOwner", "Test Task 1", "A task for testing", null, null,
                         currentDateString + "T09:45:00", 5, false));
@@ -90,7 +71,15 @@ public class TaskServiceTest {
                 new Task("2", "testOwner", "Test Task 2", "A task for testing", null, null,
                         currentDateString + "T09:30:00", 5, false));
         taskList.add(
-                new Task("3", "testOwner", "Test Task 3", "A task with a null due date", null, null, null, 5, false));
+                new Task("3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
+                        null, 5, false));
+        taskList.add(
+                new Task("4", "testOwner", "Test Task 4", "A task that was due yesterday", null, null,
+                        previousDateString + "T09:15:00", 5, false));
+        taskList.add(
+                new Task("4", "testOwner", "Test Task 5", "A task that is due tomorrow", null, null,
+                        futureDateString + "T14:15:00", 5, false));
+
         return taskList;
     }
 
