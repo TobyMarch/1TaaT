@@ -11,7 +11,7 @@ public class TaskStartDateComparator implements Comparator<Task> {
         /*
          * Outer nullsFirst will handle the cases when the Task objects are null.
          * Inner nullsFirst will handle the cases when the return value of
-         * Task::getDueDate is null.
+         * Task::getStartDate is null.
          */
         return Comparator
                 .nullsFirst(Comparator.comparing(Task::getStartDate, Comparator.nullsFirst(Comparator.naturalOrder())))

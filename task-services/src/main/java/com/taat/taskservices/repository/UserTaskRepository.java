@@ -1,0 +1,10 @@
+package com.taat.taskservices.repository;
+
+import com.taat.taskservices.model.UserTask;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UserTaskRepository extends ReactiveMongoRepository<UserTask, String> {
+
+}
