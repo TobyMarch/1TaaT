@@ -17,7 +17,7 @@ import com.taat.taskservices.model.Task;
 public class TaskDelayableComparatorTest {
 
     @Test
-    public void testSort() {
+    public void testCompare() {
         List<Task> taskList = new ArrayList<>();
         LocalDateTime currentDateTime = LocalDateTime.now();
 
