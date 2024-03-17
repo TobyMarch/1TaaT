@@ -25,4 +25,19 @@ public class TaskService {
     public Flux<Task> createUpdateTasks(final List<Task> tasks) {
         return taskRepository.insert(tasks);
     }
+
+    // Delete Method
+    public Mono<Void> deleteById(String id) {
+        return taskRepository.deleteById(id);
+    }
+
+    // Archive Method
+    public Mono<Task> archiveTask(String id) {
+        return taskRepository.findById(id)
+                .flatMap(task -> {
+                    task.setArchived(true);
+                    return taskRepository.save(task);
+                });
+    }
+
 }
