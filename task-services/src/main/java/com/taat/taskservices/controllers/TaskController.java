@@ -33,8 +33,8 @@ public class TaskController {
 
   @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @PostMapping("/tasks")
-  public ResponseEntity<?> addNewTasks(@RequestBody List<Task> tasks) {
-    taskService.createUpdateTasks(tasks).subscribe();
-    return new ResponseEntity<>(HttpStatus.OK);
+  public ResponseEntity<Flux<Task>> addNewTasks(@RequestBody List<Task> tasks) {
+    Flux<Task> returnedTasks = taskService.createUpdateTasks(tasks);
+    return new ResponseEntity<>(returnedTasks, HttpStatus.CREATED);
   }
 }

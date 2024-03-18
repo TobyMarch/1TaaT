@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -14,9 +15,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Sort;
 
 import com.taat.taskservices.model.Task;
+import com.taat.taskservices.model.UserTask;
 import com.taat.taskservices.repository.TaskRepository;
+import com.taat.taskservices.repository.UserTaskRepository;
 
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskServiceTest {
@@ -24,20 +29,46 @@ public class TaskServiceTest {
     @Mock
     TaskRepository taskRepo;
 
+    @Mock
+    UserTaskRepository joinRepo;
+
     @InjectMocks
     TaskService taskService;
 
     @Test
     public void testCreateUpdateTasks() {
-        Task testTask = new Task("1", "testOwner", "Test Task", "A task for testing", null, null, null, 5,
-                false);
-        Flux<Task> taskFlux = Flux.just(testTask);
-        Mockito.when(taskRepo.insert(Mockito.anyIterable())).thenReturn(taskFlux);
+        List<Task> taskList = getTestTasks();
+
+        Flux<Task> taskFlux = Flux.fromIterable(taskList);
+        Flux<UserTask> joinFlux = Flux.fromIterable(getTestTaskJoinEntries());
+        Mockito.when(taskRepo.saveAll(Mockito.anyIterable())).thenReturn(taskFlux);
+        Mockito.when(joinRepo.findUserTaskByUserIdTaskId(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Mono.empty());
+        Mockito.when(joinRepo.findByUserId(Mockito.anyString()))
+                .thenReturn(joinFlux);
+        Mockito.when(joinRepo.insert(Mockito.any(UserTask.class))).thenReturn(Mono.just(new UserTask()));
+        // TODO find a better way to map input to mocked output
+        Mockito.when(taskRepo.findById(ArgumentMatchers.eq("1"))).thenReturn(Mono.just(taskList.get(0)));
+        Mockito.when(taskRepo.findById(ArgumentMatchers.eq("2"))).thenReturn(Mono.just(taskList.get(1)));
+        Mockito.when(taskRepo.findById(ArgumentMatchers.eq("3"))).thenReturn(Mono.just(taskList.get(2)));
+        Mockito.when(taskRepo.findById(ArgumentMatchers.eq("4"))).thenReturn(Mono.just(taskList.get(3)));
+        Mockito.when(taskRepo.findById(ArgumentMatchers.eq("5"))).thenReturn(Mono.just(taskList.get(4)));
 
         List<Task> inputList = new ArrayList<>();
-        inputList.add(testTask);
-        taskService.createUpdateTasks(inputList);
-        Mockito.verify(taskRepo, Mockito.times(1)).insert(Mockito.anyIterable());
+        inputList.addAll(taskList);
+        StepVerifier.create(taskService.createUpdateTasks(inputList))
+                .expectNext(taskList.get(0))
+                .expectNext(taskList.get(1))
+                .expectNext(taskList.get(2))
+                .expectNext(taskList.get(3))
+                .expectNext(taskList.get(4))
+                .verifyComplete();
+
+        Mockito.verify(taskRepo, Mockito.times(1)).saveAll(Mockito.anyIterable());
+        Mockito.verify(joinRepo, Mockito.times(5)).insert(Mockito.any(UserTask.class));
+        Mockito.verify(joinRepo, Mockito.times(1)).findByUserId(Mockito.anyString());
+        Mockito.verify(taskRepo, Mockito.times(5)).findById(Mockito.anyString());
+        Mockito.verify(joinRepo, Mockito.times(1)).saveAll(Mockito.anyIterable());
     }
 
     @Test
@@ -77,10 +108,19 @@ public class TaskServiceTest {
                 new Task("4", "testOwner", "Test Task 4", "A task that was due yesterday", null, null,
                         previousDateString + "T09:15:00", 5, false));
         taskList.add(
-                new Task("4", "testOwner", "Test Task 5", "A task that is due tomorrow", null, null,
+                new Task("5", "testOwner", "Test Task 5", "A task that is due tomorrow", null, null,
                         futureDateString + "T14:15:00", 5, false));
 
         return taskList;
+    }
+
+    private List<UserTask> getTestTaskJoinEntries() {
+        int index = 0;
+        List<UserTask> joinEntries = new ArrayList<>();
+        for (Task task : getTestTasks()) {
+            joinEntries.add(new UserTask(Integer.toString(index++), "", task.getId(), null, null, null));
+        }
+        return joinEntries;
     }
 
 }
