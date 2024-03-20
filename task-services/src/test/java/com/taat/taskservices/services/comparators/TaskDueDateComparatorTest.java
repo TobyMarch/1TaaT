@@ -23,14 +23,14 @@ public class TaskDueDateComparatorTest {
         taskList.add(
                 new Task("1", "testOwner", "Test Task 1", "A task for testing", null, null,
                         currentDateTime.minusDays(5l).toString(), 5,
-                        false));
+                        false, false));
         taskList.add(
                 new Task("2", "testOwner", "Test Task 2", "A task for testing", null, null,
                         currentDateTime.plusDays(100l).toString(), 5,
-                        false));
+                        false, false));
         taskList.add(
                 new Task("3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
-                        null, 5, false));
+                        null, 5, false,false));
 
         TaskDueDateComparator dueDateComparator = new TaskDueDateComparator();
         List<Task> sortedList = taskList.stream().sorted(dueDateComparator).collect(Collectors.toList());
