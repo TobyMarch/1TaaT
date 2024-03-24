@@ -3,32 +3,33 @@ One Thing at a Time.
 
 # 1TaaT - Backend
 
-### backend documentation goes here
+### `mvn spring-boot:run`
+runs the java backend 
 
-
+### Database connection
+Replace the username and password in task-services/src/main/resources/application.properties with your connection string
+spring.data.mongodb.uri=
 
 # 1TaaT - Frontend
 The project was created using create-react-app. 
 
-The `/web-app/src` directory holds the most relevant code that will be used for the front end part of the project.
-The `/web-app/sample-java` directory has sample code for connecting the backend to the front end. 
-Run it using `mvn spring-boot:run` and `mvn dependency:resolve`
-
 ## Files 
 ### `App.js`
-App.js handles the input of the data: name, task, dueDate, addedDate, rating: 1-9, then sends it to the Java backend. 
-App.js also handles the Web-app layout for now. 
+Login.js - handles login screen and request to google, and Java backend
+  App.js - handles layout of the app and the input of the data, then sends to the Java backend. 
 
 ## Dependencies
 Axios - is a promise-based HTTP library that lets developers make requests to either their own or a third-party server to fetch data.
 
 ## Start, Test, Build
-In the `/web-app` directory, you can run:
-Make sure to run `npm install` if it is a new git repository, to add the node_modules.
+In the `/web-app` directory, you can run the following commands:
+
+#### `npm install`
+Make sure to run `npm install` if it is a new git repository, to add node_modules.
 
 #### `npm start`
 Runs the app in the development mode.\
-Open [http://localhost:8080](http://localhost:8080) to view it in your browser.
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
 #### `npm test`
 Launches the test runner in the interactive watch mode.

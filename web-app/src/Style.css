@@ -1,6 +1,8 @@
 /* Base Styles */
-body {
+body, html {
   margin: 0;
+  padding: 0;
+  height: 100%; /* Ensure body and html span the full height */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -17,42 +19,49 @@ body {
 /* App Layout */
 .App {
   text-align: center;
-  height: 100vh;
-  
+  height: 100vh; 
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100vw;
+  width: 100%;
+  overflow: hidden; 
   background: inherit;
 }
-
 .topBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 80vw;
-  padding-top: 2vw;
+  width: 90vw;
+  margin-top: 3vw;
+  margin-bottom: 3px;
+box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ background: linear-gradient(11deg, rgba(175,233,175,.3) 0%, rgba(145,203,184,.3) 100%);
+animation: popin 1s ease forwards;
+border-radius: 20px;
 }
 
 /* Components and Elements */
 .logo, .leftItems, .filterDropdown {
   display: flex;
   align-items: center;
+  padding:3vw;
 }
 
 .filterDropdown {
   z-index: 5;
   flex-grow: 1;
   justify-content: center;
+  
 }
 
 .filterDropdown select {
   font-size: x-large;
   padding: 5px 20px;
-  border-radius: 30px;
+  border-radius: 15px;
   border: none;
   width: 200px;
   height: 60px;
+ background-color: #eee9;
   box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
 }
 
@@ -65,19 +74,18 @@ button {
   background: none;
   padding: 0;
   margin: 0;
-  outline: none; /* Removes the outline shown on focus */
-  cursor: pointer; /* To indicate it's clickable */
-  /* Add any additional styles as needed */
-}
+  outline: none; 
+  cursor: pointer; 
+  }
 
 .bottomRightButton {
   position: absolute;
   bottom: 50px;
   right: 50px;
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  background-color: #496149;
+  width: 70px;
+  height: 70px;
+
   color: white;
   border: none;
   padding: 0;
@@ -85,55 +93,86 @@ button {
   justify-content: center;
   align-items: center;
   cursor: pointer;
+box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+background: #0056b3;
+z-index:10px;
 }
 
 .bottomRightButton:hover {
   background-color: #0056b3;
 }
 
-.menu {
+.add-task-form {
   position: absolute;
   bottom: 130px;
   right: 50px;
-  padding: 5px;
+  padding: 25px;
   z-index: 1;
-  background-color: #eee;
+  height:500px;
+  background-color: #f8ebe4;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
   border-radius: 15px;
 }
 
-.menu li {
-  margin-bottom: 5px;
-  list-style: none;
-}
-
 /* List and Items */
 .List {
-  text-align: center;
-  height: 80vh;
+text-align: center;
+  overflow-y: auto; 
+  height: 100vh; 
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 3vmin);
-  color: black;
+  justify-content: left; 
+  font-size: calc(9px + 3vmin);
+  color: #333;
+  width: 100vw; 
+ 
+
 }
 
 .List.threeColumns {
+
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
+    overflow-y: auto; 
   overflow-x: hidden;
-  max-height: 80vh;
+  width: 100%;
 }
-
-.List div {
-  width: 70vw;
-  height: 300px;
-  margin-bottom: 5%;
+.threeColumns div {
+  width: 80vw;
+  min-height: 200px; 
+  margin-bottom: 20px;
   padding: 1%;
   background-color: #ddd;
+  border-radius: 100px;
+  
+} 
+.item {
+border-radius:30px;
+
+
+}
+.List div {
+  width: 80vw; 
+  min-height: 300px; 
+  margin-bottom: 50px;
+  padding: 20px;
+  background-color: #eee;
   border-radius: 10px;
+  border: solid 2px #fff;
+    
+}
+.archiveButton{
+background-color:#f00;
+padding: 10px;
+border-radius:10px;
+}
+
+.doneButton{
+background-color:#0f0;
+padding: 10px;
+border-radius:10px;
 }
 
 /* Login Styles */
@@ -149,23 +188,13 @@ button {
 .login-form {
   display: flex;
   flex-direction: column;
-  align-items: left;
-  padding: 25px;
+  align-items: center;
+  padding: 20px;
   border-radius: 50px;
-  box-shadow: 7px -3px 15px #fff5, -3px 7px 15px #3033;
+box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ background: linear-gradient(11deg, rgba(175,233,175,.3) 0%, rgba(145,203,184,.3) 100%);
   width: 70%;
   max-width: 500px;
-  background: linear-gradient(11deg, rgba(175,233,175,.5) 0%, rgba(145,203,184,.5) 100%);
-}
-.login-form .logo{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 25px;
-  border-radius: 50px;
-  box-shadow: 7px -3px 15px #fff5, -3px 7px 15px #3033;
-  width: 20%;
-  background: linear-gradient(11deg, rgba(175,233,175,.5) 0%, rgba(145,203,184,.5) 100%);
 }
 
 .login-form h2, .login-form p {
@@ -181,31 +210,34 @@ button {
   padding: 20px;
   margin-bottom: 25px;
   border-radius: 20px;
-  border: 1px solid #eee;
-  box-shadow: 7px -3px 15px #fff6, -3px 7px 15px #3033;
+  border: 0px solid #eee;
+ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ background: linear-gradient(11deg, rgba(245,255,245,.6) 0%, rgba(185,255,234,.5) 100%);
   font-size: large;
+  color: #000;
 }
 
 .login-form .locallogin {
   width: 50%;
   padding: 10px;
-  background-color: #eee;
   color: #000;
   border: none;
   border-radius: 50px;
   cursor: pointer;
-  box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
+ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ background: #eee;
   font-size: large;
 }
 
 .login-form button:hover {
-  background-color: #aca;
+  background-color: #fff;
 }
 
 /* Additional Styles */
 .google-login-button {
   width: 20vw;
-  height: 10vh;
+  height: 70px;
+background-color: #fff;
 }
 
 .google-logo {
