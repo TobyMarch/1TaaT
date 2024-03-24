@@ -24,12 +24,12 @@ public class TaskStartDateComparatorTest {
 
         taskList.add(new Task("1", "testOwner", "Test Task 1", "A task for testing", null,
                 currentDateTime.minusDays(1).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)), null, 5,
-                false));
+                false, false));
         taskList.add(new Task("2", "testOwner", "Test Task 2", "A task for testing", null,
                 currentDateTime.minusDays(2).format(DateTimeFormatter.ofPattern(Constants.DATE_FORMAT)), null, 5,
-                false));
+                false, false));
         taskList.add(
-                new Task("3", "testOwner", "Test Task 3", "A task with a null start date", null, null, null, 5, false));
+                new Task("3", "testOwner", "Test Task 3", "A task with a null start date", null, null, null, 5, false, false));
 
         TaskStartDateComparator startDateComparator = new TaskStartDateComparator();
         List<Task> sortedList = taskList.stream().sorted(startDateComparator).collect(Collectors.toList());
