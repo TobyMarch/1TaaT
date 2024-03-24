@@ -39,4 +39,6 @@ public class Task {
   private int priority;
 
   private boolean isDelayable;
+
+  private boolean archived;
 }

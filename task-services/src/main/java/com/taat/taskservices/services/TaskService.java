@@ -23,6 +23,7 @@ import com.taat.taskservices.services.filters.TaskCurrentOrOverdueFilter;
 
 import lombok.NonNull;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class TaskService {
@@ -95,6 +96,18 @@ public class TaskService {
             logger.error("Exception in save/update", e);
         }
         return null;
+    }
+
+    public Mono<Void> deleteById(String id) {
+        return taskRepository.deleteById(id);
+    }
+
+    public Mono<Task> archiveTask(String id) {
+        return taskRepository.findById(id)
+                .flatMap(task -> {
+                    task.setArchived(true);
+                    return taskRepository.save(task);
+                });
     }
 
     protected List<Task> prioritySortTasks(@NonNull final List<Task> taskList) {

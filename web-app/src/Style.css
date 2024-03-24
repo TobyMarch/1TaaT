@@ -1,76 +1,91 @@
-/* CSS for App.js, List.js */
-
-body {
+/* Base Styles */
+body, html {
   margin: 0;
+  padding: 0;
+  height: 100%; /* Ensure body and html span the full height */
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: rgb(175,233,175);
-background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 100%);
+  background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 100%);
 }
-button {
-  background-color: transparent;
-  border: none;
+
+/* Custom Font */
+@font-face {
+  font-family: BrownBagLunch;
+  src: url(./fonts/BrownBagLunch.ttf);
 }
+
+/* App Layout */
 .App {
   text-align: center;
-  background-color: #afe9afff;
-  height: 100vh;
-  padding: 3vh;
+  height: 100vh; 
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100vw;
-   background: rgb(175,233,175);
-background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 100%);
-}
-.leftItems, .filterDropdown, .logo {
-  display: flex;
-  align-items: center;
-}
-
-.filterDropdown {
-  z-index:5;
-  flex-grow: 1;
-  justify-content: center;
-
-}
-.filterDropdown select {
-  padding: 5px 10px;
-  border-radius: 5px;
-  border: 0px solid #ccc;
-  width:180px;
-  height:40px;
-    box-shadow:
-    3px -3px 10px #fff6,
-    -5px 5px 11px #0022;
-
+  width: 100%;
+  overflow: hidden; 
+  background: inherit;
 }
 .topBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  padding: 20px;
+  width: 90vw;
+  margin-top: 3vw;
+  margin-bottom: 3px;
+box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ background: linear-gradient(11deg, rgba(175,233,175,.3) 0%, rgba(145,203,184,.3) 100%);
+animation: popin 1s ease forwards;
+border-radius: 20px;
+}
+
+/* Components and Elements */
+.logo, .leftItems, .filterDropdown {
+  display: flex;
+  align-items: center;
+  padding:3vw;
+}
+
+.filterDropdown {
+  z-index: 5;
+  flex-grow: 1;
+  justify-content: center;
+  
+}
+
+.filterDropdown select {
+  font-size: x-large;
+  padding: 5px 20px;
+  border-radius: 15px;
+  border: none;
+  width: 200px;
+  height: 60px;
+ background-color: #eee9;
+  box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
 }
 
 .buttons {
   display: flex;
   justify-content: space-between;
-  width: 70%;
-  margin-top: 20px;
 }
+button {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  outline: none; 
+  cursor: pointer; 
+  }
 
 .bottomRightButton {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: 50px;
+  right: 50px;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  background-color: #496149ff;
+  width: 70px;
+  height: 70px;
+
   color: white;
   border: none;
   padding: 0;
@@ -78,116 +93,96 @@ background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 
   justify-content: center;
   align-items: center;
   cursor: pointer;
+box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+background: #0056b3;
+z-index:10px;
 }
 
 .bottomRightButton:hover {
   background-color: #0056b3;
 }
+
+.add-task-form {
+  position: absolute;
+  bottom: 130px;
+  right: 50px;
+  padding: 25px;
+  z-index: 1;
+  height:500px;
+  background-color: #f8ebe4;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+}
+
+/* List and Items */
 .List {
-  text-align: center;
-  height: 80vh;
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 3vmin);
-  color: black;
-}
-
-.list ul {
-  background-color: #e5ffd5ff;
-  list-style-type: none;
-  padding: 0;
-}
-
-.list ul li {
-  margin-bottom: 10px;
-  background-color: #e5ffd5ff;
-}
-
-.App-header {
-  min-height: 20vh;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 3vmin);
-  color: white;
-}
-
-.App-link {
-  color: #3339;
-  text-decoration: none;
-}
-
-.bottom-right-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.bottom-right-button:hover {
-  background-color: #0056b3;
-}
-
-.List {
+text-align: center;
+  overflow-y: auto; 
+  height: 100vh; 
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: left; 
+  font-size: calc(9px + 3vmin);
+  color: #333;
+  width: 100vw; 
+ 
+
 }
 
 .List.threeColumns {
-  display: flex;
+
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
+    overflow-y: auto; 
   overflow-x: hidden;
-  max-height: 80vh;
+  width: 100%;
 }
-
-
-.List div {
-  width: 70vw;
-  height: 300px;
-  margin-bottom: 5%;
+.threeColumns div {
+  width: 80vw;
+  min-height: 200px; 
+  margin-bottom: 20px;
   padding: 1%;
   background-color: #ddd;
-  border-radius: 10px;
-}
+  border-radius: 100px;
+  
+} 
+.item {
+border-radius:30px;
 
-.menu {
-  position: absolute;
-  height: 170px;
-  bottom: 70px;
-  right: 10px;
-  padding: 5px;
-  z-index: 1;
+
+}
+.List div {
+  width: 80vw; 
+  min-height: 300px; 
+  margin-bottom: 50px;
+  padding: 20px;
   background-color: #eee;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-  border-radius: 15px;
-
-
+  border-radius: 10px;
+  border: solid 2px #fff;
+    
 }
-.menu li{
-  margin-bottom: 5px;
-  list-style: none;
-}
-.toggleButton {
-  margin-top: 10px;
+.archiveButton{
+background-color:#f00;
+padding: 10px;
+border-radius:10px;
 }
 
+.doneButton{
+background-color:#0f0;
+padding: 10px;
+border-radius:10px;
+}
+
+/* Login Styles */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
+  animation: popin 1s ease forwards;
 }
 
 .login-form {
@@ -195,51 +190,58 @@ background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 
   flex-direction: column;
   align-items: center;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
+  border-radius: 50px;
+box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ background: linear-gradient(11deg, rgba(175,233,175,.3) 0%, rgba(145,203,184,.3) 100%);
   width: 70%;
-  max-width: 400px;
+  max-width: 500px;
 }
 
-.login-form h2 {
-  margin-bottom: 20px;
+.login-form h2, .login-form p {
+  margin-bottom: 30px;
+  font-family: BrownBagLunch;
+  font-weight: 100;
+  font-size: 70px;
+  color: #496149;
 }
 
-.login-form input {
-  width: 100%;
+.login-form input, .login-form .locallogin {
+    width: 70%;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 20px;
+  border: 0px solid #eee;
+ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ background: linear-gradient(11deg, rgba(245,255,245,.6) 0%, rgba(185,255,234,.5) 100%);
+  font-size: large;
+  color: #000;
+}
+
+.login-form .locallogin {
+  width: 50%;
   padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
-.login-form button {
-  width: 90%;
-  padding: 10px;
-  background-color: #496149;
-  color: white;
+  color: #000;
   border: none;
-  border-radius: 5px;
+  border-radius: 50px;
   cursor: pointer;
-   box-shadow:
-    3px -3px 10px #fff6,
-    -5px 5px 11px #0022;
+ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ background: #eee;
+  font-size: large;
 }
 
 .login-form button:hover {
-  background-color: #f789;
+  background-color: #fff;
 }
 
-.logo {
-  position: relative;
-  max-width: 50px;
-  margin: auto;
-
+/* Additional Styles */
+.google-login-button {
+  width: 20vw;
+  height: 70px;
+background-color: #fff;
 }
 
-.login-form p {
-  font-size: 20px;
-  color: #333;
+.google-logo {
+  width: 5vw;
 }
 
 .input {
@@ -250,4 +252,15 @@ background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 
   color: #888;
   font-size: 0.8em;
   margin-top: 10px;
+}
+
+@keyframes popin {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
