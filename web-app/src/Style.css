@@ -1,76 +1,83 @@
-/* CSS for App.js, List.js */
-
+/* Base Styles */
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: rgb(175,233,175);
-background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 100%);
+  background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 100%);
 }
-button {
-  background-color: transparent;
-  border: none;
+
+/* Custom Font */
+@font-face {
+  font-family: BrownBagLunch;
+  src: url(./fonts/BrownBagLunch.ttf);
 }
+
+/* App Layout */
 .App {
   text-align: center;
-  background-color: #afe9afff;
   height: 100vh;
-  padding: 3vh;
+  
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100vw;
-   background: rgb(175,233,175);
-background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 100%);
+  background: inherit;
 }
-.leftItems, .filterDropdown, .logo {
+
+.topBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 80vw;
+  padding-top: 2vw;
+}
+
+/* Components and Elements */
+.logo, .leftItems, .filterDropdown {
   display: flex;
   align-items: center;
 }
 
 .filterDropdown {
-  z-index:5;
+  z-index: 5;
   flex-grow: 1;
   justify-content: center;
-
 }
+
 .filterDropdown select {
-  padding: 5px 10px;
-  border-radius: 5px;
-  border: 0px solid #ccc;
-  width:180px;
-  height:40px;
-    box-shadow:
-    3px -3px 10px #fff6,
-    -5px 5px 11px #0022;
-
-}
-.topBar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  padding: 20px;
+  font-size: x-large;
+  padding: 5px 20px;
+  border-radius: 30px;
+  border: none;
+  width: 200px;
+  height: 60px;
+  box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
 }
 
 .buttons {
   display: flex;
   justify-content: space-between;
-  width: 70%;
-  margin-top: 20px;
+}
+button {
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  outline: none; /* Removes the outline shown on focus */
+  cursor: pointer; /* To indicate it's clickable */
+  /* Add any additional styles as needed */
 }
 
 .bottomRightButton {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  bottom: 50px;
+  right: 50px;
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  background-color: #496149ff;
+  width: 60px;
+  height: 60px;
+  background-color: #496149;
   color: white;
   border: none;
   padding: 0;
@@ -83,11 +90,28 @@ background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 
 .bottomRightButton:hover {
   background-color: #0056b3;
 }
+
+.menu {
+  position: absolute;
+  bottom: 130px;
+  right: 50px;
+  padding: 5px;
+  z-index: 1;
+  background-color: #eee;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  border-radius: 15px;
+}
+
+.menu li {
+  margin-bottom: 5px;
+  list-style: none;
+}
+
+/* List and Items */
 .List {
   text-align: center;
   height: 80vh;
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
@@ -95,62 +119,13 @@ background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 
   color: black;
 }
 
-.list ul {
-  background-color: #e5ffd5ff;
-  list-style-type: none;
-  padding: 0;
-}
-
-.list ul li {
-  margin-bottom: 10px;
-  background-color: #e5ffd5ff;
-}
-
-.App-header {
-  min-height: 20vh;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 3vmin);
-  color: white;
-}
-
-.App-link {
-  color: #3339;
-  text-decoration: none;
-}
-
-.bottom-right-button {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.bottom-right-button:hover {
-  background-color: #0056b3;
-}
-
-.List {
-  display: flex;
-  flex-direction: column;
-}
-
 .List.threeColumns {
-  display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
   overflow-x: hidden;
   max-height: 80vh;
 }
-
 
 .List div {
   width: 70vw;
@@ -161,85 +136,80 @@ background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 
   border-radius: 10px;
 }
 
-.menu {
-  position: absolute;
-  height: 170px;
-  bottom: 70px;
-  right: 10px;
-  padding: 5px;
-  z-index: 1;
-  background-color: #eee;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-  border-radius: 15px;
-
-
-}
-.menu li{
-  margin-bottom: 5px;
-  list-style: none;
-}
-.toggleButton {
-  margin-top: 10px;
-}
-
+/* Login Styles */
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  width: 100vw;
   height: 100vh;
+  animation: popin 1s ease forwards;
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
+  align-items: left;
+  padding: 25px;
+  border-radius: 50px;
+  box-shadow: 7px -3px 15px #fff5, -3px 7px 15px #3033;
   width: 70%;
-  max-width: 400px;
+  max-width: 500px;
+  background: linear-gradient(11deg, rgba(175,233,175,.5) 0%, rgba(145,203,184,.5) 100%);
+}
+.login-form .logo{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 25px;
+  border-radius: 50px;
+  box-shadow: 7px -3px 15px #fff5, -3px 7px 15px #3033;
+  width: 20%;
+  background: linear-gradient(11deg, rgba(175,233,175,.5) 0%, rgba(145,203,184,.5) 100%);
 }
 
-.login-form h2 {
-  margin-bottom: 20px;
+.login-form h2, .login-form p {
+  margin-bottom: 30px;
+  font-family: BrownBagLunch;
+  font-weight: 100;
+  font-size: 70px;
+  color: #496149;
 }
 
-.login-form input {
-  width: 100%;
+.login-form input, .login-form .locallogin {
+    width: 70%;
+  padding: 20px;
+  margin-bottom: 25px;
+  border-radius: 20px;
+  border: 1px solid #eee;
+  box-shadow: 7px -3px 15px #fff6, -3px 7px 15px #3033;
+  font-size: large;
+}
+
+.login-form .locallogin {
+  width: 50%;
   padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-}
-
-.login-form button {
-  width: 90%;
-  padding: 10px;
-  background-color: #496149;
-  color: white;
+  background-color: #eee;
+  color: #000;
   border: none;
-  border-radius: 5px;
+  border-radius: 50px;
   cursor: pointer;
-   box-shadow:
-    3px -3px 10px #fff6,
-    -5px 5px 11px #0022;
+  box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
+  font-size: large;
 }
 
 .login-form button:hover {
-  background-color: #f789;
+  background-color: #aca;
 }
 
-.logo {
-  position: relative;
-  max-width: 50px;
-  margin: auto;
-
+/* Additional Styles */
+.google-login-button {
+  width: 20vw;
+  height: 10vh;
 }
 
-.login-form p {
-  font-size: 20px;
-  color: #333;
+.google-logo {
+  width: 5vw;
 }
 
 .input {
@@ -250,4 +220,15 @@ background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 
   color: #888;
   font-size: 0.8em;
   margin-top: 10px;
+}
+
+@keyframes popin {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
