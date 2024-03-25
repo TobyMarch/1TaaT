@@ -1,12 +1,13 @@
 package com.taat.taskservices.services;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,16 @@ public class TaskService {
     public Flux<Task> getPrioritizedTasks() {
         Sort priority = Sort.by(Sort.Direction.DESC, "priority");
         return taskRepository.findAll(priority);
+    }
+
+    public Flux<Task> getPaginatedTasks(Pageable pageable) {
+        Sort priority = Sort.by(Sort.Direction.DESC, "priority");
+        Pageable defaultSortingPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), priority);
+        return taskRepository.findAllBy(defaultSortingPageable);
+    }
+
+    public Mono<Long> getTaskCount() {
+        return taskRepository.count();
     }
 
     public Flux<Task> createUpdateTasks(final List<Task> tasks) {
