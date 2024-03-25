@@ -3,6 +3,9 @@ package com.taat.taskservices.controllers;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,9 +33,23 @@ public class TaskController {
   @Autowired
   TaskService taskService;
 
-  @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Flux<Task>> getTasks() {
-    Flux<Task> tasks = taskService.getPrioritizedTasks();
+      Flux<Task> tasks = taskService.getPrioritizedTasks();
+      return new ResponseEntity<>(tasks, HttpStatus.OK);
+  }
+
+  @GetMapping(path = "/top", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Mono<Task>> getTopTask() {
+      Mono<Task> tasks = taskService.getPrioritizedTasks().next();
+      return new ResponseEntity<>(tasks, HttpStatus.OK);
+  }
+
+  @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<Mono<Page<Task>>> getPaginatedTasks(Pageable pageable) {
+      Mono<Page<Task>> tasks = taskService.getPaginatedTasks(pageable)
+              .collectList().zipWith(taskService.getTaskCount())
+              .map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()));
     return new ResponseEntity<>(tasks, HttpStatus.OK);
   }
 

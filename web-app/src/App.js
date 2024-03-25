@@ -4,12 +4,12 @@ import './Style.css';
 import logo from './img/logo.svg';
 import { ReactComponent as SVGSingle } from './img/single.svg';
 import { ReactComponent as SVGMulti } from './img/multi.svg';
-import { TASK_API_URL } from './URLConstants';
+import { TASK_API_URL, ALL_TASKS_API_URL } from './URLConstants';
 import { ReactComponent as SVGAdd } from './img/add.svg';
 
 function App() {
-   const [owner, setOwner] = useState('');
- const [createdDate, setCreatedDate] = useState('');
+  const [owner, setOwner] = useState('');
+  const [createdDate, setCreatedDate] = useState('');
 
   const [isThreeColumns, setIsThreeColumns] = useState(false);
   const [items, setItems] = useState([]);
@@ -25,7 +25,7 @@ function App() {
 
   useEffect(() => {
     try {
-      axios.get(TASK_API_URL).then((res) => {
+        axios.get(ALL_TASKS_API_URL).then((res) => {
         setItems(res.data);
       });
     } catch (e) {
