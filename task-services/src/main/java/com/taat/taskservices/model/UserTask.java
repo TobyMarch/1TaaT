@@ -31,4 +31,6 @@ public class UserTask {
     private LocalDateTime skipUntil;
 
     private LocalDateTime lastSorted;
+
+    private boolean archived;
 }

@@ -134,6 +134,16 @@ public class TaskService {
                 .flatMap(task -> {
                     task.setArchived(true);
                     return taskRepository.save(task);
+                }).doOnSuccess(savedTask -> {
+                    userTaskRepository.findByTaskId(id).map(Optional::of).defaultIfEmpty(Optional.empty())
+                            .flatMap(optionalUserTask -> {
+                                if (optionalUserTask.isPresent()) {
+                                    UserTask userTaskRecord = optionalUserTask.get();
+                                    userTaskRecord.setArchived(true);
+                                    userTaskRepository.save(userTaskRecord).block();
+                                }
+                                return Mono.empty();
+                            }).subscribe();
                 });
     }
 

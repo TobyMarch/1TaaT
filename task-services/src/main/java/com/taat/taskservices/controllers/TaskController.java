@@ -1,12 +1,14 @@
 package com.taat.taskservices.controllers;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.taat.taskservices.model.Task;
+import com.taat.taskservices.model.UserTask;
+import com.taat.taskservices.repository.UserTaskRepository;
 import com.taat.taskservices.services.TaskService;
 
 import reactor.core.publisher.Flux;
@@ -29,6 +33,9 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/tasks")
 @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
 public class TaskController {
+
+    @Autowired
+    UserTaskRepository userTaskRepository;
 
   @Autowired
   TaskService taskService;
@@ -71,5 +78,19 @@ public class TaskController {
       return taskService.archiveTask(id)
               .map(updatedTask -> new ResponseEntity<>(updatedTask, HttpStatus.OK))
               .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+  }
+
+  @PutMapping(path = "/{id}/archive/usertask", produces = MediaType.APPLICATION_JSON_VALUE)
+  public Mono<ResponseEntity<Task>> archiveTaskUserTask(@PathVariable String id) {
+      userTaskRepository.findByTaskId(id).map(Optional::of).defaultIfEmpty(Optional.empty())
+              .flatMap(optionalUserTask -> {
+                  if (optionalUserTask.isPresent()) {
+                      UserTask userTaskRecord = optionalUserTask.get();
+                      userTaskRecord.setArchived(true);
+                      userTaskRepository.save(userTaskRecord);
+                  }
+                  return Mono.empty();
+              });
+      return Mono.just(new ResponseEntity<>(HttpStatus.OK));
   }
 }

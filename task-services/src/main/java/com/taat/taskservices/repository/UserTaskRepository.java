@@ -3,6 +3,7 @@ package com.taat.taskservices.repository;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.data.mongodb.repository.Update;
 import org.springframework.stereotype.Repository;
 
 import com.taat.taskservices.model.Task;
@@ -26,6 +27,9 @@ public interface UserTaskRepository extends ReactiveMongoRepository<UserTask, St
 
     @Query("{userId: '?0'}")
     Flux<UserTask> findByUserId(String userId);
+
+    @Query("{taskId: '?0'}")
+    Flux<UserTask> findByTaskId(String taskId);
 
     Flux<UserTask> deleteByTaskId(String taskId);
 }

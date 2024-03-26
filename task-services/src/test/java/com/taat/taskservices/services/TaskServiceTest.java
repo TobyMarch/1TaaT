@@ -32,7 +32,7 @@ public class TaskServiceTest {
     TaskRepository taskRepo;
 
     @Mock
-    UserTaskRepository joinRepo;
+    UserTaskRepository userTaskRepo;
 
     @InjectMocks
     TaskService taskService;
@@ -44,36 +44,30 @@ public class TaskServiceTest {
         Flux<Task> taskFlux = Flux.fromIterable(taskList);
         Flux<UserTask> joinFlux = Flux.fromIterable(getTestTaskJoinEntries());
         Mockito.when(taskRepo.saveAll(Mockito.anyIterable())).thenReturn(taskFlux);
-        Mockito.when(joinRepo.findUserTaskByUserIdTaskId(Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(userTaskRepo.findUserTaskByUserIdTaskId(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.empty());
-        Mockito.when(joinRepo.findByUserId(Mockito.anyString()))
+        Mockito.when(userTaskRepo.findByUserId(Mockito.anyString()))
                 .thenReturn(joinFlux);
-        Mockito.when(joinRepo.insert(Mockito.any(UserTask.class))).thenReturn(Mono.just(new UserTask()));
+        Mockito.when(userTaskRepo.insert(Mockito.any(UserTask.class))).thenReturn(Mono.just(new UserTask()));
         // TODO find a better way to map input to mocked output
         Mockito.when(taskRepo.findById(ArgumentMatchers.eq("1"))).thenReturn(Mono.just(taskList.get(0)));
         Mockito.when(taskRepo.findById(ArgumentMatchers.eq("2"))).thenReturn(Mono.just(taskList.get(1)));
         Mockito.when(taskRepo.findById(ArgumentMatchers.eq("3"))).thenReturn(Mono.just(taskList.get(2)));
         Mockito.when(taskRepo.findById(ArgumentMatchers.eq("4"))).thenReturn(Mono.just(taskList.get(3)));
         Mockito.when(taskRepo.findById(ArgumentMatchers.eq("5"))).thenReturn(Mono.just(taskList.get(4)));
-        Mockito.when(joinRepo.saveAll(ArgumentMatchers.anyList())).thenReturn(joinFlux);
+        Mockito.when(userTaskRepo.saveAll(ArgumentMatchers.anyList())).thenReturn(joinFlux);
 
         List<Task> inputList = new ArrayList<>();
         inputList.addAll(taskList);
         StepVerifier.create(taskService.createUpdateTasks(inputList))
                 .expectNext(taskList)
                 .verifyComplete();
-        // .expectNext(taskList.get(0))
-        // .expectNext(taskList.get(1))
-        // .expectNext(taskList.get(2))
-        // .expectNext(taskList.get(3))
-        // .expectNext(taskList.get(4))
-        // .verifyComplete();
 
         Mockito.verify(taskRepo, Mockito.times(1)).saveAll(Mockito.anyIterable());
-        Mockito.verify(joinRepo, Mockito.times(5)).insert(Mockito.any(UserTask.class));
-        Mockito.verify(joinRepo, Mockito.times(1)).findByUserId(Mockito.anyString());
+        Mockito.verify(userTaskRepo, Mockito.times(5)).insert(Mockito.any(UserTask.class));
+        Mockito.verify(userTaskRepo, Mockito.times(1)).findByUserId(Mockito.anyString());
         Mockito.verify(taskRepo, Mockito.times(5)).findById(Mockito.anyString());
-        Mockito.verify(joinRepo, Mockito.times(1)).saveAll(Mockito.anyIterable());
+        Mockito.verify(userTaskRepo, Mockito.times(1)).saveAll(Mockito.anyIterable());
     }
 
     @Test
@@ -115,13 +109,13 @@ public class TaskServiceTest {
     public void testDeleteById() {
         String taskId = "1";
         Mockito.when(taskRepo.deleteById(taskId)).thenReturn(Mono.empty());
-        Mockito.when(joinRepo.deleteByTaskId(taskId)).thenReturn(Flux.empty());
+        Mockito.when(userTaskRepo.deleteByTaskId(taskId)).thenReturn(Flux.empty());
 
         Mono<Void> result = taskService.deleteById(taskId);
 
         StepVerifier.create(result).verifyComplete();
         Mockito.verify(taskRepo, Mockito.times(1)).deleteById(taskId);
-        Mockito.verify(joinRepo, Mockito.times(1)).deleteByTaskId(taskId);
+        Mockito.verify(userTaskRepo, Mockito.times(1)).deleteByTaskId(taskId);
     }
 
     @Test
@@ -131,6 +125,9 @@ public class TaskServiceTest {
         
         Mockito.when(taskRepo.findById(taskId)).thenReturn(Mono.just(testTask));
         Mockito.when(taskRepo.save(testTask)).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+        Mockito.when(userTaskRepo.findByTaskId(taskId)).thenReturn(Flux.just(getTestTaskJoinEntries().get(0)));
+        Mockito.when(userTaskRepo.save(Mockito.any(UserTask.class)))
+                .thenReturn(Mono.just(getTestTaskJoinEntries().get(0)));
 
         Mono<Task> result = taskService.archiveTask(taskId);
 
@@ -141,6 +138,8 @@ public class TaskServiceTest {
 
         Mockito.verify(taskRepo, Mockito.times(1)).findById(taskId);
         Mockito.verify(taskRepo, Mockito.times(1)).save(testTask);
+        Mockito.verify(userTaskRepo, Mockito.times(1)).findByTaskId(taskId);
+        Mockito.verify(userTaskRepo, Mockito.times(1)).save(Mockito.any(UserTask.class));
     }
 
 
@@ -173,7 +172,7 @@ public class TaskServiceTest {
         int index = 0;
         List<UserTask> joinEntries = new ArrayList<>();
         for (Task task : getTestTasks()) {
-            joinEntries.add(new UserTask(Integer.toString(index++), "", task.getId(), null, null, null));
+            joinEntries.add(new UserTask(Integer.toString(index++), "", task.getId(), null, null, null, false));
         }
         return joinEntries;
     }
