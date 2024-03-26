@@ -55,16 +55,19 @@ public class TaskServiceTest {
         Mockito.when(taskRepo.findById(ArgumentMatchers.eq("3"))).thenReturn(Mono.just(taskList.get(2)));
         Mockito.when(taskRepo.findById(ArgumentMatchers.eq("4"))).thenReturn(Mono.just(taskList.get(3)));
         Mockito.when(taskRepo.findById(ArgumentMatchers.eq("5"))).thenReturn(Mono.just(taskList.get(4)));
+        Mockito.when(joinRepo.saveAll(ArgumentMatchers.anyList())).thenReturn(joinFlux);
 
         List<Task> inputList = new ArrayList<>();
         inputList.addAll(taskList);
         StepVerifier.create(taskService.createUpdateTasks(inputList))
-                .expectNext(taskList.get(0))
-                .expectNext(taskList.get(1))
-                .expectNext(taskList.get(2))
-                .expectNext(taskList.get(3))
-                .expectNext(taskList.get(4))
+                .expectNext(taskList)
                 .verifyComplete();
+        // .expectNext(taskList.get(0))
+        // .expectNext(taskList.get(1))
+        // .expectNext(taskList.get(2))
+        // .expectNext(taskList.get(3))
+        // .expectNext(taskList.get(4))
+        // .verifyComplete();
 
         Mockito.verify(taskRepo, Mockito.times(1)).saveAll(Mockito.anyIterable());
         Mockito.verify(joinRepo, Mockito.times(5)).insert(Mockito.any(UserTask.class));

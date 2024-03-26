@@ -41,7 +41,7 @@ public class TaskController {
 
   @GetMapping(path = "/top", produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<Mono<Task>> getTopTask() {
-      Mono<Task> tasks = taskService.getPrioritizedTasks().next();
+      Mono<Task> tasks = taskService.getTopTask("");
       return new ResponseEntity<>(tasks, HttpStatus.OK);
   }
 
@@ -54,9 +54,9 @@ public class TaskController {
   }
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Flux<Task>> addNewTasks(@RequestBody List<Task> tasks) {
-    taskService.createUpdateTasks(tasks).subscribe();
-    return new ResponseEntity<>(HttpStatus.CREATED);
+  public ResponseEntity<Mono<List<Task>>> addNewTasks(@RequestBody List<Task> tasks) {
+      Mono<List<Task>> taskFlux = taskService.createUpdateTasks(tasks);
+      return new ResponseEntity<>(taskFlux, HttpStatus.CREATED);
   }
 
   @DeleteMapping("/{id}")

@@ -1,5 +1,8 @@
 package com.taat.taskservices.controllers;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +43,8 @@ public class TaskControllerTest {
 
     @Test
     public void testGetTopTask() {
-        Flux<Task> taskFlux = Flux.fromIterable(getTestTasks());
-        Mockito.when(taskService.getPrioritizedTasks()).thenReturn(taskFlux);
+        Mono<Task> taskFlux = Mono.just(getTestTasks().get(0));
+        Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(taskFlux);
         ResponseEntity<Mono<Task>> results = taskController.getTopTask();
         Assertions.assertNotNull(results);
     }
