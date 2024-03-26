@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.taat.taskservices.model.Task;
-import com.taat.taskservices.repository.UserTaskRepository;
 import com.taat.taskservices.services.TaskService;
 
 import reactor.core.publisher.Flux;
@@ -30,9 +29,6 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/tasks")
 @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
 public class TaskController {
-
-    @Autowired
-    UserTaskRepository userTaskRepository;
 
   @Autowired
   TaskService taskService;
