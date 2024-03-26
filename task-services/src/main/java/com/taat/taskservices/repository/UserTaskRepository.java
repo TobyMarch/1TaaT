@@ -26,4 +26,6 @@ public interface UserTaskRepository extends ReactiveMongoRepository<UserTask, St
 
     @Query("{userId: '?0'}")
     Flux<UserTask> findByUserId(String userId);
+
+    Flux<UserTask> deleteByTaskId(String taskId);
 }

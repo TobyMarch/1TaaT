@@ -124,7 +124,9 @@ public class TaskService {
     }
 
     public Mono<Void> deleteById(String id) {
-        return taskRepository.deleteById(id);
+        return taskRepository.deleteById(id).doOnSuccess(success -> {
+            userTaskRepository.deleteByTaskId(id).blockLast();
+        });
     }
 
     public Mono<Task> archiveTask(String id) {

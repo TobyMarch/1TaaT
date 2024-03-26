@@ -115,11 +115,13 @@ public class TaskServiceTest {
     public void testDeleteById() {
         String taskId = "1";
         Mockito.when(taskRepo.deleteById(taskId)).thenReturn(Mono.empty());
+        Mockito.when(joinRepo.deleteByTaskId(taskId)).thenReturn(Flux.empty());
 
         Mono<Void> result = taskService.deleteById(taskId);
 
         StepVerifier.create(result).verifyComplete();
         Mockito.verify(taskRepo, Mockito.times(1)).deleteById(taskId);
+        Mockito.verify(joinRepo, Mockito.times(1)).deleteByTaskId(taskId);
     }
 
     @Test
