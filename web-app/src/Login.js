@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useCookies } from 'react-cookie';
 import './Style.css';
 import { useNavigate } from 'react-router-dom';
 import App from './App';
@@ -6,9 +7,26 @@ import logo from './img/logo.svg';
 
 function Login() {
   const [loggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState(false);
+  const [cookies] = useCookies(['XSRF-TOKEN']);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    fetch('http://localhost:8080/api/users/user', { credentials: 'include' })
+      .then(response => response.text())
+      .then(body => {
+        if (body === '') {
+          setLoggedIn(false);
+          console.log('Not authenticated');
+        } else {
+          setUser(JSON.parse(body));
+          setLoggedIn(true);
+          console.log(`Authenticated as ${JSON.parse(body).name}`);
+        }
+      });
+  }, [setLoggedIn, setUser])
 
   const handleLogin = () => {
     if (username && password) {
@@ -20,9 +38,7 @@ function Login() {
   };
 
   const handleGoogleLogin = () => {
-    // Placeholder for Google login logic
-    console.log('Google Sign-In logic will go here.');
-    // For example, setLoggedIn(true) and navigate('/app') after successful Google authentication
+    window.location.href = 'http://localhost:8080/private';
   };
 
   const handleLogout = () => {
@@ -32,11 +48,7 @@ function Login() {
   };
 
   return (
-    <>
-    
     <div className="login-container">
-      {!loggedIn ? (
-      
         <div className="login-form">
           <img src={logo} alt="Logo" className="logo" />
           <h2>1TaaT Login</h2>
@@ -69,11 +81,7 @@ function Login() {
           </button>
           <button class="createAccount" onClick={handleLogin}>Create Account</button>
         </div>
-      ) : (
-        <App onLogout={handleLogout} />
-      )}
     </div>
-    </>
   );
 }
 
