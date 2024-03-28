@@ -44,20 +44,18 @@ public class TaskController {
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
-    // @GetMapping(path = "/top", produces = MediaType.APPLICATION_JSON_VALUE)
-    // public ResponseEntity<Mono<Task>> getTopTask() {
-    // Mono<Task> tasks = taskService.getTopTask("");
-    // return new ResponseEntity<>(tasks, HttpStatus.OK);
-    // }
+    @GetMapping(path = "/top", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Task> getTopTask() {
+        Task tasks = taskService.getTopTask("");
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    }
 
-    // @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    // public ResponseEntity<Mono<Page<Task>>> getPaginatedTasks(Pageable pageable)
-    // {
-    // Mono<Page<Task>> tasks = taskService.getPaginatedTasks(pageable)
-    // .collectList().zipWith(taskService.getTaskCount())
-    // .map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()));
-    // return new ResponseEntity<>(tasks, HttpStatus.OK);
-    // }
+    @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Page<Task>> getPaginatedTasks(Pageable pageable) {
+        List<Task> tasks = taskService.getPaginatedTasks(pageable);
+        Page<Task> resultPage = new PageImpl<>(tasks, pageable, taskService.getTaskCount());
+        return new ResponseEntity<>(resultPage, HttpStatus.OK);
+    }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Task>> addNewTasks(@RequestBody List<Task> tasks) {

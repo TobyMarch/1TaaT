@@ -14,6 +14,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import com.taat.taskservices.model.Task;
@@ -40,6 +42,17 @@ public class ImperativeTastServiceTest {
         List<Task> results = taskService.getPrioritizedTasks();
         Assertions.assertNotNull(results);
         Mockito.verify(impTaskRepo, Mockito.times(1)).findAll(Mockito.any(Sort.class));
+    }
+
+    @Test
+    public void testGetPaginatedTasks() {
+        List<Task> taskFlux = getTestTasks();
+        Mockito.when(impTaskRepo.findAllBy(Mockito.any(Pageable.class))).thenReturn(taskFlux);
+
+        Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
+        List<Task> results = taskService.getPaginatedTasks(testPageable);
+        Assertions.assertNotNull(results);
+        Mockito.verify(impTaskRepo, Mockito.times(1)).findAllBy(Mockito.any(Pageable.class));
     }
 
     @Test
