@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import org.springframework.stereotype.Repository;
+// import org.springframework.stereotype.Repository;
 
 // @Repository
 public interface TaskRepository extends ReactiveMongoRepository<Task, String> {
