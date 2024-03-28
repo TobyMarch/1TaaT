@@ -102,6 +102,32 @@ public class ImperativeTaskService {
         }
     }
 
+    public boolean deleteById(String id) {
+        if (taskRepo.existsById(id)) {
+            taskRepo.deleteById(id);
+            userTaskRepo.deleteByTaskId(id);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public Task archiveTask(String id) {
+        if (taskRepo.existsById(id)) {
+            Task existingTask = taskRepo.findById(id).get();
+            existingTask.setArchived(true);
+            Task updatedTask = taskRepo.save(existingTask);
+
+            for (UserTask existingUserTask : userTaskRepo.findByTaskId(id)) {
+                existingUserTask.setArchived(true);
+                userTaskRepo.save(existingUserTask);
+            }
+
+            return updatedTask;
+        }
+        return null;
+    }
+
     private UserTask createUserTask(final Task task, final String userId) {
         UserTask joinEntry = new UserTask();
         joinEntry.setUserId(userId);

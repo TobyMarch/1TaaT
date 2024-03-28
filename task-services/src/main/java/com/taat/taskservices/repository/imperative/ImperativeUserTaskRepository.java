@@ -16,4 +16,9 @@ public interface ImperativeUserTaskRepository extends MongoRepository<UserTask, 
 
     @Query("{userId: '?0'}")
     List<UserTask> findByUserId(String userId);
+
+    @Query("{taskId: '?0'}")
+    List<UserTask> findByTaskId(String taskId);
+
+    void deleteByTaskId(String taskId);
 }

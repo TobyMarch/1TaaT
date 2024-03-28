@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -58,24 +59,28 @@ public class TaskController {
     // return new ResponseEntity<>(tasks, HttpStatus.OK);
     // }
 
-  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<List<Task>> addNewTasks(@RequestBody List<Task> tasks) {
-      List<Task> taskFlux = taskService.createUpdateTasks(tasks);
-      return new ResponseEntity<>(taskFlux, HttpStatus.CREATED);
-  }
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Task>> addNewTasks(@RequestBody List<Task> tasks) {
+        List<Task> taskFlux = taskService.createUpdateTasks(tasks);
+        return new ResponseEntity<>(taskFlux, HttpStatus.CREATED);
+    }
 
-  // @DeleteMapping("/{id}")
-  // public Mono<ResponseEntity<Void>> deleteTask(@PathVariable String id) {
-  // return taskService.deleteById(id)
-  // .then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)))
-  // .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-  // }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable String id) {
+        if (taskService.deleteById(id)) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 
-  // @PutMapping(path = "/{id}/archive", produces =
-  // MediaType.APPLICATION_JSON_VALUE)
-  // public Mono<ResponseEntity<Task>> archiveTask(@PathVariable String id) {
-  // return taskService.archiveTask(id)
-  // .map(updatedTask -> new ResponseEntity<>(updatedTask, HttpStatus.OK))
-  // .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-  // }
+    @PutMapping(path = "/{id}/archive", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Task> archiveTask(@PathVariable String id) {
+        Task result = taskService.archiveTask(id);
+        if (result != null) {
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }

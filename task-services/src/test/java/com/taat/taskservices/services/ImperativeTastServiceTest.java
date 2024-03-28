@@ -68,6 +68,40 @@ public class ImperativeTastServiceTest {
                 Mockito.times(1)).saveAll(Mockito.anyIterable());
     }
 
+    @Test
+    public void testDeleteById() {
+        String taskId = "1";
+        Mockito.when(impTaskRepo.existsById(taskId)).thenReturn(true);
+
+        boolean result = taskService.deleteById(taskId);
+        Assertions.assertTrue(result);
+
+        Mockito.verify(impTaskRepo, Mockito.times(1)).deleteById(taskId);
+        Mockito.verify(impUserTaskRepo, Mockito.times(1)).deleteByTaskId(taskId);
+    }
+
+    @Test
+    public void testArchiveTask() {
+        String taskId = "1";
+        Task testTask = new Task(taskId, "testOwner", "Test Task", "A task for testing", null, null, null, 5, false,
+                false);
+
+        Mockito.when(impTaskRepo.existsById(taskId)).thenReturn(true);
+        Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
+        Mockito.when(impTaskRepo.save(testTask)).thenReturn(testTask);
+        Mockito.when(impUserTaskRepo.findByTaskId(taskId))
+                .thenReturn(Collections.singletonList(getTestTaskJoinEntries().get(0)));
+        Mockito.when(impUserTaskRepo.save(Mockito.any(UserTask.class)))
+                .thenReturn(getTestTaskJoinEntries().get(0));
+
+        Task result = taskService.archiveTask(taskId);
+        Assertions.assertNotNull(result);
+        Mockito.verify(impTaskRepo, Mockito.times(1)).findById(taskId);
+        Mockito.verify(impTaskRepo, Mockito.times(1)).save(testTask);
+        Mockito.verify(impUserTaskRepo, Mockito.times(1)).findByTaskId(taskId);
+        Mockito.verify(impUserTaskRepo, Mockito.times(1)).save(Mockito.any(UserTask.class));
+    }
+
     private List<Task> getTestTasks() {
         List<Task> taskList = new ArrayList<>();
         String currentDateString = LocalDateTime.now().toString().split("T")[0];
