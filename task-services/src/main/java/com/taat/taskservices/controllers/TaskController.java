@@ -38,9 +38,8 @@ public class TaskController {
     ImperativeTaskService taskService;
 
     @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Flux<Task>> getTasks() {
-        // Flux<Task> tasks = taskService.getPrioritizedTasks();
-        Flux<Task> tasks = Flux.empty();
+    public ResponseEntity<List<Task>> getTasks() {
+        List<Task> tasks = taskService.getPrioritizedTasks();
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
@@ -60,8 +59,8 @@ public class TaskController {
     // }
 
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Mono<List<Task>>> addNewTasks(@RequestBody List<Task> tasks) {
-      Mono<List<Task>> taskFlux = Mono.just(taskService.createUpdateTasks(tasks));
+  public ResponseEntity<List<Task>> addNewTasks(@RequestBody List<Task> tasks) {
+      List<Task> taskFlux = taskService.createUpdateTasks(tasks);
       return new ResponseEntity<>(taskFlux, HttpStatus.CREATED);
   }
 

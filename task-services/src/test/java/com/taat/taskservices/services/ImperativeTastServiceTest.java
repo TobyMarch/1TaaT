@@ -2,9 +2,11 @@ package com.taat.taskservices.services;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
@@ -12,6 +14,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
 
 import com.taat.taskservices.model.Task;
 import com.taat.taskservices.model.UserTask;
@@ -28,6 +31,16 @@ public class ImperativeTastServiceTest {
 
     @InjectMocks
     ImperativeTaskService taskService;
+
+    @Test
+    public void testGetPrioritizedTasks_Empty() {
+        List<Task> taskFlux = Collections.emptyList();
+        Mockito.when(impTaskRepo.findAll(Mockito.any(Sort.class))).thenReturn(taskFlux);
+
+        List<Task> results = taskService.getPrioritizedTasks();
+        Assertions.assertNotNull(results);
+        Mockito.verify(impTaskRepo, Mockito.times(1)).findAll(Mockito.any(Sort.class));
+    }
 
     @Test
     public void testImperativeCreateUpdateTasks() {

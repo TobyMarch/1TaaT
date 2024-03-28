@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.taat.taskservices.model.Task;
@@ -32,6 +33,11 @@ public class ImperativeTaskService {
 
     @Autowired
     ImperativeUserTaskRepository userTaskRepo;
+
+    public List<Task> getPrioritizedTasks() {
+        Sort priority = Sort.by(Sort.Direction.DESC, "priority");
+        return taskRepo.findAll(priority);
+    }
 
     public List<Task> createUpdateTasks(final List<Task> tasks) {
         try {
@@ -61,10 +67,10 @@ public class ImperativeTaskService {
             logger.info("Insertion complete, starting sort operation...");
             List<UserTask> joinList = userTaskRepo.findByUserId("");
             for (UserTask joinRecord : joinList) {
-                logger.info(String.format("Found join record: %s", joinRecord.toString()));
+                logger.debug(String.format("Found join record: %s", joinRecord.toString()));
                 Optional<Task> taskRecordOptional = taskRepo.findById(joinRecord.getTaskId());
                 if (taskRecordOptional.isPresent()) {
-                    logger.info(String.format("Corresponding Task: %s",
+                    logger.debug(String.format("Corresponding Task: %s",
                             taskRecordOptional.toString()));
                     unsortedTasks.add(taskRecordOptional.get());
                 }
