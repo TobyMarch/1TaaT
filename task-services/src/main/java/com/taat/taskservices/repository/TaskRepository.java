@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
+// @Repository
 public interface TaskRepository extends ReactiveMongoRepository<Task, String> {
     Flux<Task> findAllBy(Pageable pageable);
 

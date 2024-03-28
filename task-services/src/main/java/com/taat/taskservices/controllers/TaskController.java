@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -20,7 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.taat.taskservices.model.Task;
-import com.taat.taskservices.services.TaskService;
+import com.taat.taskservices.services.ImperativeTaskService;
+// import com.taat.taskservices.services.TaskService;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -30,46 +32,53 @@ import reactor.core.publisher.Mono;
 @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
 public class TaskController {
 
-  @Autowired
-  TaskService taskService;
+    // @Autowired
+    // TaskService taskService;
 
-  @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Flux<Task>> getTasks() {
-      Flux<Task> tasks = taskService.getPrioritizedTasks();
-      return new ResponseEntity<>(tasks, HttpStatus.OK);
-  }
+    @Autowired
+    ImperativeTaskService taskService;
 
-  @GetMapping(path = "/top", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Mono<Task>> getTopTask() {
-      Mono<Task> tasks = taskService.getTopTask("");
-      return new ResponseEntity<>(tasks, HttpStatus.OK);
-  }
+    @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Task>> getTasks() {
+        List<Task> tasks = taskService.getPrioritizedTasks();
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    }
 
-  @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Mono<Page<Task>>> getPaginatedTasks(Pageable pageable) {
-      Mono<Page<Task>> tasks = taskService.getPaginatedTasks(pageable)
-              .collectList().zipWith(taskService.getTaskCount())
-              .map(p -> new PageImpl<>(p.getT1(), pageable, p.getT2()));
-    return new ResponseEntity<>(tasks, HttpStatus.OK);
-  }
+    @GetMapping(path = "/top", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Task> getTopTask() {
+        Task tasks = taskService.getTopTask("");
+        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    }
 
-  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<Mono<List<Task>>> addNewTasks(@RequestBody List<Task> tasks) {
-      Mono<List<Task>> taskFlux = taskService.createUpdateTasks(tasks);
-      return new ResponseEntity<>(taskFlux, HttpStatus.CREATED);
-  }
+    @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Page<Task>> getPaginatedTasks(Pageable pageable) {
+        List<Task> tasks = taskService.getPaginatedTasks(pageable);
+        Page<Task> resultPage = new PageImpl<>(tasks, pageable, taskService.getTaskCount());
+        return new ResponseEntity<>(resultPage, HttpStatus.OK);
+    }
 
-  @DeleteMapping("/{id}")
-  public Mono<ResponseEntity<Void>> deleteTask(@PathVariable String id) {
-    return taskService.deleteById(id)
-            .then(Mono.just(new ResponseEntity<Void>(HttpStatus.NO_CONTENT)))
-            .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-  }
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Task>> addNewTasks(@RequestBody List<Task> tasks) {
+        List<Task> taskFlux = taskService.createUpdateTasks(tasks);
+        return new ResponseEntity<>(taskFlux, HttpStatus.CREATED);
+    }
 
-  @PutMapping(path = "/{id}/archive", produces = MediaType.APPLICATION_JSON_VALUE)
-  public Mono<ResponseEntity<Task>> archiveTask(@PathVariable String id) {
-      return taskService.archiveTask(id)
-              .map(updatedTask -> new ResponseEntity<>(updatedTask, HttpStatus.OK))
-              .defaultIfEmpty(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-  }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable String id) {
+        if (taskService.deleteById(id)) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping(path = "/{id}/archive", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Task> archiveTask(@PathVariable String id) {
+        Task result = taskService.archiveTask(id);
+        if (result != null) {
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
 }
