@@ -1,8 +1,5 @@
 package com.taat.taskservices.controllers;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,43 +18,65 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 
 import com.taat.taskservices.model.Task;
-import com.taat.taskservices.services.TaskService;
+// import com.taat.taskservices.services.TaskService;
+import com.taat.taskservices.services.ImperativeTaskService;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+// import reactor.core.publisher.Flux;
+// import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskControllerTest {
 
     @Mock
-    TaskService taskService;
+    ImperativeTaskService taskService;
 
     @InjectMocks
     TaskController taskController;
 
-    @Test
-    public void testGetTasks() {
-        ResponseEntity<Flux<Task>> results = taskController.getTasks();
-        Assertions.assertNotNull(results);
-    }
+    // @Test
+    // public void testGetTasks() {
+    // ResponseEntity<Flux<Task>> results = taskController.getTasks();
+    // Assertions.assertNotNull(results);
+    // }
+
+    // @Test
+    // public void testGetTopTask() {
+    // Mono<Task> taskFlux = Mono.just(getTestTasks().get(0));
+    // Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(taskFlux);
+    // ResponseEntity<Mono<Task>> results = taskController.getTopTask();
+    // Assertions.assertNotNull(results);
+    // }
 
     @Test
-    public void testGetTopTask() {
-        Mono<Task> taskFlux = Mono.just(getTestTasks().get(0));
+    public void testGetTopTask_Imperative() {
+        Task taskFlux = getTestTasks().get(0);
         Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(taskFlux);
-        ResponseEntity<Mono<Task>> results = taskController.getTopTask();
+        ResponseEntity<Task> results = taskController.getTopTask();
         Assertions.assertNotNull(results);
     }
 
+    // @Test
+    // public void testGetPaginatedTasks() {
+    // Flux<Task> taskFlux = Flux.fromIterable(getTestTasks());
+    // Mono<Long> taskCount = Mono.just(5l);
+    // Mockito.when(taskService.getPaginatedTasks(Mockito.any(Pageable.class))).thenReturn(taskFlux);
+    // Mockito.when(taskService.getTaskCount()).thenReturn(taskCount);
+
+    // Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
+    // ResponseEntity<Mono<Page<Task>>> results =
+    // taskController.getPaginatedTasks(testPageable);
+    // Assertions.assertNotNull(results);
+    // }
+
     @Test
-    public void testGetPaginatedTasks() {
-        Flux<Task> taskFlux = Flux.fromIterable(getTestTasks());
-        Mono<Long> taskCount = Mono.just(5l);
+    public void testGetPaginatedTasks_Imperative() {
+        List<Task> taskFlux = getTestTasks();
+        Long taskCount = 5l;
         Mockito.when(taskService.getPaginatedTasks(Mockito.any(Pageable.class))).thenReturn(taskFlux);
         Mockito.when(taskService.getTaskCount()).thenReturn(taskCount);
 
         Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
-        ResponseEntity<Mono<Page<Task>>> results = taskController.getPaginatedTasks(testPageable);
+        ResponseEntity<Page<Task>> results = taskController.getPaginatedTasks(testPageable);
         Assertions.assertNotNull(results);
     }
 
