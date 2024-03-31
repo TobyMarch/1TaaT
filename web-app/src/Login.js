@@ -1,32 +1,14 @@
-import React, { useEffect, useState } from 'react';
-import { useCookies } from 'react-cookie';
+import React, { useState } from 'react';
 import './Style.css';
 import { useNavigate } from 'react-router-dom';
-import App from './App';
 import logo from './img/logo.svg';
+import { AUTH_ROUTE } from './URLConstants.js';
 
 function Login() {
   const [loggedIn, setLoggedIn] = useState(false);
-  const [user, setUser] = useState(false);
-  const [cookies] = useCookies(['XSRF-TOKEN']);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetch('http://localhost:8080/api/users/user', { credentials: 'include' })
-      .then(response => response.text())
-      .then(body => {
-        if (body === '') {
-          setLoggedIn(false);
-          console.log('Not authenticated');
-        } else {
-          setUser(JSON.parse(body));
-          setLoggedIn(true);
-          console.log(`Authenticated as ${JSON.parse(body).name}`);
-        }
-      });
-  }, [setLoggedIn, setUser])
 
   const handleLogin = () => {
     if (username && password) {
@@ -38,7 +20,7 @@ function Login() {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/private';
+    window.location.href = AUTH_ROUTE;
   };
 
   const handleLogout = () => {
