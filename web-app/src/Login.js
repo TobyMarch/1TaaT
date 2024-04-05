@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import './Style.css';
 import { useNavigate } from 'react-router-dom';
-import App from './App';
 import logo from './img/logo.svg';
+import { AUTH_ROUTE } from './URLConstants.js';
 
 function Login() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -20,9 +20,7 @@ function Login() {
   };
 
   const handleGoogleLogin = () => {
-    // Placeholder for Google login logic
-    console.log('Google Sign-In logic will go here.');
-    // For example, setLoggedIn(true) and navigate('/app') after successful Google authentication
+    window.location.href = AUTH_ROUTE;
   };
 
   const handleLogout = () => {
@@ -32,11 +30,7 @@ function Login() {
   };
 
   return (
-    <>
-    
     <div className="login-container">
-      {!loggedIn ? (
-      
         <div className="login-form">
           <img src={logo} alt="Logo" className="logo" />
           <h2>1TaaT Login</h2>
@@ -69,11 +63,7 @@ function Login() {
           </button>
           <button class="createAccount" onClick={handleLogin}>Create Account</button>
         </div>
-      ) : (
-        <App onLogout={handleLogout} />
-      )}
     </div>
-    </>
   );
 }
 
