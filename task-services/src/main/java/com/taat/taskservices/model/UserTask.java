@@ -9,9 +9,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 @Document("usertasks")
@@ -29,4 +31,6 @@ public class UserTask {
     private LocalDateTime skipUntil;
 
     private LocalDateTime lastSorted;
+
+    private boolean archived;
 }
