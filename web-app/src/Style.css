@@ -7,13 +7,18 @@ body, html {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(191deg, rgba(175,233,175,1) 0%, rgba(145,203,184,1) 100%);
+  background: linear-gradient(11deg, rgba(175,233,175,.6) 10%, rgba(145,203,184,.6) 100%);
 }
 
 /* Custom Font */
 @font-face {
   font-family: BrownBagLunch;
   src: url(./fonts/BrownBagLunch.ttf);
+}
+
+@font-face {
+  font-family: cool;
+  src: url(./fonts/coolvetica\ rg.otf);
 }
 
 /* App Layout */
@@ -180,8 +185,7 @@ border-radius:10px;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 100vh;
+  height: 90vh;
   animation: popin 1s ease forwards;
 }
 
@@ -189,59 +193,149 @@ border-radius:10px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-  border-radius: 50px;
+  padding: 30px;
+  border-radius: 30px;
 box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
- background: linear-gradient(11deg, rgba(175,233,175,.3) 0%, rgba(145,203,184,.3) 100%);
-  width: 70%;
-  max-width: 500px;
-}
+ background: linear-gradient(11deg, rgba(175,233,175,.9) 10%, rgba(145,203,184,.9) 100%);
+  width: 300px;
+  height: 350px;
+  border-bottom: 3px #6166 ridge;
 
-.login-form h2, .login-form p {
-  margin-bottom: 30px;
-  font-family: BrownBagLunch;
-  font-weight: 100;
-  font-size: 70px;
-  color: #496149;
-}
 
-.login-form input, .login-form .locallogin {
-    width: 70%;
-  padding: 20px;
-  margin-bottom: 25px;
+}
+.login-form .logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   border-radius: 20px;
-  border: 0px solid #eee;
- box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
- background: linear-gradient(11deg, rgba(245,255,245,.6) 0%, rgba(185,255,234,.5) 100%);
-  font-size: large;
-  color: #000;
+box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ padding: 10px;
+  width: 100px;
+  animation: popin 2s ease forwards;
+
+}
+.login-form h2 {
+
+  font-family: cool;
+  font-weight: 10;
+  font-size: 45px;
+  color: #6169;
+  margin-bottom: -10px;
+  padding: 0px;
+}
+.login-form p {
+
+  font-family: BrownBagLunch;
+  font-weight: 0;
+  font-size: 40px;
+  color: #0039;
+  margin-top: 0px;
+  padding: 0px;
+ 
 }
 
-.login-form .locallogin {
-  width: 50%;
-  padding: 10px;
-  color: #000;
-  border: none;
-  border-radius: 50px;
+.gsi-material-button {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  -webkit-appearance: none;
+  background-color: WHITE;
+  background-image: none;
+  border: 0px solid #747775;
+  -webkit-border-radius: 20px;
+  border-radius: 20px;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  color: #1f1f1f;
   cursor: pointer;
- box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
- background: #eee;
-  font-size: large;
+  font-family: 'Roboto', arial, sans-serif;
+  font-size: 14px;
+  height: 40px;
+  letter-spacing: 0.25px;
+  outline: none;
+  overflow: hidden;
+  padding: 0 12px;
+  position: relative;
+  text-align: center;
+  -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
+  transition: background-color .218s, border-color .218s, box-shadow .218s;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: auto;
+  max-width: 400px;
+  min-width: min-content;
 }
 
-.login-form button:hover {
-  background-color: #fff;
+.gsi-material-button .gsi-material-button-icon {
+  height: 20px;
+  margin-right: 12px;
+  min-width: 20px;
+  width: 20px;
 }
 
-/* Additional Styles */
-.google-login-button {
-  width: 20vw;
-  height: 70px;
-background-color: #fff;
+.gsi-material-button .gsi-material-button-content-wrapper {
+  -webkit-align-items: center;
+  align-items: center;
+  display: flex;
+  -webkit-flex-direction: row;
+  flex-direction: row;
+  -webkit-flex-wrap: nowrap;
+  flex-wrap: nowrap;
+  height: 100%;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
 }
 
-.google-logo {
-  width: 5vw;
+.gsi-material-button .gsi-material-button-contents {
+  -webkit-flex-grow: 1;
+  flex-grow: 1;
+  font-family: 'Roboto', arial, sans-serif;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
+
+.gsi-material-button .gsi-material-button-state {
+  -webkit-transition: opacity .218s;
+  transition: opacity .218s;
+  bottom: 0;
+  left: 0;
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.gsi-material-button:disabled {
+  cursor: default;
+  background-color: #ffffff61;
+  border-color: #1f1f1f1f;
+}
+
+.gsi-material-button:disabled .gsi-material-button-contents {
+  opacity: 38%;
+}
+
+.gsi-material-button:disabled .gsi-material-button-icon {
+  opacity: 38%;
+}
+
+.gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+.gsi-material-button:not(:disabled):focus .gsi-material-button-state {
+  background-color: #303030;
+  opacity: 12%;
+}
+
+.gsi-material-button:not(:disabled):hover {
+  -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+}
+
+.gsi-material-button:not(:disabled):hover .gsi-material-button-state {
+  background-color: #303030;
+  opacity: 8%;
 }
 
 .input {
