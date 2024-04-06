@@ -9,11 +9,14 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.Task;
 import com.taat.taskservices.model.UserTask;
 import com.taat.taskservices.repository.imperative.ImperativeTaskRepository;
@@ -39,6 +42,28 @@ public class ImperativeTaskService {
     public List<Task> getPrioritizedTasks() {
         Sort priority = Sort.by(Sort.Direction.DESC, "priority");
         return taskRepo.findAll(priority);
+    }
+
+    public Page<TaskDTO> getPaginatedTasksDTOs(Pageable pageable) {
+        Pageable sortingByPriorityPageable = PageRequest.of(pageable.getPageNumber(),
+        pageable.getPageSize(),
+        Sort.by(Sort.Direction.DESC, "priority"));
+
+        //Get all task for a specific user
+        List<String> allTaskIdforUser = userTaskRepo.findByUserId("").stream().map(UserTask::getTaskId).collect(Collectors.toList());
+        //Filter out tasks that are subtasks, skipped for now
+        List<Task> allTasksForUser = taskRepo.findAllById(allTaskIdforUser);
+        //Convert tasks to a taskDTO
+        List<TaskDTO> taskDTOs = allTasksForUser.stream()
+        .map(taskEntity -> TaskDTO.entityToDTO(taskEntity, new ArrayList<>()))
+        .collect(Collectors.toList());
+        //Insert subtasks into parents, skipped for now
+        //Pagination on this List
+        int start = (int) sortingByPriorityPageable.getOffset();
+        int end = Math.min((start + sortingByPriorityPageable.getPageSize()), taskDTOs.size());
+        List<TaskDTO> pageContent = taskDTOs.subList(start, end);
+    
+        return new PageImpl<>(pageContent, sortingByPriorityPageable, taskDTOs.size());
     }
 
     public List<Task> getPaginatedTasks(Pageable pageable) {
