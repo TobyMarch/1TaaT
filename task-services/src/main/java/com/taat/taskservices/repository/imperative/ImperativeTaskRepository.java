@@ -14,6 +14,8 @@ import com.taat.taskservices.model.Task;
 public interface ImperativeTaskRepository extends MongoRepository<Task, String> {
     List<Task> findAllBy(Pageable pageable);
 
+    List<Task> findAllByOwner(String owner);
+
     @Aggregation(pipeline = { "{$match: {_id: ObjectId('?0')}}",
             "{$unwind: {path: \"$subTasks\", preserveNullAndEmptyArrays: false}}",
             "{$addFields: {subTasks: {$toObjectId: \"$subTasks\"}}}",

@@ -6,6 +6,7 @@ import { ReactComponent as SVGSingle } from './img/single.svg';
 import { ReactComponent as SVGMulti } from './img/multi.svg';
 import { TASK_API_URL, ALL_TASKS_API_URL } from './URLConstants';
 import { ReactComponent as SVGAdd } from './img/add.svg';
+import { useCookies } from 'react-cookie';
 
 function Home() {
     const [owner, setOwner] = useState('');
@@ -19,6 +20,7 @@ function Home() {
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState(5);
   const [selectedOption, setSelectedOption] = useState('option');
+  const [cookies] = useCookies(['XSRF-TOKEN']);
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
   };
@@ -51,7 +53,16 @@ const toggleMenu = () => {
         dueDate,
         priority
       };
-      await axios.post(TASK_API_URL, [data], {withCredentials: true});
+
+      await axios.post(
+        TASK_API_URL, 
+        [data], 
+        {
+          withCredentials: true,
+          headers: {
+            'X-XSRF-TOKEN': cookies['XSRF-TOKEN']
+          }
+        });
 
       setOwner('');
       setTitle('');

@@ -1,7 +1,12 @@
 package com.taat.taskservices.controllers;
 
 import java.util.List;
+import java.util.Map;
 
+import com.taat.taskservices.model.User;
+import com.taat.taskservices.services.UserService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -9,7 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,14 +34,18 @@ import com.taat.taskservices.services.ImperativeTaskService;
 
 @RestController
 @RequestMapping("/api/tasks")
-@CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
 public class TaskController {
 
     // @Autowired
     // TaskService taskService;
 
+    private final Logger logger = LoggerFactory.getLogger(TaskController.class);
+
     @Autowired
     ImperativeTaskService taskService;
+
+    @Autowired
+    UserService userService;
 
     // @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     // public ResponseEntity<Flux<Task>> getTasks() {
@@ -44,8 +54,9 @@ public class TaskController {
     // }
 
     @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Task>> getTasks() {
-        List<Task> tasks = taskService.getPrioritizedTasks();
+    public ResponseEntity<List<Task>> getTasks(@AuthenticationPrincipal OAuth2User principal) {
+        String userId = principal.getAttributes().get("sub").toString();
+        List<Task> tasks = taskService.getPrioritizedTasks(userId);
         return new ResponseEntity<>(tasks, HttpStatus.OK);
     }
 
@@ -85,9 +96,16 @@ public class TaskController {
     // return new ResponseEntity<>(taskFlux, HttpStatus.CREATED);
     // }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Task>> addNewTasks(@RequestBody List<Task> tasks) {
-        List<Task> taskFlux = taskService.createUpdateTasks(tasks);
+    @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Task>> addNewTasks(@RequestBody List<Task> tasks,
+                                                  @AuthenticationPrincipal OAuth2User principal) {
+        Map<String, Object> userDetails = principal.getAttributes();
+        User user = userService.getOrAddUser(userDetails);
+        for (Task task : tasks) {
+            task.setOwner(user.getUserId());
+        }
+
+        List<Task> taskFlux = taskService.createUpdateTasks(tasks, user.getUserId());
         return new ResponseEntity<>(taskFlux, HttpStatus.CREATED);
     }
 
