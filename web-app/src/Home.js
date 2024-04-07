@@ -53,6 +53,7 @@ const toggleMenu = () => {
         dueDate,
         priority
       };
+
       await axios.post(
         TASK_API_URL, 
         [data], 
