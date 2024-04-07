@@ -4,7 +4,7 @@ import './Style.css';
 import logo from './img/logo.svg';
 import { ReactComponent as SVGSingle } from './img/single.svg';
 import { ReactComponent as SVGMulti } from './img/multi.svg';
-import { TASK_API_URL } from './URLConstants';
+import { TASK_API_URL, ALL_TASKS_API_URL } from './URLConstants';
 import { ReactComponent as SVGAdd } from './img/add.svg';
 
 function Home() {
@@ -25,7 +25,7 @@ function Home() {
 
   useEffect(() => {
     try {
-      axios.get(TASK_API_URL, {withCredentials: true}).then((res) => {
+      axios.get(ALL_TASKS_API_URL, {withCredentials: true}).then((res) => {
         setItems(res.data);
       });
     } catch (e) {
@@ -51,7 +51,7 @@ const toggleMenu = () => {
         dueDate,
         priority
       };
-      await axios.post(TASK_API_URL, [data]);
+      await axios.post(TASK_API_URL, [data], {withCredentials: true});
 
       setOwner('');
       setTitle('');
