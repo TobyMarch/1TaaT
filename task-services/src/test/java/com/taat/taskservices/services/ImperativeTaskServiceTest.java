@@ -25,7 +25,7 @@ import com.taat.taskservices.repository.imperative.ImperativeUserTaskRepository;
 import com.taat.taskservices.utils.Duration;
 
 @ExtendWith(MockitoExtension.class)
-public class ImperativeTastServiceTest {
+public class ImperativeTaskServiceTest {
     @Mock
     ImperativeTaskRepository impTaskRepo;
 
@@ -38,7 +38,7 @@ public class ImperativeTastServiceTest {
     @Test
     public void testGetPrioritizedTasks_Empty() {
         List<Task> taskFlux = Collections.emptyList();
-//        Mockito.when(impTaskRepo.findAll(Mockito.any(Sort.class))).thenReturn(taskFlux);
+        // Mockito.when(impTaskRepo.findAll(Mockito.any(Sort.class))).thenReturn(taskFlux);
 
         List<Task> results = taskService.getPrioritizedTasks("");
         Assertions.assertNotNull(results);
@@ -50,11 +50,15 @@ public class ImperativeTastServiceTest {
         List<Task> taskFlux = getTestTasks();
         Mockito.when(impTaskRepo.findAllBy(Mockito.any(Pageable.class))).thenReturn(taskFlux);
 
-        //Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
+        // Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
         Pageable testPageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "priority"));
         List<Task> results = taskService.getPaginatedTasks(testPageable);
         Assertions.assertNotNull(results);
         Mockito.verify(impTaskRepo, Mockito.times(1)).findAllBy(Mockito.any(Pageable.class));
+    }
+
+    public void testGetPaginatedTaskDTOs() {
+
     }
 
     @Test

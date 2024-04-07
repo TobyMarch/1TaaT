@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.Task;
 import com.taat.taskservices.services.ImperativeTaskService;
 // import com.taat.taskservices.services.TaskService;
@@ -82,9 +83,11 @@ public class TaskController {
     // }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<Task>> getPaginatedTasks(Pageable pageable) {
-        List<Task> tasks = taskService.getPaginatedTasks(pageable);
-        Page<Task> resultPage = new PageImpl<>(tasks, pageable, taskService.getTaskCount());
+    public ResponseEntity<Page<TaskDTO>> getPaginatedTasks(Pageable pageable) {
+        // List<Task> tasks = taskService.getPaginatedTasks(pageable);
+        // Page<Task> resultPage = new PageImpl<>(tasks, pageable,
+        // taskService.getTaskCount());
+        Page<TaskDTO> resultPage = taskService.getPaginatedTasksDTOs("", pageable);
         return new ResponseEntity<>(resultPage, HttpStatus.OK);
     }
 

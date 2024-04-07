@@ -1,6 +1,7 @@
 package com.taat.taskservices.services;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -44,25 +45,33 @@ public class ImperativeTaskService {
         return taskRepo.findAllByOwner(owner);
     }
 
-    public Page<TaskDTO> getPaginatedTasksDTOs(Pageable pageable) {
+    public Page<TaskDTO> getPaginatedTasksDTOs(String userId, Pageable pageable) {
         Pageable sortingByPriorityPageable = PageRequest.of(pageable.getPageNumber(),
-        pageable.getPageSize(),
-        Sort.by(Sort.Direction.DESC, "priority"));
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "priority"));
 
-        //Get all task for a specific user
-        List<String> allTaskIdforUser = userTaskRepo.findByUserId("").stream().map(UserTask::getTaskId).collect(Collectors.toList());
-        //Filter out tasks that are subtasks, skipped for now
-        List<Task> allTasksForUser = taskRepo.findAllById(allTaskIdforUser);
-        //Convert tasks to a taskDTO
-        List<TaskDTO> taskDTOs = allTasksForUser.stream()
-        .map(taskEntity -> TaskDTO.entityToDTO(taskEntity, new ArrayList<>()))
-        .collect(Collectors.toList());
-        //Insert subtasks into parents, skipped for now
-        //Pagination on this List
+        // Get all task IDs for a specific user, in descending order
+        List<String> activeTaskIDs = userTaskRepo.findByUserId(userId).stream()
+                .filter(Predicate.not(UserTask::isArchived))
+                .sorted(Comparator.comparingDouble(UserTask::getSortValue).reversed())
+                .map(UserTask::getTaskId)
+                .collect(Collectors.toList());
+        // Filter out tasks that are subtasks
+        List<Task> subTasks = userTaskRepo.findSubTasksByUserId(userId);
+        List<String> subTaskIds = subTasks.stream().map(Task::getId).collect(Collectors.toList());
+
+        // Convert tasks to a taskDTO (Insert subtasks into parents)
+        List<TaskDTO> taskDTOs = activeTaskIDs.stream().filter(taskId -> {
+            return !subTaskIds.contains(taskId);
+        }).map(taskId -> {
+            return taskRepo.buildHierarchicalRecordById(taskId);
+        }).collect(Collectors.toList());
+
+        // Pagination on this List
         int start = (int) sortingByPriorityPageable.getOffset();
         int end = Math.min((start + sortingByPriorityPageable.getPageSize()), taskDTOs.size());
         List<TaskDTO> pageContent = taskDTOs.subList(start, end);
-    
+
         return new PageImpl<>(pageContent, sortingByPriorityPageable, taskDTOs.size());
     }
 
