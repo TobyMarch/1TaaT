@@ -13,6 +13,8 @@ export const TASK_SVC_URL = getTaskServiceUrl();
 
 export const TASK_API_URL = TASK_SVC_URL + "/api/tasks";
 
+export const USER_CREDENTIALS_API_URL = TASK_SVC_URL + "/api/users/user"
+
 export const ALL_TASKS_API_URL = TASK_API_URL + "/all";
 
 // Example parameters: page=0&size=50&sort=priority,DESC'
@@ -29,3 +31,5 @@ export const USER_TOKEN_REFRESH_API_URL = TASK_SVC_URL + "/api/users/checkUserRe
 export const ADD_USER_API_URL = TASK_SVC_URL + "/api/users/addUser";
 
 export const GOOGLE_CLIENT_URL = "https://accounts.google.com/gsi/client";
+
+export const AUTH_ROUTE = TASK_SVC_URL + "/private";
