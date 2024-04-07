@@ -37,11 +37,11 @@ public class ImperativeTastServiceTest {
     @Test
     public void testGetPrioritizedTasks_Empty() {
         List<Task> taskFlux = Collections.emptyList();
-        Mockito.when(impTaskRepo.findAll(Mockito.any(Sort.class))).thenReturn(taskFlux);
+//        Mockito.when(impTaskRepo.findAll(Mockito.any(Sort.class))).thenReturn(taskFlux);
 
-        List<Task> results = taskService.getPrioritizedTasks();
+        List<Task> results = taskService.getPrioritizedTasks("");
         Assertions.assertNotNull(results);
-        Mockito.verify(impTaskRepo, Mockito.times(1)).findAll(Mockito.any(Sort.class));
+        Mockito.verify(impTaskRepo, Mockito.times(1)).findAllByOwner(Mockito.anyString());
     }
 
     @Test
@@ -70,7 +70,7 @@ public class ImperativeTastServiceTest {
         Mockito.when(impTaskRepo.findById(ArgumentMatchers.eq("4"))).thenReturn(Optional.of(taskList.get(3)));
         Mockito.when(impTaskRepo.findById(ArgumentMatchers.eq("5"))).thenReturn(Optional.of(taskList.get(4)));
 
-        taskService.createUpdateTasks(taskList);
+        taskService.createUpdateTasks(taskList, "abcd");
         Mockito.verify(impTaskRepo, Mockito.times(5)).save(Mockito.any(Task.class));
         Mockito.verify(impUserTaskRepo,
                 Mockito.times(5)).insert(Mockito.any(UserTask.class));
