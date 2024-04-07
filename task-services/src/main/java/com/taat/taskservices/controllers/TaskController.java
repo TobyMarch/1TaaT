@@ -28,7 +28,6 @@ import com.taat.taskservices.services.ImperativeTaskService;
 
 @RestController
 @RequestMapping("/api/tasks")
-@CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
 public class TaskController {
 
     // @Autowired

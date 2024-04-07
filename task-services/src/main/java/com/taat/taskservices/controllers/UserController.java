@@ -27,7 +27,6 @@ public class UserController {
     }
   }
 
-//  @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @PostMapping("/addUser")
   public ResponseEntity<Mono<Boolean>> addNewUser(@RequestBody User newUser) {
 
@@ -44,7 +43,6 @@ public class UserController {
     return new ResponseEntity<>(userAdded, HttpStatus.OK);
   }
 
-//  @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @GetMapping("/checkUserRefreshToken")
   public ResponseEntity<Mono<Boolean>> checkRefreshToken(@RequestParam String userId) {
     Mono<Boolean> hasRefreshToken = userRepository.findById(userId)
