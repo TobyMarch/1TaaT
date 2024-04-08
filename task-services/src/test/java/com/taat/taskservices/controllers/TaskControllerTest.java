@@ -21,7 +21,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.taat.taskservices.dto.TaskDTO;
-import com.taat.taskservices.model.Task;
 // import com.taat.taskservices.services.TaskService;
 import com.taat.taskservices.services.ImperativeTaskService;
 import com.taat.taskservices.utils.Duration;
@@ -54,10 +53,19 @@ public class TaskControllerTest {
 
     @Test
     public void testGetTopTask_Imperative() {
-        Task taskFlux = getTestTasks().get(0).dtoToEntity();
-        Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(taskFlux);
-        ResponseEntity<Task> results = taskController.getTopTask();
+        TaskDTO taskDto = getTestTasks().get(0);
+        Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(taskDto);
+        ResponseEntity<TaskDTO> results = taskController.getTopTask();
         Assertions.assertNotNull(results);
+    }
+
+    @Test
+    public void testGetTopTask_Exception() {
+        Mockito.when(taskService.getTopTask(Mockito.anyString()))
+                .thenThrow(new NullPointerException("Test Service NPE"));
+        ResponseEntity<TaskDTO> results = taskController.getTopTask();
+        Assertions.assertNotNull(results);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, results.getStatusCode());
     }
 
     // @Test

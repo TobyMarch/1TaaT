@@ -40,7 +40,7 @@ public class ImperativeTaskServiceTest {
     @Test
     public void testGetPrioritizedTasks_Empty() {
         List<Task> taskFlux = Collections.emptyList();
-        // Mockito.when(impTaskRepo.findAll(Mockito.any(Sort.class))).thenReturn(taskFlux);
+        Mockito.when(impTaskRepo.findAllByOwner(Mockito.anyString())).thenReturn(taskFlux);
 
         List<Task> results = taskService.getPrioritizedTasks("");
         Assertions.assertNotNull(results);

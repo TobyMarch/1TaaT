@@ -1,7 +1,7 @@
 package com.taat.taskservices.services;
 
 import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -42,7 +42,7 @@ public class ImperativeTaskService {
     ImperativeUserTaskRepository userTaskRepo;
 
     public List<Task> getPrioritizedTasks(String owner) {
-        Sort priority = Sort.by(Sort.Direction.DESC, "priority");
+        // Sort priority = Sort.by(Sort.Direction.DESC, "priority");
         return taskRepo.findAllByOwner(owner);
     }
 
@@ -82,8 +82,8 @@ public class ImperativeTaskService {
         return taskRepo.count();
     }
 
-    public Task getTopTask(final String userId) {
-        return userTaskRepo.findTopTaskByUserTaskSort(userId);
+    public TaskDTO getTopTask(final String userId) {
+        return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId), Collections.emptyList());
     }
 
     public List<Task> createUpdateTasks(final List<Task> tasks, String owner) {
