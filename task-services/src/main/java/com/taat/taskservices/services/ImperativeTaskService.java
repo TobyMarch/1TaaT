@@ -86,9 +86,12 @@ public class ImperativeTaskService {
         return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId), Collections.emptyList());
     }
 
-    public Page<Task> getArchivedTasks(final String userId, Pageable pageable) {
-        List<Task> content = userTaskRepo.findArchivedTasksByUserIdPaginated(userId,
-                (pageable.getPageNumber() * pageable.getPageSize()), pageable.getPageSize());
+    public Page<TaskDTO> getArchivedTasks(final String userId, Pageable pageable) {
+        List<TaskDTO> content = userTaskRepo.findArchivedTasksByUserIdPaginated(userId,
+                (pageable.getPageNumber() * pageable.getPageSize()), pageable.getPageSize()).stream()
+                .map(taskEntity -> {
+                    return TaskDTO.entityToDTO(taskEntity, null);
+                }).collect(Collectors.toList());
         Long userTaskCount = userTaskRepo.getArchivedTaskCountByUserId(userId);
 
         return new PageImpl<>(content, pageable, userTaskCount);

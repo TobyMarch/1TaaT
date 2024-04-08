@@ -106,13 +106,13 @@ public class TaskControllerTest {
 
     @Test
     public void testGetArchivedTasks_Imperative() {
-        List<Task> taskList = getTestTasks().stream().map(TaskDTO::dtoToEntity).collect(Collectors.toList());
-        Page<Task> pageData = new PageImpl<>(taskList);
+        List<TaskDTO> taskList = getTestTasks();
+        Page<TaskDTO> pageData = new PageImpl<>(taskList);
 
         Pageable testPageable = PageRequest.of(0, taskList.size(), Sort.unsorted());
         Mockito.when(taskService.getArchivedTasks(Mockito.anyString(), Mockito.eq(testPageable))).thenReturn(pageData);
 
-        ResponseEntity<Page<Task>> results = taskController.getArchivedTasks(testPageable);
+        ResponseEntity<Page<TaskDTO>> results = taskController.getArchivedTasks(testPageable);
         Assertions.assertNotNull(results);
     }
 

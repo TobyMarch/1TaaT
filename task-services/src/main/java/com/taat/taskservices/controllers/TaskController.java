@@ -99,8 +99,8 @@ public class TaskController {
     }
 
     @GetMapping(path = "/archived", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<Task>> getArchivedTasks(Pageable pageable) {
-        Page<Task> resultPage = taskService.getArchivedTasks("", pageable);
+    public ResponseEntity<Page<TaskDTO>> getArchivedTasks(Pageable pageable) {
+        Page<TaskDTO> resultPage = taskService.getArchivedTasks("", pageable);
         return new ResponseEntity<>(resultPage, HttpStatus.OK);
     }
 
