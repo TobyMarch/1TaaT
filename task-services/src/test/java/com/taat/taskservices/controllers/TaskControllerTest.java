@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -70,13 +71,25 @@ public class TaskControllerTest {
 
     @Test
     public void testGetPaginatedTasks_Imperative() {
-        List<Task> taskFlux = getTestTasks();
+        List<Task> taskList = getTestTasks();
         Long taskCount = 5l;
-        Mockito.when(taskService.getPaginatedTasks(Mockito.any(Pageable.class))).thenReturn(taskFlux);
+        Mockito.when(taskService.getPaginatedTasks(Mockito.any(Pageable.class))).thenReturn(taskList);
         Mockito.when(taskService.getTaskCount()).thenReturn(taskCount);
 
         Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
         ResponseEntity<Page<Task>> results = taskController.getPaginatedTasks(testPageable);
+        Assertions.assertNotNull(results);
+    }
+
+    @Test
+    public void testGetArchivedTasks_Imperative() {
+        List<Task> taskList = getTestTasks();
+        Page<Task> pageData = new PageImpl<>(taskList);
+
+        Pageable testPageable = PageRequest.of(0, taskList.size(), Sort.unsorted());
+        Mockito.when(taskService.getArchivedTasks(Mockito.anyString(), Mockito.eq(testPageable))).thenReturn(pageData);
+
+        ResponseEntity<Page<Task>> results = taskController.getArchivedTasks(testPageable);
         Assertions.assertNotNull(results);
     }
 

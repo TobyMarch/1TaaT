@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -54,6 +56,14 @@ public class ImperativeTaskService {
 
     public Task getTopTask(final String userId) {
         return userTaskRepo.findTopTaskByUserTaskSort(userId);
+    }
+
+    public Page<Task> getArchivedTasks(final String userId, Pageable pageable) {
+        List<Task> content = userTaskRepo.findArchivedTasksByUserIdPaginated(userId,
+                (pageable.getPageNumber() * pageable.getPageSize()), pageable.getPageSize());
+        Long userTaskCount = userTaskRepo.getArchivedTaskCountByUserId(userId);
+
+        return new PageImpl<>(content, pageable, userTaskCount);
     }
 
     public List<Task> createUpdateTasks(final List<Task> tasks, String owner) {
