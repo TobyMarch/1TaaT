@@ -54,7 +54,6 @@ public class CalendarController {
   private static final String APPLICATION_NAME = "1TaaT";
   private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
-  @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @GetMapping("/calendar/events")
   public ResponseEntity<List<Task>> getCalendarEvents() {
     List<Task> tasks = new ArrayList<>();
@@ -84,7 +83,6 @@ public class CalendarController {
     return new ResponseEntity<>(tasks, HttpStatus.OK);
   }
 
-  @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @GetMapping("/calendarSaved")
   public ResponseEntity<List<Task>> calendarSaved(@RequestParam String code, @RequestParam String userId) {
     List<Task> tasks = new ArrayList<>();
@@ -128,7 +126,6 @@ public class CalendarController {
     return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
   }
 
-  @CrossOrigin(origins = { "http://localhost:3000", "https://onetaat-web.onrender.com" })
   @GetMapping("/calendar")
   public ResponseEntity<Mono<List<Task>>> getCalendar(@RequestParam String userId) {
     Mono<List<Task>> tasks = userRepository.findById(userId)

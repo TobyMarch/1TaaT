@@ -11,4 +11,5 @@ import com.taat.taskservices.model.Task;
 @Repository
 public interface ImperativeTaskRepository extends MongoRepository<Task, String> {
     List<Task> findAllBy(Pageable pageable);
+    List<Task> findAllByOwner(String owner);
 }

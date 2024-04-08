@@ -38,9 +38,9 @@ public class ImperativeTaskService {
     @Autowired
     ImperativeUserTaskRepository userTaskRepo;
 
-    public List<Task> getPrioritizedTasks() {
+    public List<Task> getPrioritizedTasks(String owner) {
         Sort priority = Sort.by(Sort.Direction.DESC, "priority");
-        return taskRepo.findAll(priority);
+        return taskRepo.findAllByOwner(owner);
     }
 
     public List<Task> getPaginatedTasks(Pageable pageable) {
@@ -66,20 +66,20 @@ public class ImperativeTaskService {
         return new PageImpl<>(content, pageable, userTaskCount);
     }
 
-    public List<Task> createUpdateTasks(final List<Task> tasks) {
+    public List<Task> createUpdateTasks(final List<Task> tasks, String owner) {
         try {
             List<Task> savedTasks = new ArrayList<>();
             for (Task inputTask : tasks) {
                 Task savedTaskRecord = taskRepo.save(inputTask);
                 if (savedTaskRecord != null) {
                     savedTasks.add(savedTaskRecord);
-                    UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId("",
+                    UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(owner,
                             savedTaskRecord.getId());
                     // Create a new db entry linking the task to the user if none exists
                     if (userTaskRecord == null) {
                         logger.info(String.format("Inserting record for task: %s",
                                 savedTaskRecord.getTitle()));
-                        UserTask newUserTask = createUserTask(savedTaskRecord, "");
+                        UserTask newUserTask = createUserTask(savedTaskRecord, owner);
                         userTaskRepo.insert(newUserTask);
                     } else {
                         userTaskRecord.setArchived(savedTaskRecord.isArchived());
@@ -92,7 +92,7 @@ public class ImperativeTaskService {
             List<UserTask> sortedJoinRecords = new ArrayList<>();
             // Select all tasks connected to the user
             logger.info("Insertion complete, starting sort operation...");
-            List<UserTask> joinList = userTaskRepo.findByUserId("");
+            List<UserTask> joinList = userTaskRepo.findByUserId(owner);
             for (UserTask joinRecord : joinList) {
                 logger.debug(String.format("Found join record: %s", joinRecord.toString()));
                 Optional<Task> taskRecordOptional = taskRepo.findById(joinRecord.getTaskId());
