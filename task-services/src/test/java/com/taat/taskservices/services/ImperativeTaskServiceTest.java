@@ -61,6 +61,7 @@ public class ImperativeTaskServiceTest {
         Mockito.when(impUserTaskRepo.findByUserId("testUser")).thenReturn(getTestTaskJoinEntries(taskList));
         Mockito.when(impUserTaskRepo.findSubTasksByUserId("testUser"))
                 .thenReturn(Collections.singletonList(taskList.get(taskList.size() - 1)));
+        Mockito.when(impTaskRepo.existsById(Mockito.anyString())).thenReturn(true);
         Mockito.when(impTaskRepo.buildHierarchicalRecordById(Mockito.anyString())).thenReturn(new TaskDTO());
 
         Pageable testPageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "priority"));

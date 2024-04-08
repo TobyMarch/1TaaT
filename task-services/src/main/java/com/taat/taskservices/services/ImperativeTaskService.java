@@ -64,22 +64,18 @@ public class ImperativeTaskService {
 
         // Convert tasks to a taskDTO (Insert subtasks into parents)
         List<TaskDTO> taskDTOs = activeTaskIDs.stream().filter(taskId -> {
-            return !subTaskIds.contains(taskId);
+            return taskRepo.existsById(taskId) && !subTaskIds.contains(taskId);
         }).map(taskId -> {
             return taskRepo.buildHierarchicalRecordById(taskId);
         }).collect(Collectors.toList());
         logger.info("{} Task results for user: {}", taskDTOs.size(), userId);
 
         // Pagination on this List
-        int start = (int) sortingByPriorityPageable.getOffset();
+        int start = Math.toIntExact(sortingByPriorityPageable.getOffset());
         int end = Math.min((start + sortingByPriorityPageable.getPageSize()), taskDTOs.size());
-        List<TaskDTO> pageContent = taskDTOs.subList(start, end);
+        List<TaskDTO> pageContent = (start <= end) ? taskDTOs.subList(start, end) : Collections.emptyList();
 
         return new PageImpl<>(pageContent, sortingByPriorityPageable, taskDTOs.size());
-    }
-
-    public long getTaskCount() {
-        return taskRepo.count();
     }
 
     public TaskDTO getTopTask(final String userId) {
