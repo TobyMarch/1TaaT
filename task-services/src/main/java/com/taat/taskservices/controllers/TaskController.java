@@ -12,6 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -84,11 +85,14 @@ public class TaskController {
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Page<TaskDTO>> getPaginatedTasks(Pageable pageable) {
-        // List<Task> tasks = taskService.getPaginatedTasks(pageable);
-        // Page<Task> resultPage = new PageImpl<>(tasks, pageable,
-        // taskService.getTaskCount());
-        Page<TaskDTO> resultPage = taskService.getPaginatedTasks("", pageable);
-        return new ResponseEntity<>(resultPage, HttpStatus.OK);
+        try {
+            Page<TaskDTO> resultPage = taskService.getPaginatedTasks("", pageable);
+            return new ResponseEntity<>(resultPage, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Exception in Task List retrieval: ", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     // @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces =
