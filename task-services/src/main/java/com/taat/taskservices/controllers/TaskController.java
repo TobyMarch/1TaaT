@@ -72,10 +72,9 @@ public class TaskController {
             TaskDTO tasks = taskService.getTopTask("");
             return new ResponseEntity<>(tasks, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Exception in Top Task retrieval: ", e);
+            logger.warn("Exception in Top Task retrieval: ", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     // @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -93,10 +92,16 @@ public class TaskController {
             Page<TaskDTO> resultPage = taskService.getPaginatedTasks("", pageable);
             return new ResponseEntity<>(resultPage, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Exception in Task List retrieval: ", e);
+            logger.warn("Exception in Task List retrieval: ", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
+    }
+
+    @GetMapping(path = "/archived", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Page<Task>> getArchivedTasks(Pageable pageable) {
+        Page<Task> resultPage = taskService.getArchivedTasks("", pageable);
+        return new ResponseEntity<>(resultPage, HttpStatus.OK);
     }
 
     // @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces =

@@ -71,6 +71,23 @@ public class ImperativeTaskServiceTest {
     }
 
     @Test
+    public void testGetArchivedTasks() {
+        List<Task> taskList = getTestTasks();
+        Mockito.when(impUserTaskRepo.findArchivedTasksByUserIdPaginated("", 0, 5)).thenReturn(taskList);
+        Mockito.when(impUserTaskRepo.getArchivedTaskCountByUserId("")).thenReturn(Long.valueOf(taskList.size()));
+
+        Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
+        Page<Task> results = taskService.getArchivedTasks("", testPageable);
+        Assertions.assertNotNull(results);
+        Assertions.assertEquals(taskList.size(), results.getTotalElements());
+
+        List<Task> pageContent = results.getContent();
+        Assertions.assertNotNull(pageContent);
+        Assertions.assertEquals(taskList.size(), pageContent.size());
+
+    }
+
+    @Test
     public void testImperativeCreateUpdateTasks() {
         List<Task> taskList = getTestTasks();
         List<UserTask> userTaskList = getTestTaskJoinEntries(taskList);

@@ -31,6 +31,16 @@ public interface ImperativeUserTaskRepository extends MongoRepository<UserTask, 
             "{$addFields: {subTasks: {$first: \"$subTasks\"}}}", "{$match: {subTasks: {$ne: null}}}",
             "{$replaceRoot: {newRoot: \"$subTasks\"}}" })
     List<Task> findSubTasksByUserId(String userId);
+    
+    @Aggregation(pipeline = { "{$match: {userId: '?0', archived: true}}",
+            "{$addFields: {taskId: {$toObjectId: \"$taskId\"} }}",
+            "{$lookup: {from: \"tasksTest\", localField: \"taskId\", foreignField:\"_id\", as: \"result\"}}",
+            "{$addFields: {result: {$first: \"$result\"}}}", "{$match: {result: {$ne: null}}}",
+            "{$replaceRoot: {newRoot:\"$result\"}}", "{$sort: {dueDate: -1}}", "{$skip: ?1}", "{$limit: ?2}" })
+    List<Task> findArchivedTasksByUserIdPaginated(String userId, int skip, int limit);
+
+    @Query(value = "{userId: '?0', archived: true}", count = true)
+    Long getArchivedTaskCountByUserId(String userId);
 
     @Query("{userId: '?0', taskId: '?1'}")
     UserTask findByUserIdTaskId(String userId, String taskId);

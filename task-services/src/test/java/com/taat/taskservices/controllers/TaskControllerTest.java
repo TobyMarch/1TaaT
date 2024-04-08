@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.taat.taskservices.dto.TaskDTO;
+import com.taat.taskservices.model.Task;
 // import com.taat.taskservices.services.TaskService;
 import com.taat.taskservices.services.ImperativeTaskService;
 import com.taat.taskservices.utils.Duration;
@@ -100,6 +102,18 @@ public class TaskControllerTest {
         ResponseEntity<Page<TaskDTO>> results = taskController.getPaginatedTasks(testPageable);
         Assertions.assertNotNull(results);
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, results.getStatusCode());
+    }
+
+    @Test
+    public void testGetArchivedTasks_Imperative() {
+        List<Task> taskList = getTestTasks().stream().map(TaskDTO::dtoToEntity).collect(Collectors.toList());
+        Page<Task> pageData = new PageImpl<>(taskList);
+
+        Pageable testPageable = PageRequest.of(0, taskList.size(), Sort.unsorted());
+        Mockito.when(taskService.getArchivedTasks(Mockito.anyString(), Mockito.eq(testPageable))).thenReturn(pageData);
+
+        ResponseEntity<Page<Task>> results = taskController.getArchivedTasks(testPageable);
+        Assertions.assertNotNull(results);
     }
 
     private List<TaskDTO> getTestTasks() {
