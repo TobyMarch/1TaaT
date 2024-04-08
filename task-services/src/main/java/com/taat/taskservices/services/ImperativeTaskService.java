@@ -1,6 +1,7 @@
 package com.taat.taskservices.services;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.Task;
 import com.taat.taskservices.model.UserTask;
 import com.taat.taskservices.repository.imperative.ImperativeTaskRepository;
@@ -24,6 +26,7 @@ import com.taat.taskservices.services.comparators.TaskDelayableComparator;
 import com.taat.taskservices.services.comparators.TaskDueDateComparator;
 import com.taat.taskservices.services.comparators.TaskPriorityComparator;
 import com.taat.taskservices.services.comparators.TaskStartDateComparator;
+import com.taat.taskservices.services.comparators.UserTaskSortComparator;
 import com.taat.taskservices.services.filters.TaskCurrentOrOverdueFilter;
 
 import lombok.NonNull;
@@ -39,28 +42,52 @@ public class ImperativeTaskService {
     ImperativeUserTaskRepository userTaskRepo;
 
     public List<Task> getPrioritizedTasks(String owner) {
-        Sort priority = Sort.by(Sort.Direction.DESC, "priority");
+        // Sort priority = Sort.by(Sort.Direction.DESC, "priority");
         return taskRepo.findAllByOwner(owner);
     }
 
-    public List<Task> getPaginatedTasks(Pageable pageable) {
-        Sort priority = Sort.by(Sort.Direction.DESC, "priority");
-        Pageable defaultSortingPageable = PageRequest.of(pageable.getPageNumber(),
-                pageable.getPageSize(), priority);
-        return taskRepo.findAllBy(defaultSortingPageable);
+    public Page<TaskDTO> getPaginatedTasks(String userId, Pageable pageable) {
+        logger.info("Querying Tasks for user: {}", userId);
+        Pageable sortingByPriorityPageable = PageRequest.of(pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "priority"));
+
+        // Get all task IDs for a specific user, in descending order
+        List<String> activeTaskIDs = userTaskRepo.findByUserId(userId).stream()
+                .filter(Predicate.not(UserTask::isArchived))
+                .sorted(new UserTaskSortComparator())
+                .map(UserTask::getTaskId)
+                .collect(Collectors.toList());
+        // Filter out tasks that are subtasks
+        List<Task> subTasks = userTaskRepo.findSubTasksByUserId(userId);
+        List<String> subTaskIds = subTasks.stream().map(Task::getId).collect(Collectors.toList());
+
+        // Convert tasks to a taskDTO (Insert subtasks into parents)
+        List<TaskDTO> taskDTOs = activeTaskIDs.stream().filter(taskId -> {
+            return taskRepo.existsById(taskId) && !subTaskIds.contains(taskId);
+        }).map(taskId -> {
+            return taskRepo.buildHierarchicalRecordById(taskId);
+        }).collect(Collectors.toList());
+        logger.info("{} Task results for user: {}", taskDTOs.size(), userId);
+
+        // Pagination on this List
+        int start = Math.toIntExact(sortingByPriorityPageable.getOffset());
+        int end = Math.min((start + sortingByPriorityPageable.getPageSize()), taskDTOs.size());
+        List<TaskDTO> pageContent = (start <= end) ? taskDTOs.subList(start, end) : Collections.emptyList();
+
+        return new PageImpl<>(pageContent, sortingByPriorityPageable, taskDTOs.size());
     }
 
-    public long getTaskCount() {
-        return taskRepo.count();
+    public TaskDTO getTopTask(final String userId) {
+        return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId), Collections.emptyList());
     }
 
-    public Task getTopTask(final String userId) {
-        return userTaskRepo.findTopTaskByUserTaskSort(userId);
-    }
-
-    public Page<Task> getArchivedTasks(final String userId, Pageable pageable) {
-        List<Task> content = userTaskRepo.findArchivedTasksByUserIdPaginated(userId,
-                (pageable.getPageNumber() * pageable.getPageSize()), pageable.getPageSize());
+    public Page<TaskDTO> getArchivedTasks(final String userId, Pageable pageable) {
+        List<TaskDTO> content = userTaskRepo.findArchivedTasksByUserIdPaginated(userId,
+                (pageable.getPageNumber() * pageable.getPageSize()), pageable.getPageSize()).stream()
+                .map(taskEntity -> {
+                    return TaskDTO.entityToDTO(taskEntity, null);
+                }).collect(Collectors.toList());
         Long userTaskCount = userTaskRepo.getArchivedTaskCountByUserId(userId);
 
         return new PageImpl<>(content, pageable, userTaskCount);

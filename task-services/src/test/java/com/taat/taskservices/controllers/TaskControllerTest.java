@@ -2,7 +2,9 @@ package com.taat.taskservices.controllers;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -16,11 +18,14 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.Task;
 // import com.taat.taskservices.services.TaskService;
 import com.taat.taskservices.services.ImperativeTaskService;
+import com.taat.taskservices.utils.Duration;
 
 // import reactor.core.publisher.Flux;
 // import reactor.core.publisher.Mono;
@@ -50,10 +55,19 @@ public class TaskControllerTest {
 
     @Test
     public void testGetTopTask_Imperative() {
-        Task taskFlux = getTestTasks().get(0);
-        Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(taskFlux);
-        ResponseEntity<Task> results = taskController.getTopTask();
+        TaskDTO taskDto = getTestTasks().get(0);
+        Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(taskDto);
+        ResponseEntity<TaskDTO> results = taskController.getTopTask();
         Assertions.assertNotNull(results);
+    }
+
+    @Test
+    public void testGetTopTask_Exception() {
+        Mockito.when(taskService.getTopTask(Mockito.anyString()))
+                .thenThrow(new NullPointerException("Test Service NPE"));
+        ResponseEntity<TaskDTO> results = taskController.getTopTask();
+        Assertions.assertNotNull(results);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, results.getStatusCode());
     }
 
     // @Test
@@ -71,48 +85,61 @@ public class TaskControllerTest {
 
     @Test
     public void testGetPaginatedTasks_Imperative() {
-        List<Task> taskList = getTestTasks();
-        Long taskCount = 5l;
-        Mockito.when(taskService.getPaginatedTasks(Mockito.any(Pageable.class))).thenReturn(taskList);
-        Mockito.when(taskService.getTaskCount()).thenReturn(taskCount);
+        List<TaskDTO> taskFlux = getTestTasks();
+        Mockito.when(taskService.getPaginatedTasks(Mockito.anyString(), Mockito.any(Pageable.class)))
+                .thenReturn(new PageImpl<TaskDTO>(taskFlux));
 
         Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
-        ResponseEntity<Page<Task>> results = taskController.getPaginatedTasks(testPageable);
+        ResponseEntity<Page<TaskDTO>> results = taskController.getPaginatedTasks(testPageable);
         Assertions.assertNotNull(results);
     }
 
     @Test
+    public void testGetPaginatedTasks_Exception() {
+        Mockito.when(taskService.getPaginatedTasks(Mockito.anyString(), Mockito.any(Pageable.class)))
+                .thenThrow(new NullPointerException("Test Service NPE"));
+        Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
+        ResponseEntity<Page<TaskDTO>> results = taskController.getPaginatedTasks(testPageable);
+        Assertions.assertNotNull(results);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, results.getStatusCode());
+    }
+
+    @Test
     public void testGetArchivedTasks_Imperative() {
-        List<Task> taskList = getTestTasks();
-        Page<Task> pageData = new PageImpl<>(taskList);
+        List<TaskDTO> taskList = getTestTasks();
+        Page<TaskDTO> pageData = new PageImpl<>(taskList);
 
         Pageable testPageable = PageRequest.of(0, taskList.size(), Sort.unsorted());
         Mockito.when(taskService.getArchivedTasks(Mockito.anyString(), Mockito.eq(testPageable))).thenReturn(pageData);
 
-        ResponseEntity<Page<Task>> results = taskController.getArchivedTasks(testPageable);
+        ResponseEntity<Page<TaskDTO>> results = taskController.getArchivedTasks(testPageable);
         Assertions.assertNotNull(results);
     }
 
-    private List<Task> getTestTasks() {
-        List<Task> taskList = new ArrayList<>();
+    private List<TaskDTO> getTestTasks() {
+        List<TaskDTO> taskList = new ArrayList<>();
         String currentDateString = LocalDateTime.now().toString().split("T")[0];
         String previousDateString = LocalDateTime.now().minusDays(1l).toString().split("T")[0];
         String futureDateString = LocalDateTime.now().plusDays(1l).toString().split("T")[0];
         taskList.add(
-                new Task("1", "testOwner", "Test Task 1", "A task for testing", null, null,
-                        currentDateString + "T09:45:00", 5, false, false));
+                new TaskDTO("1", "testOwner", "Test Task 1", "A task for testing", null, null,
+                        currentDateString + "T09:45:00", 5, Duration.M.toString(), false, false,
+                        Collections.emptyList()));
         taskList.add(
-                new Task("2", "testOwner", "Test Task 2", "A task for testing", null, null,
-                        currentDateString + "T09:30:00", 5, false, false));
+                new TaskDTO("2", "testOwner", "Test Task 2", "A task for testing", null, null,
+                        currentDateString + "T09:30:00", 5, Duration.M.toString(), false, false,
+                        Collections.emptyList()));
         taskList.add(
-                new Task("3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
-                        null, 5, false, false));
+                new TaskDTO("3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
+                        null, 5, Duration.M.toString(), false, false, Collections.emptyList()));
         taskList.add(
-                new Task("4", "testOwner", "Test Task 4", "A task that was due yesterday", null, null,
-                        previousDateString + "T09:15:00", 5, false, false));
+                new TaskDTO("4", "testOwner", "Test Task 4", "A task that was due yesterday", null, null,
+                        previousDateString + "T09:15:00", 5, Duration.M.toString(), false, false,
+                        Collections.emptyList()));
         taskList.add(
-                new Task("5", "testOwner", "Test Task 5", "A task that is due tomorrow", null, null,
-                        futureDateString + "T14:15:00", 5, false, false));
+                new TaskDTO("5", "testOwner", "Test Task 5", "A task that is due tomorrow", null, null,
+                        futureDateString + "T14:15:00", 5, Duration.M.toString(), false, false,
+                        Collections.emptyList()));
 
         return taskList;
     }

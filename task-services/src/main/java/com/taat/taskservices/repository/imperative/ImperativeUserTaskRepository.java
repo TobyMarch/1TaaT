@@ -20,6 +20,18 @@ public interface ImperativeUserTaskRepository extends MongoRepository<UserTask, 
             "{$replaceRoot: {newRoot:\"$result\"}}" })
     Task findTopTaskByUserTaskSort(String userId);
 
+    @Aggregation(pipeline = { "{$match: {userId: '?0', archived: {$ne : true}}}",
+            "{$addFields: {taskId: {$toObjectId: \"$taskId\"} }}",
+            "{$lookup: {from: \"tasksTest\", localField: \"taskId\", foreignField: \"_id\", as: \"result\"}}",
+            "{$addFields: {result: {$first: \"$result\"}}}", "{$match: {result: {$ne: null}}}",
+            "{$replaceRoot: {newRoot: \"$result\"}}",
+            "{$unwind: {path: \"$subTasks\",preserveNullAndEmptyArrays: false}}",
+            "{$addFields: {subTasks: {$toObjectId: \"$subTasks\"}}}",
+            "{$lookup: {from: \"tasksTest\",localField: \"subTasks\",foreignField: \"_id\",as: \"subTasks\"}}",
+            "{$addFields: {subTasks: {$first: \"$subTasks\"}}}", "{$match: {subTasks: {$ne: null}}}",
+            "{$replaceRoot: {newRoot: \"$subTasks\"}}" })
+    List<Task> findSubTasksByUserId(String userId);
+    
     @Aggregation(pipeline = { "{$match: {userId: '?0', archived: true}}",
             "{$addFields: {taskId: {$toObjectId: \"$taskId\"} }}",
             "{$lookup: {from: \"tasksTest\", localField: \"taskId\", foreignField:\"_id\", as: \"result\"}}",

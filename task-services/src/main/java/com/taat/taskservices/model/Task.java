@@ -1,6 +1,7 @@
 package com.taat.taskservices.model;
 
 import com.google.api.client.util.DateTime;
+import com.taat.taskservices.utils.Duration;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +13,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -38,7 +41,11 @@ public class Task {
 
   private int priority;
 
+  private String duration;
+
   private boolean isDelayable;
 
   private boolean archived;
+
+  private List<String> subTasks = new ArrayList<>();
 }

@@ -3,13 +3,10 @@ package com.taat.taskservices.controllers;
 import java.util.List;
 import java.util.Map;
 
-import com.taat.taskservices.model.User;
-import com.taat.taskservices.services.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,9 +22,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.Task;
+import com.taat.taskservices.model.User;
 import com.taat.taskservices.services.ImperativeTaskService;
 // import com.taat.taskservices.services.TaskService;
+import com.taat.taskservices.services.UserService;
 
 // import reactor.core.publisher.Flux;
 // import reactor.core.publisher.Mono;
@@ -67,9 +67,14 @@ public class TaskController {
     // }
 
     @GetMapping(path = "/top", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Task> getTopTask() {
-        Task tasks = taskService.getTopTask("");
-        return new ResponseEntity<>(tasks, HttpStatus.OK);
+    public ResponseEntity<TaskDTO> getTopTask() {
+        try {
+            TaskDTO tasks = taskService.getTopTask("");
+            return new ResponseEntity<>(tasks, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.warn("Exception in Top Task retrieval: ", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     // @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -82,15 +87,20 @@ public class TaskController {
     // }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<Task>> getPaginatedTasks(Pageable pageable) {
-        List<Task> tasks = taskService.getPaginatedTasks(pageable);
-        Page<Task> resultPage = new PageImpl<>(tasks, pageable, taskService.getTaskCount());
-        return new ResponseEntity<>(resultPage, HttpStatus.OK);
+    public ResponseEntity<Page<TaskDTO>> getPaginatedTasks(Pageable pageable) {
+        try {
+            Page<TaskDTO> resultPage = taskService.getPaginatedTasks("", pageable);
+            return new ResponseEntity<>(resultPage, HttpStatus.OK);
+        } catch (Exception e) {
+            logger.warn("Exception in Task List retrieval: ", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @GetMapping(path = "/archived", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<Task>> getArchivedTasks(Pageable pageable) {
-        Page<Task> resultPage = taskService.getArchivedTasks("", pageable);
+    public ResponseEntity<Page<TaskDTO>> getArchivedTasks(Pageable pageable) {
+        Page<TaskDTO> resultPage = taskService.getArchivedTasks("", pageable);
         return new ResponseEntity<>(resultPage, HttpStatus.OK);
     }
 
