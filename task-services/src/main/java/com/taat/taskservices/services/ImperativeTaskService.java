@@ -26,6 +26,7 @@ import com.taat.taskservices.services.comparators.TaskDelayableComparator;
 import com.taat.taskservices.services.comparators.TaskDueDateComparator;
 import com.taat.taskservices.services.comparators.TaskPriorityComparator;
 import com.taat.taskservices.services.comparators.TaskStartDateComparator;
+import com.taat.taskservices.services.comparators.UserTaskSortComparator;
 import com.taat.taskservices.services.filters.TaskCurrentOrOverdueFilter;
 
 import lombok.NonNull;
@@ -45,7 +46,8 @@ public class ImperativeTaskService {
         return taskRepo.findAllByOwner(owner);
     }
 
-    public Page<TaskDTO> getPaginatedTasksDTOs(String userId, Pageable pageable) {
+    public Page<TaskDTO> getPaginatedTasks(String userId, Pageable pageable) {
+        logger.info("Querying Tasks for user: {}", userId);
         Pageable sortingByPriorityPageable = PageRequest.of(pageable.getPageNumber(),
                 pageable.getPageSize(),
                 Sort.by(Sort.Direction.DESC, "priority"));
@@ -53,7 +55,7 @@ public class ImperativeTaskService {
         // Get all task IDs for a specific user, in descending order
         List<String> activeTaskIDs = userTaskRepo.findByUserId(userId).stream()
                 .filter(Predicate.not(UserTask::isArchived))
-                .sorted(Comparator.comparingDouble(UserTask::getSortValue).reversed())
+                .sorted(new UserTaskSortComparator())
                 .map(UserTask::getTaskId)
                 .collect(Collectors.toList());
         // Filter out tasks that are subtasks
@@ -66,6 +68,7 @@ public class ImperativeTaskService {
         }).map(taskId -> {
             return taskRepo.buildHierarchicalRecordById(taskId);
         }).collect(Collectors.toList());
+        logger.info("{} Task results for user: {}", taskDTOs.size(), userId);
 
         // Pagination on this List
         int start = (int) sortingByPriorityPageable.getOffset();
@@ -73,13 +76,6 @@ public class ImperativeTaskService {
         List<TaskDTO> pageContent = taskDTOs.subList(start, end);
 
         return new PageImpl<>(pageContent, sortingByPriorityPageable, taskDTOs.size());
-    }
-
-    public List<Task> getPaginatedTasks(Pageable pageable) {
-        Sort priority = Sort.by(Sort.Direction.DESC, "priority");
-        Pageable defaultSortingPageable = PageRequest.of(pageable.getPageNumber(),
-                pageable.getPageSize(), priority);
-        return taskRepo.findAllBy(defaultSortingPageable);
     }
 
     public long getTaskCount() {

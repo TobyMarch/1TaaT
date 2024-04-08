@@ -14,10 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.Task;
 import com.taat.taskservices.model.UserTask;
 import com.taat.taskservices.repository.imperative.ImperativeTaskRepository;
@@ -47,24 +49,31 @@ public class ImperativeTaskServiceTest {
 
     @Test
     public void testGetPaginatedTasks() {
-        List<Task> taskFlux = getTestTasks();
-        Mockito.when(impTaskRepo.findAllBy(Mockito.any(Pageable.class))).thenReturn(taskFlux);
+        String currentDateString = LocalDateTime.now().toString().split("T")[0];
+        List<Task> taskList = getTestTasks();
+        Task parentTask = taskList.get(0);
+        parentTask.setSubTasks(Collections.singletonList("6"));
+        taskList.set(0, parentTask);
+        taskList.add(new Task("6", "testOwner", "Test Task 6", "A sub-task", null, null,
+                currentDateString + "T09:30:00", 5, Duration.M.toString(), false, false,
+                Collections.emptyList()));
 
-        // Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
+        Mockito.when(impUserTaskRepo.findByUserId("testUser")).thenReturn(getTestTaskJoinEntries(taskList));
+        Mockito.when(impUserTaskRepo.findSubTasksByUserId("testUser"))
+                .thenReturn(Collections.singletonList(taskList.get(taskList.size() - 1)));
+        Mockito.when(impTaskRepo.buildHierarchicalRecordById(Mockito.anyString())).thenReturn(new TaskDTO());
+
         Pageable testPageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "priority"));
-        List<Task> results = taskService.getPaginatedTasks(testPageable);
+        Page<TaskDTO> results = taskService.getPaginatedTasks("testUser", testPageable);
         Assertions.assertNotNull(results);
-        Mockito.verify(impTaskRepo, Mockito.times(1)).findAllBy(Mockito.any(Pageable.class));
-    }
-
-    public void testGetPaginatedTaskDTOs() {
-
+        Mockito.verify(impTaskRepo, Mockito.times(taskList.size() - 1))
+                .buildHierarchicalRecordById(Mockito.anyString());
     }
 
     @Test
     public void testImperativeCreateUpdateTasks() {
         List<Task> taskList = getTestTasks();
-        List<UserTask> userTaskList = getTestTaskJoinEntries();
+        List<UserTask> userTaskList = getTestTaskJoinEntries(taskList);
 
         Mockito.when(impTaskRepo.save(Mockito.any(Task.class))).thenReturn(taskList.get(0),
                 taskList.get(1),
@@ -110,9 +119,9 @@ public class ImperativeTaskServiceTest {
         Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
         Mockito.when(impTaskRepo.save(testTask)).thenReturn(testTask);
         Mockito.when(impUserTaskRepo.findByTaskId(taskId))
-                .thenReturn(Collections.singletonList(getTestTaskJoinEntries().get(0)));
+                .thenReturn(Collections.singletonList(getTestTaskJoinEntries(getTestTasks()).get(0)));
         Mockito.when(impUserTaskRepo.save(Mockito.any(UserTask.class)))
-                .thenReturn(getTestTaskJoinEntries().get(0));
+                .thenReturn(getTestTaskJoinEntries(getTestTasks()).get(0));
 
         Task result = taskService.archiveTask(taskId);
         Assertions.assertNotNull(result);
@@ -130,7 +139,7 @@ public class ImperativeTaskServiceTest {
         taskList.add(
                 new Task("1", "testOwner", "Test Task 1", "A task for testing", null, null,
                         currentDateString + "T09:45:00", 5, Duration.M.toString(), false, false,
-                        Collections.emptyList()));
+                        Collections.singletonList("6")));
         taskList.add(
                 new Task("2", "testOwner", "Test Task 2", "A task for testing", null, null,
                         currentDateString + "T09:30:00", 5, Duration.M.toString(), false, false,
@@ -150,10 +159,10 @@ public class ImperativeTaskServiceTest {
         return taskList;
     }
 
-    private List<UserTask> getTestTaskJoinEntries() {
+    private List<UserTask> getTestTaskJoinEntries(List<Task> taskList) {
         int index = 0;
         List<UserTask> joinEntries = new ArrayList<>();
-        for (Task task : getTestTasks()) {
+        for (Task task : taskList) {
             joinEntries.add(new UserTask(Integer.toString(index++), "", task.getId(), null, null, null, false));
         }
         return joinEntries;

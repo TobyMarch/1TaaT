@@ -87,7 +87,7 @@ public class TaskController {
         // List<Task> tasks = taskService.getPaginatedTasks(pageable);
         // Page<Task> resultPage = new PageImpl<>(tasks, pageable,
         // taskService.getTaskCount());
-        Page<TaskDTO> resultPage = taskService.getPaginatedTasksDTOs("", pageable);
+        Page<TaskDTO> resultPage = taskService.getPaginatedTasks("", pageable);
         return new ResponseEntity<>(resultPage, HttpStatus.OK);
     }
 
