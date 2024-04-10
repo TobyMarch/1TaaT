@@ -7,6 +7,9 @@ import { ReactComponent as SVGSingle } from "./img/single.svg";
 import { ReactComponent as SVGMulti } from "./img/multi.svg";
 import { ReactComponent as SVGAdd } from "./img/add.svg";
 import { ReactComponent as SVGshare } from "./img/share.svg";
+import { ReactComponent as SVGremove} from "./img/remove.svg";
+import { ReactComponent as SVGdone} from "./img/done.svg";
+import { ReactComponent as SVGflag} from "./img/flag.svg";
 import {
   TASK_API_URL,
   TOP_TASK_API_URL,
@@ -36,7 +39,13 @@ function Home() {
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
   };
+const isOverdue = (dueDateString) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today's date to midnight for accurate comparison
 
+  const dueDate = new Date(dueDateString);
+  return dueDate < today;
+};
 const prioritySolidColorsHex = [
   "#F40752", // High priority, red
   "#eb235d", // OrangeRed
@@ -144,16 +153,19 @@ const fetchTopTask = async () => {
           </select>
         </div>
 
-      <button onClick={toggleColumns}>
+      <button className="toggle" onClick={toggleColumns}>
         {isThreeColumns ? (
           <>
-            <SVGSingle />
-            <p>Top Task</p>
+          <p>Task <br/>List<br/>View</p>
+            <SVGMulti />
+
+
           </>
         ) : (
           <>
-            <SVGMulti />
-            <p>Task List</p>
+           <p>Top <br/>Task<br/>View</p>
+            <SVGSingle />
+
           </>
         )}
       </button>
@@ -172,15 +184,24 @@ const fetchTopTask = async () => {
                 background: prioritySolidColorsHex[item.priority - 1],
               }}
             >
-              <h2>{item.title}</h2><p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
+                  <h2>{item.title}</h2>
+        <p className="dueDate">
+          Due: {item.dueDate.split("T")[0]}
+          {isOverdue(item.dueDate) && (
+            <span style={{ color: 'red', marginLeft: '10px' }}>
+              Overdue <SVGflag />
+            </span>
+          )}
+        </p>
               <p>This paragraph serves as placeholder text, designed to fill the space within a document or a part of a website temporarily. Its purpose is to help visualize the overall layout and typography, ensuring that the design accommodates text effectively without the need for finalized content. Placeholder text allows designers and developers to maintain the momentum in the creative process, providing a glimpse of what the final product might look like once all elements are in place.</p>
               <button
                 className="archiveButton"
                 onClick={() => removeTask(item.id)}
               >
-                Archive
+                Remove<SVGremove/>
               </button>
-              <button className="doneButton">Done</button>
+              <button className="doneButton" onClick={() => removeTask(item.id)}>Done<SVGdone/></button>
+
             </div>
           ))}
         </div>

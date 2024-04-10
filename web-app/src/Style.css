@@ -8,6 +8,7 @@ body, html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(11deg, rgba(175,233,175,.8) 10%, rgba(145,203,184,.8) 100%);
+
 }
 
 /* Custom Font */
@@ -31,28 +32,34 @@ body, html {
   width: 100%;
   overflow: hidden;
   background: inherit;
+
 }
 .topBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 90vw;
+  width: 95vw;
   margin-top: 3vw;
-  padding: 5px;
  background: #fff4;
 border-radius: 20px;
-}
-.leftItems p {
-
-
+opacity:.8;
 }
 /* Components and Elements */
-.logo, .leftItems, .filterDropdown {
+.logo, .leftItems, .filterDropdown, .toggle {
   display: flex;
   align-items: center;
+    border-radius: 20px;
+box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ padding: 10px;
 
 }
+.toggle p {
+  margin: 3px;
+  font-size: 15px;
+  font-family: cool;
+  color: #6059;
 
+}
 .filterDropdown {
   flex-grow: 1;
   justify-content: center;
@@ -79,6 +86,7 @@ button {
   margin: 0;
   outline: none;
   cursor: pointer;
+
   }
 
 .addButton {
@@ -86,8 +94,8 @@ button {
   bottom: 30px;
   left: 20px;
   border-radius: 50%;
-  width: 70px;
-  height: 70px;
+  width: 50px;
+  height: 50px;
   color: white;
   border: none;
   padding: 0;
@@ -96,16 +104,17 @@ button {
   align-items: center;
   cursor: pointer;
   box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
-  background-color:  #1617;
+  background-color: #60725b;
   z-index:10px;
+   opacity: .8;
 }
 .shareButton {
   position: absolute;
   bottom: 130px;
   left: 20px;
   border-radius: 50%;
-  width: 70px;
-  height: 70px;
+  width: 50px;
+  height: 50px;
   color: white;
   border: none;
   padding: 0;
@@ -114,15 +123,16 @@ button {
   align-items: center;
   cursor: pointer;
   z-index:10px;
-  background-color: #1167;
+  background-color: #60725b;
+   opacity: .8
 }
 .trashButton {
   position: absolute;
   bottom: 230px;
   left: 20px;
   border-radius: 50%;
-  width: 70px;
-  height: 70px;
+  width: 50px;
+  height: 50px;
   color: white;
   border: none;
   padding: 0;
@@ -131,7 +141,8 @@ button {
   align-items: center;
   cursor: pointer;
   z-index:10px;
-  background-color: #6117;
+  background-color: #60725b;
+  opacity: .8
 }
 
 .shareButton:hover {
@@ -347,6 +358,9 @@ font-weight: 10px;
 animation: popin 1s ease forwards;
 
 
+
+
+
 }
 
 .threeColumns div {
@@ -356,30 +370,34 @@ animation: popin 1s ease forwards;
   padding: 1%;
   border-radius: 100px;
 
+
 }
 .List div {
   width: 80vw;
-  min-height: 300px;
+  min-height: 350px;
   margin-bottom: 50px;
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
-  border-bottom: 3px #6166 ridge;
+box-shadow: 3px -3px 15px #fff3, -5px 5px 11px #0023;
+  border: 2px #fff solid;
+
+
 }
 
-.archiveButton{
-background-color:#f00;
-padding: 10px;
-border-radius:10px;
-margin: 10px;
+.archiveButton, .doneButton {
+  /* Adjust padding to better fit the layout */
+  padding: 10px 20px;
+  margin: 0; /* Remove any default margin */
+  font-weight: bold;
 }
 
-.doneButton{box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
-background-color:#0f0;
-padding: 10px;
-border-radius:10px;
-margin: 10px;
+/* Optionally, style the SVG within buttons for consistency */
+.archiveButton svg, .doneButton svg {
+  width: 24px; /* Adjust based on your preference */
+  height: auto;
+  color: #0003;
 }
+
 
 /* Login Styles */
 .login-container {
@@ -542,6 +560,16 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
   width: 90%;
 }
 
+@keyframes jump {
+  0% {
+    opacity: 0;
+    transform: scale(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(0);
+  }
+}
 
 
 @keyframes popin {
