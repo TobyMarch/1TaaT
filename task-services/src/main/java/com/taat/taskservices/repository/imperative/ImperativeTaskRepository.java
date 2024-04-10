@@ -16,6 +16,8 @@ public interface ImperativeTaskRepository extends MongoRepository<Task, String> 
 
     List<Task> findAllByOwner(String owner);
 
+    Boolean existsByOwnerAndId(String owner, String id);
+
     @Aggregation(pipeline = { "{$match: {_id: ObjectId('?0')}}",
             "{$unwind: {path: \"$subTasks\", preserveNullAndEmptyArrays: true}}",
             "{$addFields: {subTasks: {$toObjectId: \"$subTasks\"}}}",
