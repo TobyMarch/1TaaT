@@ -1,47 +1,96 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './Style.css';
-import logo from './img/logo.svg';
-import { ReactComponent as SVGSingle } from './img/single.svg';
-import { ReactComponent as SVGMulti } from './img/multi.svg';
-import { TASK_API_URL, ALL_TASKS_API_URL } from './URLConstants';
-import { ReactComponent as SVGAdd } from './img/add.svg';
-import { useCookies } from 'react-cookie';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./Style.css";
+import logo from "./img/logo.svg";
+import { ReactComponent as SVGarchive } from "./img/history.svg";
+import { ReactComponent as SVGSingle } from "./img/single.svg";
+import { ReactComponent as SVGMulti } from "./img/multi.svg";
+import { ReactComponent as SVGAdd } from "./img/add.svg";
+import { ReactComponent as SVGshare } from "./img/share.svg";
+import { ReactComponent as SVGremove} from "./img/remove.svg";
+import { ReactComponent as SVGdone} from "./img/done.svg";
+import { ReactComponent as SVGflag} from "./img/flag.svg";
+import {
+  TASK_API_URL,
+  TOP_TASK_API_URL,
+  PAGINATED_TASKS_API_URL,
+} from "./URLConstants";
+import { useCookies } from "react-cookie";
 
 function Home() {
-    const [owner, setOwner] = useState('');
- const [createdDate, setCreatedDate] = useState('');
-
+  const [owner, setOwner] = useState("");
+  const [createdDate, setCreatedDate] = useState("");
   const [isThreeColumns, setIsThreeColumns] = useState(false);
   const [items, setItems] = useState([]);
   const [menuVisible, setMenuVisible] = useState(false);
-  const [title, setTitle] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [dueDate, setDueDate] = useState('');
+  const [title, setTitle] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState(5);
-  const [selectedOption, setSelectedOption] = useState('option');
-  const [cookies] = useCookies(['XSRF-TOKEN']);
+  const [selectedOption, setSelectedOption] = useState("option");
+  const [cookies] = useCookies(["XSRF-TOKEN"]);
+
   const handleOptionChange = (event) => {
     setSelectedOption(event.target.value);
   };
+  const removeTask = (taskId) => {
+    setItems((items) => items.filter((item) => item.id !== taskId));
+  };
+  const toggleMenu = () => {
+    setMenuVisible(!menuVisible);
+  };
+const isOverdue = (dueDateString) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Normalize today's date to midnight for accurate comparison
 
-  useEffect(() => {
-    try {
-      axios.get(ALL_TASKS_API_URL, {withCredentials: true}).then((res) => {
-        setItems(res.data);
-      });
-    } catch (e) {
-      console.error('Error loading task data: ', e);
-      alert('Failed to load tasks');
-    }
-
-    const currentDate = new Date().toISOString().split('T')[0]; 
-    setStartDate(currentDate + "T12:00");
-    setDueDate(currentDate + "T12:00");
-  }, []);
-const toggleMenu = () => {
-  setMenuVisible(!menuVisible);
+  const dueDate = new Date(dueDateString);
+  return dueDate < today;
 };
+const prioritySolidColorsHex = [
+  "#F40752", // High priority, red
+  "#eb235d", // OrangeRed
+  "#e23f69", // DarkOrange
+  "#da5b74", // Gold
+  "#d17880", // Yellow
+  "#c8948c", // GreenYellow
+  "#c0b097", // Slightly lighter than LimeGreen, custom
+  "#b7cca3", // MediumSeaGreen, custom approximation
+  "#afe9af"  // MediumSpringGreen
+];
+
+
+useEffect(() => {
+  const fetchTasks = async () => {
+    try {
+      const url = isThreeColumns ? PAGINATED_TASKS_API_URL : TOP_TASK_API_URL;
+      const response = await axios.get(url, { withCredentials: true });
+      if (Array.isArray(response.data.content)) {
+        setItems(response.data.content);
+      } else if (response.data && !Array.isArray(response.data.content)) {
+
+        setItems([response.data]);
+      } else {
+        console.error('Expected an array or an object for content, received:', response.data);
+        setItems([]);
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+      setItems([]);
+    }
+  };
+
+  fetchTasks();
+  const currentDate = new Date().toISOString().split("T")[0];
+  setStartDate(`${currentDate}T12:00`);
+  setDueDate(`${currentDate}T12:00`);
+}, [isThreeColumns]);
+
+
+
+  const toggleColumns = () => {
+    setIsThreeColumns(!isThreeColumns);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -51,116 +100,181 @@ const toggleMenu = () => {
         createdDate,
         startDate,
         dueDate,
-        priority
+        priority,
+        color: prioritySolidColorsHex[priority - 1],
       };
 
-      await axios.post(
-        TASK_API_URL, 
-        [data], 
-        {
-          withCredentials: true,
-          headers: {
-            'X-XSRF-TOKEN': cookies['XSRF-TOKEN']
-          }
-        });
+      await axios.post(TASK_API_URL, [data], {
+        withCredentials: true,
+        headers: {
+          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+        },
+      });
 
-      setOwner('');
-      setTitle('');
-      setStartDate('');
-      setDueDate('');
+      setOwner("");
+      setTitle("");
+      setStartDate("");
+      setDueDate("");
       setPriority(5);
-      alert('Task added successfully');
+      alert("Task added successfully");
     } catch (error) {
-      console.error('Error submitting data:', error);
-      alert('Failed to add task');
+      console.error("Error submitting data:", error);
+      alert("Failed to add task");
     }
   };
 
-  const toggleColumns = () => {
-    setIsThreeColumns(!isThreeColumns);
-  };
+const fetchTopTask = async () => {
+  try {
+    const response = await axios.get(TOP_TASK_API_URL, { withCredentials: true });
+    console.log(response.data);
+    setItems(response.data.content);
+  } catch (error) {
+    console.error("Error fetching top task:", error);
+    alert("Failed to fetch top task");
+  }
+};
+
 
   return (
-    <div className="App">
-      <div className="topBar">
-        <div className="leftItems">
-          <button onClick={toggleColumns}>
-            {isThreeColumns ? <SVGSingle /> : <SVGMulti />}
-          </button>
-        </div>
-   
+ <div className="App">
+  {/* Top Bar Nav */}
+  <div className="topBar">
+    <div className="leftItems">
+     <img src={logo} alt="Logo" className="logo" />
+
+    </div>
+
         <div className="filterDropdown">
           <select onChange={handleOptionChange} value={selectedOption}>
-            <option value="option">Priority</option>
-            <option value="option1">Recently Added</option>
-            <option value="option2">Archived</option>
-	  <option value="option3">Reverse Priority</option>
-          <option value="option4">Other</option>
-	  <option value="option5">Other</option>
-	  </select>
+            <option value="Highest">Highest Priority</option>
+            <option value="option2">Lowest Priority</option>
+            <option value="Newest">Newest</option>
+            <option value="Oldest">Oldest</option>
+          </select>
         </div>
-        <img src={logo} alt="Logo" className="logo" />
-      </div>
 
- {/* Settings button to toggle new task form */}
-      <button className="bottomRightButton" onClick={toggleMenu}>
-        <SVGAdd />
+      <button className="toggle" onClick={toggleColumns}>
+        {isThreeColumns ? (
+          <>
+          <p>Task <br/>List<br/>View</p>
+            <SVGMulti />
+
+
+          </>
+        ) : (
+          <>
+           <p>Top <br/>Task<br/>View</p>
+            <SVGSingle />
+
+          </>
+        )}
       </button>
 
+      </div>
 
 
       {/* Task List */}
-      <div className={`List ${isThreeColumns ? 'threeColumns' : ''}`}>
-        {isThreeColumns ? (
-          <div className="item">
-            {items[0] && (
-              <>
-                <p>{items[0].title}</p>
-                <p className="dueDate">Due: {items[0].dueDate.split('T')[0]}</p>
-                <button className="doneButton">Done</button>
-                <button className="archiveButton">Archive</button>
-              </>
-            )}
-          </div>
-        ) : (
-          items.map((item, index) => (
-            <div className="item" key={index}>
-              <p>{item.title}</p>
-              <p className="dueDate">Due: {item.dueDate.split('T')[0]}</p>
-              <button className="archiveButton">Archive</button>
-              <button className="doneButton">Done</button>
+      {!menuVisible && (
+  <div className={`List ${isThreeColumns ? "threeColumns" : ""}`}>
+    {items && items.map((item, index) => (
+            <div
+              className="item"
+              key={index}
+              style={{
+                background: prioritySolidColorsHex[item.priority - 1],
+              }}
+            >
+                  <h2>{item.title}</h2>
+        <p className="dueDate">
+          Due: {item.dueDate.split("T")[0]}
+          {isOverdue(item.dueDate) && (
+            <span style={{ color: 'red', marginLeft: '10px' }}>
+              Overdue <SVGflag />
+            </span>
+          )}
+        </p>
+              <p>This paragraph serves as placeholder text, designed to fill the space within a document or a part of a website temporarily. Its purpose is to help visualize the overall layout and typography, ensuring that the design accommodates text effectively without the need for finalized content. Placeholder text allows designers and developers to maintain the momentum in the creative process, providing a glimpse of what the final product might look like once all elements are in place.</p>
+              <button
+                className="archiveButton"
+                onClick={() => removeTask(item.id)}
+              >
+                Remove<SVGremove/>
+              </button>
+              <button className="doneButton" onClick={() => removeTask(item.id)}>Done<SVGdone/></button>
+
             </div>
-          ))
-        )}
-      </div>
-	   {/* Conditional rendering of the new task form */}
+          ))}
+        </div>
+      )}
+
+        {/* Settings button to toggle new task form */}
+      <button className="trashButton" onClick={toggleMenu}>
+        <SVGarchive />
+      </button>
+      <button className="shareButton" onClick={toggleMenu}>
+        <SVGshare />
+      </button>
+      <button className="addButton" onClick={toggleMenu}>
+        <SVGAdd />
+      </button>
+
+      {/* Conditional rendering of the new task form */}
       {menuVisible && (
         <div className="add-task-form">
           <h2>Add New Task</h2>
           <form onSubmit={handleSubmit}>
-            {/* Form fields */}
+
+            {/* Add New Task Form */}
             <div>
               <label htmlFor="title">Task:</label>
-              <input type="text" id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
+              <input
+                type="text"
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
             </div>
             <div>
               <label htmlFor="startDate">Start Date:</label>
-              <input type="datetime-local" id="startDate" value={startDate} onChange={(e) => setStartDate(e.target.value)} required />
+              <input
+                type="datetime-local"
+                id="startDate"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                required
+              />
             </div>
             <div>
               <label htmlFor="dueDate">Due Date:</label>
-              <input type="datetime-local" id="dueDate" value={dueDate} onChange={(e) => setDueDate(e.target.value)} required />
+              <input
+                type="datetime-local"
+                id="dueDate"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+                required
+              />
             </div>
             <div>
               <label htmlFor="priority">Priority:</label>
-              <input type="range" id="priority" value={priority} min="1" max="9" onChange={(e) => setPriority(parseInt(e.target.value, 10))} />
+              <input
+                type="range"
+                id="priority"
+                value={priority}
+                min="1"
+                max="9"
+                onChange={(e) => setPriority(parseInt(e.target.value, 10))}
+              />
               <span>{priority}</span>
             </div>
-            <button type="submit">Submit</button>
+           <div class="button-container">
+  <button class="back" onClick={toggleMenu}>Back</button>
+  <button class="submit" type="submit">Submit</button>
+</div>
+
           </form>
         </div>
       )}
-
     </div>
   );
 }

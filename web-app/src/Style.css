@@ -2,12 +2,13 @@
 body, html {
   margin: 0;
   padding: 0;
-  height: 100%; /* Ensure body and html span the full height */
+  height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(11deg, rgba(175,233,175,.6) 10%, rgba(145,203,184,.6) 100%);
+  background: linear-gradient(11deg, rgba(175,233,175,.8) 10%, rgba(145,203,184,.8) 100%);
+
 }
 
 /* Custom Font */
@@ -24,39 +25,45 @@ body, html {
 /* App Layout */
 .App {
   text-align: center;
-  height: 100vh; 
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  overflow: hidden; 
+  overflow: hidden;
   background: inherit;
+
 }
 .topBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 90vw;
+  width: 95vw;
   margin-top: 3vw;
-  margin-bottom: 3px;
-box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
- background: linear-gradient(11deg, rgba(175,233,175,.3) 0%, rgba(145,203,184,.3) 100%);
-animation: popin 1s ease forwards;
+ background: #fff4;
 border-radius: 20px;
+opacity:.8;
 }
-
 /* Components and Elements */
-.logo, .leftItems, .filterDropdown {
+.logo, .leftItems, .filterDropdown, .toggle {
   display: flex;
   align-items: center;
-  padding:3vw;
-}
+    border-radius: 20px;
+box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+ padding: 10px;
 
+}
+.toggle p {
+  margin: 3px;
+  font-size: 15px;
+  font-family: cool;
+  color: #6059;
+
+}
 .filterDropdown {
-  z-index: 5;
   flex-grow: 1;
   justify-content: center;
-  
+
 }
 
 .filterDropdown select {
@@ -64,33 +71,31 @@ border-radius: 20px;
   padding: 5px 20px;
   border-radius: 15px;
   border: none;
-  width: 200px;
+  width: 250px;
   height: 60px;
  background-color: #eee9;
   box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
+  font-family: cool;
+  color: #6059;
 }
 
-.buttons {
-  display: flex;
-  justify-content: space-between;
-}
 button {
   border: none;
   background: none;
   padding: 0;
   margin: 0;
-  outline: none; 
-  cursor: pointer; 
+  outline: none;
+  cursor: pointer;
+
   }
 
-.bottomRightButton {
+.addButton {
   position: absolute;
-  bottom: 50px;
-  right: 50px;
+  bottom: 30px;
+  left: 20px;
   border-radius: 50%;
-  width: 70px;
-  height: 70px;
-
+  width: 50px;
+  height: 50px;
   color: white;
   border: none;
   padding: 0;
@@ -98,87 +103,301 @@ button {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
-background: #0056b3;
-z-index:10px;
+  box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+  background-color: #60725b;
+  z-index:10px;
+   opacity: .8;
+}
+.shareButton {
+  position: absolute;
+  bottom: 130px;
+  left: 20px;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  color: white;
+  border: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index:10px;
+  background-color: #60725b;
+   opacity: .8
+}
+.trashButton {
+  position: absolute;
+  bottom: 230px;
+  left: 20px;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  color: white;
+  border: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index:10px;
+  background-color: #60725b;
+  opacity: .8
 }
 
-.bottomRightButton:hover {
-  background-color: #0056b3;
+.shareButton:hover {
+  background-color: #0356b3;
+}
+.trashButton:hover {
+  background-color: #0356b3;
+}
+.addButton:hover {
+  background-color: #0356b3;
 }
 
 .add-task-form {
   position: absolute;
-  bottom: 130px;
-  right: 50px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   padding: 25px;
-  z-index: 1;
-  height:500px;
-  background-color: #f8ebe4;
+  z-index: 0;
+    background: linear-gradient(11deg, rgba(175,233,175,1) 10%, rgba(145,203,184,1) 100%);
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
   border-radius: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+label{
+  font-family: cool;
+  font-weight: 10;
+  font-size: 45px;
+  color: #6059;
+  margin-bottom: -10px;
+  padding: 0px;
+}
+/* Base styles for text inputs to align with the design */
+input[type="text"], input[type="datetime-local"] {
+  width: 100%; /* Full width to align with form */
+  padding: 10px;
+  margin: 5px 0 20px; /* Add some space between inputs */
+  border-radius: 5px;
+  border: 1px solid #ccc; /* Subtle border */
 }
 
-/* List and Items */
-.List {
-text-align: center;
-  overflow-y: auto; 
-  height: 100vh; 
+/* Refining range slider styles to fit the new design */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+}
+
+/* Base styles for the slider */
+input[type="range"] {
+  -webkit-appearance: none; /* Removes default styling for WebKit browsers */
+  width: 100%; /* Slider width */
+  height: 8px; /* Slider track height */
+  border-radius: 5px; /* Rounds the corners of the slider track */
+  background: linear-gradient(to right,
+    #afe9af 0%,
+    #b7cca3 12.5%,
+    #c0b097 25%,
+    #c8948c 37.5%,
+    #d17880 50%,
+    #da5b74 62.5%,
+    #e23f69 75%,
+    #eb235d 87.5%,
+    #f40752 100%); /* Gradient background for the slider track */
+  outline: none; /* Removes the outline */
+  padding: 0; /* Removes default padding */
+  margin: 0; /* Adjust as needed */
+}
+
+/* Styles for the slider thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Removes default styling for WebKit browsers */
+  appearance: none;
+  width: 20px; /* Width of the thumb */
+  height: 20px; /* Height of the thumb */
+  background: #FFF; /* Thumb background color */
+  cursor: pointer; /* Changes cursor type on hover */
+  border: 2px solid #F40752; /* Adds a border to the thumb */
+  border-radius: 50%; /* Makes the thumb circular */
+}
+.range-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: left; 
-  font-size: calc(9px + 3vmin);
-  color: #333;
-  width: 100vw; 
- 
+  width: 100%; /* Ensure container uses full width */
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  width: 100%; /* Ensure the slider container uses full width */
+  position: relative; /* Allows absolute positioning within */
+}
+
+.range-label {
+  font-size: 18px;
+  font-family: cool;
 
 }
 
-.List.threeColumns {
+.low {
+  position: absolute;
+  left: 0; /* Align to the far left */
+}
 
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-    overflow-y: auto; 
-  overflow-x: hidden;
+.high {
+  position: absolute;
+  right: 0; /* Align to the far right */
+}
+
+input[type="range"] {
+  width: calc(100% - 40px); /* Adjust based on label sizes to prevent overflow */
+  margin: 0 20px; /* Ensure some space around the slider */
+  padding:20px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px; /* Width of the thumb */
+  height: 20px; /* Height of the thumb */
+  background: #FFF; /* Thumb background color */
+  cursor: pointer; /* Changes cursor type on hover */
+  border: 2px solid #F40752; /* Adds a border to the thumb */
+  border-radius: 50%; /* Makes the thumb circular */
+}
+
+/* Styles for the slider thumb for IE */
+input[type="range"]::-ms-thumb {
+  width: 20px; /* Width of the thumb */
+  height: 20px; /* Height of the thumb */
+  background: #FFF; /* Thumb background color */
+  cursor: pointer; /* Changes cursor type on hover */
+  border: 2px solid #F40752; /* Adds a border to the thumb */
+  border-radius: 50%; /* Makes the thumb circular */
+}
+
+/* Additional styles for compatibility */
+input[type="range"]:focus::-webkit-slider-thumb {
+  background: #f40752; /* Change thumb color upon focus */
+}
+.button-container {
+  display: flex;
+  justify-content: space-between; /* Pushes children to opposite ends */
+  align-items: center; /* Centers buttons vertically, if needed */
+  padding: 10px; /* Adds some padding around the container */
+}
+
+/* Back button specific styling */
+.back {
+  background-color: #32CD9A; /* Lighter green, adjust as needed */
+  padding: 50px;
+}
+
+.back:hover {
+  background-color: #28B485; /* Slightly darker green on hover */
+}
+
+/* Submit button specific styling */
+.submit {
+  background-color: #F40752; /* Vibrant pinkish-red */
+  color: #FFF; /* White text color for better contrast */
+  border: 2px solid transparent; /* Prepares for hover effect */
+   padding: 50px;
+}
+
+.submit:hover {
+  background-color: #C10542; /* Darker shade of pinkish-red on hover */
+  border-color: #FFF; /* Adds a white border on hover */
+}
+
+
+/* List and Items */
+.List {
+  text-align: center;
+  overflow-y: auto;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   width: 100%;
+  margin: 0 auto;
+
+
 }
+
+.item h2 {
+  text-align: left;
+  margin-left: 5px;
+  color: #fff;
+  font-family: BrownBagLunch;
+  font-weight: 1;
+  font-size: 70px;
+  margin:0;
+}
+
+.item p {
+  text-align: left;
+  margin-left: 30px;
+  color: #000;
+font-weight: 10px;
+}
+
+.item {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+animation: popin 1s ease forwards;
+
+
+
+
+
+}
+
 .threeColumns div {
   width: 80vw;
-  min-height: 200px; 
+  min-height: 200px;
   margin-bottom: 20px;
   padding: 1%;
-  background-color: #ddd;
   border-radius: 100px;
-  
-} 
-.item {
-border-radius:30px;
 
 
 }
 .List div {
-  width: 80vw; 
-  min-height: 300px; 
+  width: 80vw;
+  min-height: 350px;
   margin-bottom: 50px;
   padding: 20px;
-  background-color: #eee;
   border-radius: 10px;
-  border: solid 2px #fff;
-    
-}
-.archiveButton{
-background-color:#f00;
-padding: 10px;
-border-radius:10px;
+box-shadow: 3px -3px 15px #fff3, -5px 5px 11px #0023;
+  border: 2px #fff solid;
+
+
 }
 
-.doneButton{
-background-color:#0f0;
-padding: 10px;
-border-radius:10px;
+.archiveButton, .doneButton {
+  /* Adjust padding to better fit the layout */
+  padding: 10px 20px;
+  margin: 0; /* Remove any default margin */
+  font-weight: bold;
 }
+
+/* Optionally, style the SVG within buttons for consistency */
+.archiveButton svg, .doneButton svg {
+  width: 24px; /* Adjust based on your preference */
+  height: auto;
+  color: #0003;
+}
+
 
 /* Login Styles */
 .login-container {
@@ -199,10 +418,9 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
  background: linear-gradient(11deg, rgba(175,233,175,.9) 10%, rgba(145,203,184,.9) 100%);
   width: 300px;
   height: 350px;
-  border-bottom: 3px #6166 ridge;
-
-
+  border-bottom: 3px #6069 ridge;
 }
+
 .login-form .logo {
   display: flex;
   flex-direction: column;
@@ -219,7 +437,7 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
   font-family: cool;
   font-weight: 10;
   font-size: 45px;
-  color: #6169;
+  color: #6059;
   margin-bottom: -10px;
   padding: 0px;
 }
@@ -227,11 +445,11 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
 
   font-family: BrownBagLunch;
   font-weight: 0;
-  font-size: 40px;
-  color: #0039;
+  font-size: 30px;
+  color:  #6259;
   margin-top: 0px;
   padding: 0px;
- 
+
 }
 
 .gsi-material-button {
@@ -322,7 +540,7 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
   opacity: 38%;
 }
 
-.gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+.gsi-material-button:not(:disabled):active .gsi-material-button-state,
 .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
   background-color: #303030;
   opacity: 12%;
@@ -342,11 +560,17 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
   width: 90%;
 }
 
-.dueDate {
-  color: #888;
-  font-size: 0.8em;
-  margin-top: 10px;
+@keyframes jump {
+  0% {
+    opacity: 0;
+    transform: scale(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(0);
+  }
 }
+
 
 @keyframes popin {
   0% {
