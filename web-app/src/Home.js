@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Style.css";
 import logo from "./img/logo.svg";
-import { ReactComponent as SVGarchive } from "./img/archive.svg";
+import { ReactComponent as SVGarchive } from "./img/history.svg";
 import { ReactComponent as SVGSingle } from "./img/single.svg";
 import { ReactComponent as SVGMulti } from "./img/multi.svg";
 import { ReactComponent as SVGAdd } from "./img/add.svg";
+import { ReactComponent as SVGshare } from "./img/share.svg";
 import {
   TASK_API_URL,
   TOP_TASK_API_URL,
@@ -36,17 +37,18 @@ function Home() {
     setMenuVisible(!menuVisible);
   };
 
-  const priorityGradients = [
-    "linear-gradient(to top, rgba(255, 0, 0, 0.5), rgba(175,233,175,.8))", //1 high
-    "linear-gradient(to top, rgba(255, 69, 0, 0.5), rgba(175,233,175,.8))",
-    "linear-gradient(to top, rgba(255, 140, 0, 0.5), rgba(175,233,175,.8))",
-    "linear-gradient(to top, rgba(255, 215, 0, 0.5), rgba(175,233,175,.8))",
-    "linear-gradient(to right, rgba(255, 255, 0, 0.5), rgba(175,233,175,.8))",
-    "linear-gradient(to right, rgba(173, 255, 47, 0.5), rgba(175,233,175,.8))",
-    "linear-gradient(to right, rgba(100, 250, 100, 0.5), rgba(175,233,175,.8))",
-    "linear-gradient(to right, rgba(50, 205, 154, 0.5), rgba(175,233,175,.8))",
-    "linear-gradient(to right, rgba(0, 250, 154, 0.5), rgba(175,233,175,.8))", //9
-  ];
+const prioritySolidColorsHex = [
+  "#F40752", // High priority, red
+  "#eb235d", // OrangeRed
+  "#e23f69", // DarkOrange
+  "#da5b74", // Gold
+  "#d17880", // Yellow
+  "#c8948c", // GreenYellow
+  "#c0b097", // Slightly lighter than LimeGreen, custom
+  "#b7cca3", // MediumSeaGreen, custom approximation
+  "#afe9af"  // MediumSpringGreen
+];
+
 
 useEffect(() => {
   const fetchTasks = async () => {
@@ -90,7 +92,7 @@ useEffect(() => {
         startDate,
         dueDate,
         priority,
-        color: priorityGradients[priority - 1],
+        color: prioritySolidColorsHex[priority - 1],
       };
 
       await axios.post(TASK_API_URL, [data], {
@@ -167,7 +169,7 @@ const fetchTopTask = async () => {
               className="item"
               key={index}
               style={{
-                backgroundImage: priorityGradients[item.priority - 1],
+                background: prioritySolidColorsHex[item.priority - 1],
               }}
             >
               <h2>{item.title}</h2><p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
@@ -189,7 +191,7 @@ const fetchTopTask = async () => {
         <SVGarchive />
       </button>
       <button className="shareButton" onClick={toggleMenu}>
-        <SVGAdd />
+        <SVGshare />
       </button>
       <button className="addButton" onClick={toggleMenu}>
         <SVGAdd />
@@ -244,8 +246,11 @@ const fetchTopTask = async () => {
               />
               <span>{priority}</span>
             </div>
-            <button onClick={toggleMenu}>Back </button>
-            <button type="submit">Submit </button>
+           <div class="button-container">
+  <button class="back" onClick={toggleMenu}>Back</button>
+  <button class="submit" type="submit">Submit</button>
+</div>
+
           </form>
         </div>
       )}

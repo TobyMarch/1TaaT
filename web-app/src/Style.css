@@ -38,10 +38,8 @@ body, html {
   align-items: center;
   width: 90vw;
   margin-top: 3vw;
-padding: 5px;
-
+  padding: 5px;
  background: #fff4;
-
 border-radius: 20px;
 }
 .leftItems p {
@@ -56,7 +54,6 @@ border-radius: 20px;
 }
 
 .filterDropdown {
-  z-index: 5;
   flex-grow: 1;
   justify-content: center;
 
@@ -71,6 +68,8 @@ border-radius: 20px;
   height: 60px;
  background-color: #eee9;
   box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
+  font-family: cool;
+  color: #6059;
 }
 
 button {
@@ -153,7 +152,7 @@ button {
   left: 0;
   padding: 25px;
   z-index: 0;
-  background-color: #f8ebe4;
+    background: linear-gradient(11deg, rgba(175,233,175,1) 10%, rgba(145,203,184,1) 100%);
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
   border-radius: 15px;
   overflow-y: auto;
@@ -162,6 +161,150 @@ button {
   justify-content: center;
   align-items: center;
 }
+label{
+  font-family: cool;
+  font-weight: 10;
+  font-size: 45px;
+  color: #6059;
+  margin-bottom: -10px;
+  padding: 0px;
+}
+/* Base styles for text inputs to align with the design */
+input[type="text"], input[type="datetime-local"] {
+  width: 100%; /* Full width to align with form */
+  padding: 10px;
+  margin: 5px 0 20px; /* Add some space between inputs */
+  border-radius: 5px;
+  border: 1px solid #ccc; /* Subtle border */
+}
+
+/* Refining range slider styles to fit the new design */
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+}
+
+/* Base styles for the slider */
+input[type="range"] {
+  -webkit-appearance: none; /* Removes default styling for WebKit browsers */
+  width: 100%; /* Slider width */
+  height: 8px; /* Slider track height */
+  border-radius: 5px; /* Rounds the corners of the slider track */
+  background: linear-gradient(to right,
+    #afe9af 0%,
+    #b7cca3 12.5%,
+    #c0b097 25%,
+    #c8948c 37.5%,
+    #d17880 50%,
+    #da5b74 62.5%,
+    #e23f69 75%,
+    #eb235d 87.5%,
+    #f40752 100%); /* Gradient background for the slider track */
+  outline: none; /* Removes the outline */
+  padding: 0; /* Removes default padding */
+  margin: 0; /* Adjust as needed */
+}
+
+/* Styles for the slider thumb */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Removes default styling for WebKit browsers */
+  appearance: none;
+  width: 20px; /* Width of the thumb */
+  height: 20px; /* Height of the thumb */
+  background: #FFF; /* Thumb background color */
+  cursor: pointer; /* Changes cursor type on hover */
+  border: 2px solid #F40752; /* Adds a border to the thumb */
+  border-radius: 50%; /* Makes the thumb circular */
+}
+.range-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; /* Ensure container uses full width */
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  width: 100%; /* Ensure the slider container uses full width */
+  position: relative; /* Allows absolute positioning within */
+}
+
+.range-label {
+  font-size: 18px;
+  font-family: cool;
+
+}
+
+.low {
+  position: absolute;
+  left: 0; /* Align to the far left */
+}
+
+.high {
+  position: absolute;
+  right: 0; /* Align to the far right */
+}
+
+input[type="range"] {
+  width: calc(100% - 40px); /* Adjust based on label sizes to prevent overflow */
+  margin: 0 20px; /* Ensure some space around the slider */
+  padding:20px;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px; /* Width of the thumb */
+  height: 20px; /* Height of the thumb */
+  background: #FFF; /* Thumb background color */
+  cursor: pointer; /* Changes cursor type on hover */
+  border: 2px solid #F40752; /* Adds a border to the thumb */
+  border-radius: 50%; /* Makes the thumb circular */
+}
+
+/* Styles for the slider thumb for IE */
+input[type="range"]::-ms-thumb {
+  width: 20px; /* Width of the thumb */
+  height: 20px; /* Height of the thumb */
+  background: #FFF; /* Thumb background color */
+  cursor: pointer; /* Changes cursor type on hover */
+  border: 2px solid #F40752; /* Adds a border to the thumb */
+  border-radius: 50%; /* Makes the thumb circular */
+}
+
+/* Additional styles for compatibility */
+input[type="range"]:focus::-webkit-slider-thumb {
+  background: #f40752; /* Change thumb color upon focus */
+}
+.button-container {
+  display: flex;
+  justify-content: space-between; /* Pushes children to opposite ends */
+  align-items: center; /* Centers buttons vertically, if needed */
+  padding: 10px; /* Adds some padding around the container */
+}
+
+/* Back button specific styling */
+.back {
+  background-color: #32CD9A; /* Lighter green, adjust as needed */
+  padding: 50px;
+}
+
+.back:hover {
+  background-color: #28B485; /* Slightly darker green on hover */
+}
+
+/* Submit button specific styling */
+.submit {
+  background-color: #F40752; /* Vibrant pinkish-red */
+  color: #FFF; /* White text color for better contrast */
+  border: 2px solid transparent; /* Prepares for hover effect */
+   padding: 50px;
+}
+
+.submit:hover {
+  background-color: #C10542; /* Darker shade of pinkish-red on hover */
+  border-color: #FFF; /* Adds a white border on hover */
+}
+
 
 /* List and Items */
 .List {
@@ -172,34 +315,27 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-
   width: 100%;
   margin: 0 auto;
+
+
 }
 
-
-.List.threeColumns {
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.item h2, .item p {
+.item h2 {
   text-align: left;
-  margin-left: 10px;
-  color: #000;
+  margin-left: 5px;
+  color: #fff;
+  font-family: BrownBagLunch;
+  font-weight: 1;
+  font-size: 70px;
+  margin:0;
 }
 
 .item p {
+  text-align: left;
+  margin-left: 30px;
   color: #000;
-}
-
-.dueDate p {
-  text-align: right;
-  color: #888;
-  font-size: 0.3em;
-  margin-top: -10px;
-  margin-right: 10px;
+font-weight: 10px;
 }
 
 .item {
@@ -209,6 +345,7 @@ button {
   justify-content: space-between;
   align-items: flex-start;
 animation: popin 1s ease forwards;
+
 
 }
 
@@ -261,13 +398,11 @@ margin: 10px;
   border-radius: 30px;
 box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
  background: linear-gradient(11deg, rgba(175,233,175,.9) 10%, rgba(145,203,184,.9) 100%);
-
   width: 300px;
   height: 350px;
   border-bottom: 3px #6069 ridge;
-
-
 }
+
 .login-form .logo {
   display: flex;
   flex-direction: column;
@@ -281,10 +416,10 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
 }
 .login-form h2 {
 
-  font-family: cool;
+  font-family: sf;
   font-weight: 10;
   font-size: 45px;
-  color: #6069;
+  color: #6059;
   margin-bottom: -10px;
   padding: 0px;
 }
@@ -293,7 +428,7 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
   font-family: BrownBagLunch;
   font-weight: 0;
   font-size: 30px;
-  color:  #6369;
+  color:  #6259;
   margin-top: 0px;
   padding: 0px;
 
