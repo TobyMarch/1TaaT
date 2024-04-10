@@ -2,12 +2,12 @@
 body, html {
   margin: 0;
   padding: 0;
-  height: 100%; /* Ensure body and html span the full height */
+  height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(11deg, rgba(175,233,175,.6) 10%, rgba(145,203,184,.6) 100%);
+  background: linear-gradient(11deg, rgba(175,233,175,.8) 10%, rgba(145,203,184,.8) 100%);
 }
 
 /* Custom Font */
@@ -24,12 +24,12 @@ body, html {
 /* App Layout */
 .App {
   text-align: center;
-  height: 100vh; 
+  height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
-  overflow: hidden; 
+  overflow: hidden;
   background: inherit;
 }
 .topBar {
@@ -38,25 +38,28 @@ body, html {
   align-items: center;
   width: 90vw;
   margin-top: 3vw;
-  margin-bottom: 3px;
-box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
- background: linear-gradient(11deg, rgba(175,233,175,.3) 0%, rgba(145,203,184,.3) 100%);
-animation: popin 1s ease forwards;
+padding: 5px;
+
+ background: #fff4;
+
 border-radius: 20px;
 }
+.leftItems p {
 
+
+}
 /* Components and Elements */
 .logo, .leftItems, .filterDropdown {
   display: flex;
   align-items: center;
-  padding:3vw;
+
 }
 
 .filterDropdown {
   z-index: 5;
   flex-grow: 1;
   justify-content: center;
-  
+
 }
 
 .filterDropdown select {
@@ -64,33 +67,28 @@ border-radius: 20px;
   padding: 5px 20px;
   border-radius: 15px;
   border: none;
-  width: 200px;
+  width: 250px;
   height: 60px;
  background-color: #eee9;
   box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
 }
 
-.buttons {
-  display: flex;
-  justify-content: space-between;
-}
 button {
   border: none;
   background: none;
   padding: 0;
   margin: 0;
-  outline: none; 
-  cursor: pointer; 
+  outline: none;
+  cursor: pointer;
   }
 
-.bottomRightButton {
+.addButton {
   position: absolute;
-  bottom: 50px;
-  right: 50px;
+  bottom: 30px;
+  left: 20px;
   border-radius: 50%;
   width: 70px;
   height: 70px;
-
   color: white;
   border: none;
   padding: 0;
@@ -98,86 +96,152 @@ button {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
-background: #0056b3;
-z-index:10px;
+  box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+  background-color:  #1617;
+  z-index:10px;
+}
+.shareButton {
+  position: absolute;
+  bottom: 130px;
+  left: 20px;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  color: white;
+  border: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index:10px;
+  background-color: #1167;
+}
+.trashButton {
+  position: absolute;
+  bottom: 230px;
+  left: 20px;
+  border-radius: 50%;
+  width: 70px;
+  height: 70px;
+  color: white;
+  border: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index:10px;
+  background-color: #6117;
 }
 
-.bottomRightButton:hover {
-  background-color: #0056b3;
+.shareButton:hover {
+  background-color: #0356b3;
+}
+.trashButton:hover {
+  background-color: #0356b3;
+}
+.addButton:hover {
+  background-color: #0356b3;
 }
 
 .add-task-form {
   position: absolute;
-  bottom: 130px;
-  right: 50px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   padding: 25px;
-  z-index: 1;
-  height:500px;
+  z-index: 0;
   background-color: #f8ebe4;
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
   border-radius: 15px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 /* List and Items */
 .List {
-text-align: center;
-  overflow-y: auto; 
-  height: 100vh; 
+  text-align: center;
+  overflow-y: auto;
+  height: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: left; 
-  font-size: calc(9px + 3vmin);
-  color: #333;
-  width: 100vw; 
- 
+  justify-content: flex-start;
 
+  width: 100%;
+  margin: 0 auto;
 }
+
 
 .List.threeColumns {
-
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: space-between;
-    overflow-y: auto; 
-  overflow-x: hidden;
-  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
+
+.item h2, .item p {
+  text-align: left;
+  margin-left: 10px;
+  color: #000;
+}
+
+.item p {
+  color: #000;
+}
+
+.dueDate p {
+  text-align: right;
+  color: #888;
+  font-size: 0.3em;
+  margin-top: -10px;
+  margin-right: 10px;
+}
+
+.item {
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+animation: popin 1s ease forwards;
+
+}
+
 .threeColumns div {
   width: 80vw;
-  min-height: 200px; 
+  min-height: 200px;
   margin-bottom: 20px;
   padding: 1%;
-  background-color: #ddd;
   border-radius: 100px;
-  
-} 
-.item {
-border-radius:30px;
-
 
 }
 .List div {
-  width: 80vw; 
-  min-height: 300px; 
+  width: 80vw;
+  min-height: 300px;
   margin-bottom: 50px;
   padding: 20px;
-  background-color: #eee;
   border-radius: 10px;
-  border: solid 2px #fff;
-    
+  box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+  border-bottom: 3px #6166 ridge;
 }
+
 .archiveButton{
 background-color:#f00;
 padding: 10px;
 border-radius:10px;
+margin: 10px;
 }
 
-.doneButton{
+.doneButton{box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
 background-color:#0f0;
 padding: 10px;
 border-radius:10px;
+margin: 10px;
 }
 
 /* Login Styles */
@@ -197,9 +261,10 @@ border-radius:10px;
   border-radius: 30px;
 box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
  background: linear-gradient(11deg, rgba(175,233,175,.9) 10%, rgba(145,203,184,.9) 100%);
+
   width: 300px;
   height: 350px;
-  border-bottom: 3px #6166 ridge;
+  border-bottom: 3px #6069 ridge;
 
 
 }
@@ -219,7 +284,7 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
   font-family: cool;
   font-weight: 10;
   font-size: 45px;
-  color: #6169;
+  color: #6069;
   margin-bottom: -10px;
   padding: 0px;
 }
@@ -227,11 +292,11 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
 
   font-family: BrownBagLunch;
   font-weight: 0;
-  font-size: 40px;
-  color: #0039;
+  font-size: 30px;
+  color:  #6369;
   margin-top: 0px;
   padding: 0px;
- 
+
 }
 
 .gsi-material-button {
@@ -322,7 +387,7 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
   opacity: 38%;
 }
 
-.gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+.gsi-material-button:not(:disabled):active .gsi-material-button-state,
 .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
   background-color: #303030;
   opacity: 12%;
@@ -342,11 +407,7 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
   width: 90%;
 }
 
-.dueDate {
-  color: #888;
-  font-size: 0.8em;
-  margin-top: 10px;
-}
+
 
 @keyframes popin {
   0% {
