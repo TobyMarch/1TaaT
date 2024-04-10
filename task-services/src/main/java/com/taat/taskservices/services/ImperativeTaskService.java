@@ -156,8 +156,8 @@ public class ImperativeTaskService {
         }
     }
 
-    public boolean deleteById(String id) {
-        if (taskRepo.existsById(id)) {
+    public boolean deleteById(String id, String owner) {
+        if (taskRepo.existsByOwnerAndId(owner, id)) {
             taskRepo.deleteById(id);
             userTaskRepo.deleteByTaskId(id);
             return true;
@@ -166,8 +166,8 @@ public class ImperativeTaskService {
         }
     }
 
-    public Task archiveTask(String id) {
-        if (taskRepo.existsById(id)) {
+    public Task archiveTask(String id, String owner) {
+        if (taskRepo.existsByOwnerAndId(owner, id)) {
             Task existingTask = taskRepo.findById(id).get();
             existingTask.setArchived(true);
             Task updatedTask = taskRepo.save(existingTask);

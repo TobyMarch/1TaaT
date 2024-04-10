@@ -67,9 +67,10 @@ public class TaskController {
     // }
 
     @GetMapping(path = "/top", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<TaskDTO> getTopTask() {
+    public ResponseEntity<TaskDTO> getTopTask(@AuthenticationPrincipal OAuth2User principal) {
         try {
-            TaskDTO tasks = taskService.getTopTask("");
+            String userId = principal.getAttributes().get("sub").toString();
+            TaskDTO tasks = taskService.getTopTask(userId);
             return new ResponseEntity<>(tasks, HttpStatus.OK);
         } catch (Exception e) {
             logger.warn("Exception in Top Task retrieval: ", e);
@@ -87,9 +88,11 @@ public class TaskController {
     // }
 
     @GetMapping(path = "/list", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<TaskDTO>> getPaginatedTasks(Pageable pageable) {
+    public ResponseEntity<Page<TaskDTO>> getPaginatedTasks(Pageable pageable,
+                                                           @AuthenticationPrincipal OAuth2User principal) {
         try {
-            Page<TaskDTO> resultPage = taskService.getPaginatedTasks("", pageable);
+            String userId = principal.getAttributes().get("sub").toString();
+            Page<TaskDTO> resultPage = taskService.getPaginatedTasks(userId, pageable);
             return new ResponseEntity<>(resultPage, HttpStatus.OK);
         } catch (Exception e) {
             logger.warn("Exception in Task List retrieval: ", e);
@@ -99,8 +102,10 @@ public class TaskController {
     }
 
     @GetMapping(path = "/archived", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Page<TaskDTO>> getArchivedTasks(Pageable pageable) {
-        Page<TaskDTO> resultPage = taskService.getArchivedTasks("", pageable);
+    public ResponseEntity<Page<TaskDTO>> getArchivedTasks(Pageable pageable,
+                                                          @AuthenticationPrincipal OAuth2User principal) {
+        String userId = principal.getAttributes().get("sub").toString();
+        Page<TaskDTO> resultPage = taskService.getArchivedTasks(userId, pageable);
         return new ResponseEntity<>(resultPage, HttpStatus.OK);
     }
 
@@ -133,8 +138,10 @@ public class TaskController {
     // }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTask(@PathVariable String id) {
-        if (taskService.deleteById(id)) {
+    public ResponseEntity<Void> deleteTask(@PathVariable String id,
+                                           @AuthenticationPrincipal OAuth2User principal) {
+        String userId = principal.getAttributes().get("sub").toString();
+        if (taskService.deleteById(id, userId)) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -150,8 +157,10 @@ public class TaskController {
     // }
 
     @PutMapping(path = "/{id}/archive", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Task> archiveTask(@PathVariable String id) {
-        Task result = taskService.archiveTask(id);
+    public ResponseEntity<Task> archiveTask(@PathVariable String id,
+                                            @AuthenticationPrincipal OAuth2User principal) {
+        String userId = principal.getAttributes().get("sub").toString();
+        Task result = taskService.archiveTask(id, userId);
         if (result != null) {
             return new ResponseEntity<>(result, HttpStatus.OK);
         } else {
