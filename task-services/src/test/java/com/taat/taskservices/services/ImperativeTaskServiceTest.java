@@ -117,9 +117,9 @@ public class ImperativeTaskServiceTest {
     @Test
     public void testDeleteById() {
         String taskId = "1";
-        Mockito.when(impTaskRepo.existsById(taskId)).thenReturn(true);
+        Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
 
-        boolean result = taskService.deleteById(taskId);
+        boolean result = taskService.deleteById(taskId, "owner");
         Assertions.assertTrue(result);
 
         Mockito.verify(impTaskRepo, Mockito.times(1)).deleteById(taskId);
@@ -133,7 +133,7 @@ public class ImperativeTaskServiceTest {
                 Duration.S.toString(), false,
                 false, Collections.emptyList());
 
-        Mockito.when(impTaskRepo.existsById(taskId)).thenReturn(true);
+        Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
         Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
         Mockito.when(impTaskRepo.save(testTask)).thenReturn(testTask);
         Mockito.when(impUserTaskRepo.findByTaskId(taskId))
@@ -141,7 +141,7 @@ public class ImperativeTaskServiceTest {
         Mockito.when(impUserTaskRepo.save(Mockito.any(UserTask.class)))
                 .thenReturn(getTestTaskJoinEntries(getTestTasks()).get(0));
 
-        Task result = taskService.archiveTask(taskId);
+        Task result = taskService.archiveTask(taskId, "owner");
         Assertions.assertNotNull(result);
         Mockito.verify(impTaskRepo, Mockito.times(1)).findById(taskId);
         Mockito.verify(impTaskRepo, Mockito.times(1)).save(testTask);
