@@ -47,15 +47,12 @@ const isOverdue = (dueDateString) => {
   return dueDate < today;
 };
 const prioritySolidColorsHex = [
-  "#F40752", // High priority, red
-  "#eb235d", // OrangeRed
-  "#e23f69", // DarkOrange
-  "#da5b74", // Gold
-  "#d17880", // Yellow
-  "#c8948c", // GreenYellow
-  "#c0b097", // Slightly lighter than LimeGreen, custom
-  "#b7cca3", // MediumSeaGreen, custom approximation
-  "#afe9af"  // MediumSpringGreen
+  // High
+  "#eb235d",
+  "#eb6223",
+  "#ebc323",
+  "#73eb23",
+  "#23d4eb" // low
 ];
 
 
@@ -116,6 +113,7 @@ useEffect(() => {
       setStartDate("");
       setDueDate("");
       setPriority(5);
+      toggleMenu();
       alert("Task added successfully");
     } catch (error) {
       console.error("Error submitting data:", error);
@@ -201,6 +199,7 @@ const fetchTopTask = async () => {
                 Remove<SVGremove/>
               </button>
               <button className="doneButton" onClick={() => removeTask(item.id)}>Done<SVGdone/></button>
+               <button className="shareButton" onClick={() => removeTask(item.id)}>Share<SVGdone/></button>
 
             </div>
           ))}
