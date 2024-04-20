@@ -55,7 +55,7 @@ public class ImperativeTaskServiceTest {
         parentTask.setSubTasks(Collections.singletonList("6"));
         taskList.set(0, parentTask);
         taskList.add(new Task("6", "testOwner", "Test Task 6", "A sub-task", null, null,
-                currentDateString + "T09:30:00", 5, Duration.M.toString(), false, false,
+                currentDateString + "T09:30:00", 5, Duration.M.toString(), Collections.emptyList(), false, false,
                 Collections.emptyList()));
 
         Mockito.when(impUserTaskRepo.findByUserId("testUser")).thenReturn(getTestTaskJoinEntries(taskList));
@@ -130,8 +130,7 @@ public class ImperativeTaskServiceTest {
     public void testArchiveTask() {
         String taskId = "1";
         Task testTask = new Task(taskId, "testOwner", "Test Task", "A task for testing", null, null, null, 5,
-                Duration.S.toString(), false,
-                false, Collections.emptyList());
+                Duration.S.toString(), Collections.emptyList(), false, false, Collections.emptyList());
 
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
         Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
@@ -156,22 +155,23 @@ public class ImperativeTaskServiceTest {
         String futureDateString = LocalDateTime.now().plusDays(1l).toString().split("T")[0];
         taskList.add(
                 new Task("1", "testOwner", "Test Task 1", "A task for testing", null, null,
-                        currentDateString + "T09:45:00", 5, Duration.M.toString(), false, false,
-                        Collections.singletonList("6")));
+                        currentDateString + "T09:45:00", 5, Duration.M.toString(), Collections.emptyList(), false,
+                        false, Collections.singletonList("6")));
         taskList.add(
                 new Task("2", "testOwner", "Test Task 2", "A task for testing", null, null,
-                        currentDateString + "T09:30:00", 5, Duration.M.toString(), false, false,
-                        Collections.emptyList()));
+                        currentDateString + "T09:30:00", 5, Duration.M.toString(), Collections.emptyList(), false,
+                        false, Collections.emptyList()));
         taskList.add(
                 new Task("3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
-                        null, 5, Duration.M.toString(), false, false, Collections.emptyList()));
-        taskList.add(
-                new Task("4", "testOwner", "Test Task 4", "A task that was due yesterday", null, null,
-                        previousDateString + "T09:15:00", 5, Duration.M.toString(), false, false,
+                        null, 5, Duration.M.toString(), Collections.emptyList(), false, false,
                         Collections.emptyList()));
         taskList.add(
+                new Task("4", "testOwner", "Test Task 4", "A task that was due yesterday", null, null,
+                        previousDateString + "T09:15:00", 5, Duration.M.toString(), Collections.emptyList(), false,
+                        false, Collections.emptyList()));
+        taskList.add(
                 new Task("5", "testOwner", "Test Task 5", "A task that is due tomorrow", null, null,
-                        futureDateString + "T14:15:00", 5, Duration.M.toString(), false, false,
+                        futureDateString + "T14:15:00", 5, Duration.M.toString(), Collections.emptyList(), false, false,
                         Collections.emptyList()));
 
         return taskList;

@@ -43,7 +43,9 @@ public class Task {
 
   private String duration;
 
-  private boolean isDelayable;
+  private List<String> recurrence;
+
+  private boolean delayable;
 
   private boolean archived;
 

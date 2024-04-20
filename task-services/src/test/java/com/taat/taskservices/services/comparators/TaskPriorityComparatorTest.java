@@ -25,16 +25,16 @@ public class TaskPriorityComparatorTest {
 
         taskList.add(
                 new Task("1", "testOwner", "Test Task 1", "A task for testing", null, null,
-                        currentDateTime.minusDays(5l).toString(), 1, Duration.M.toString(), false, false,
-                        Collections.emptyList()));
+                        currentDateTime.minusDays(5l).toString(), 1, Duration.M.toString(), Collections.emptyList(),
+                        false, false, Collections.emptyList()));
         taskList.add(
                 new Task("2", "testOwner", "Test Task 2", "A task for testing", null, null,
-                        currentDateTime.plusDays(100l).toString(), 10, Duration.M.toString(), false, false,
-                        Collections.emptyList()));
+                        currentDateTime.plusDays(100l).toString(), 10, Duration.M.toString(), Collections.emptyList(),
+                        false, false, Collections.emptyList()));
         taskList.add(
                 new Task("3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
-                        currentDateTime.minusDays(5l).toString(), 5, Duration.M.toString(), false, false,
-                        Collections.emptyList()));
+                        currentDateTime.minusDays(5l).toString(), 5, Duration.M.toString(), Collections.emptyList(),
+                        false, false, Collections.emptyList()));
 
         Comparator<Task> priorityComparator = new TaskPriorityComparator();
         List<Task> sortedList = taskList.stream().sorted(priorityComparator).collect(Collectors.toList());

@@ -31,7 +31,9 @@ public class TaskDTO {
 
     private String duration;
 
-    private boolean isDelayable;
+    private List<String> recurrence;
+
+    private boolean delayable;
 
     private boolean archived;
 
@@ -48,7 +50,8 @@ public class TaskDTO {
         taskEntity.setDueDate(dueDate);
         taskEntity.setPriority(priority);
         taskEntity.setDuration(duration);
-        taskEntity.setDelayable(isDelayable);
+        taskEntity.setRecurrence(recurrence);
+        taskEntity.setDelayable(delayable);
         taskEntity.setArchived(archived);
         taskEntity.setSubTasks(subTasks.stream().map(TaskDTO::getId).collect(Collectors.toList()));
 
@@ -66,6 +69,7 @@ public class TaskDTO {
         taskDTO.setDueDate(taskEntity.getDueDate());
         taskDTO.setPriority(taskEntity.getPriority());
         taskDTO.setDuration(taskEntity.getDuration());
+        taskDTO.setRecurrence(taskEntity.getRecurrence());
         taskDTO.setDelayable(taskEntity.isDelayable());
         taskDTO.setArchived(taskEntity.isArchived());
         taskDTO.setSubTasks(subTasks);
