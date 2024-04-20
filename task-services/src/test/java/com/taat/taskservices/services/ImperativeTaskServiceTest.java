@@ -129,23 +129,22 @@ public class ImperativeTaskServiceTest {
     @Test
     public void testArchiveTask() {
         String taskId = "1";
+        List<String> recurrence = new ArrayList<>(List.of("RRULE:FREQ=DAILY;COUNT=10"));
         Task testTask = new Task(taskId, "testOwner", "Test Task", "A task for testing", null, null, null, 5,
-                Duration.S.toString(), Collections.emptyList(), false, false, Collections.emptyList());
+                Duration.S.toString(), recurrence, false, false, Collections.emptyList());
 
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
         Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
         Mockito.when(impTaskRepo.save(testTask)).thenReturn(testTask);
         Mockito.when(impUserTaskRepo.findByTaskId(taskId))
                 .thenReturn(Collections.singletonList(getTestTaskJoinEntries(getTestTasks()).get(0)));
-        Mockito.when(impUserTaskRepo.save(Mockito.any(UserTask.class)))
-                .thenReturn(getTestTaskJoinEntries(getTestTasks()).get(0));
 
         Task result = taskService.archiveTask(taskId, "owner");
         Assertions.assertNotNull(result);
         Mockito.verify(impTaskRepo, Mockito.times(1)).findById(taskId);
-        Mockito.verify(impTaskRepo, Mockito.times(1)).save(testTask);
+        Mockito.verify(impTaskRepo, Mockito.times(2)).save(Mockito.any(Task.class));
         Mockito.verify(impUserTaskRepo, Mockito.times(1)).findByTaskId(taskId);
-        Mockito.verify(impUserTaskRepo, Mockito.times(1)).save(Mockito.any(UserTask.class));
+        Mockito.verify(impUserTaskRepo, Mockito.times(2)).saveAll(Mockito.anyIterable());
     }
 
     private List<Task> getTestTasks() {

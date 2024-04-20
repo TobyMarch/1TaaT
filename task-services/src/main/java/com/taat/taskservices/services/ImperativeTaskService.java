@@ -5,8 +5,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.dmfs.rfc5545.DateTime;
+import org.dmfs.rfc5545.RecurrenceSet;
+import org.dmfs.rfc5545.recur.RecurrenceRule;
+import org.dmfs.rfc5545.recurrenceset.FastForwarded;
+import org.dmfs.rfc5545.recurrenceset.Merged;
+import org.dmfs.rfc5545.recurrenceset.OfRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +35,7 @@ import com.taat.taskservices.services.comparators.TaskPriorityComparator;
 import com.taat.taskservices.services.comparators.TaskStartDateComparator;
 import com.taat.taskservices.services.comparators.UserTaskSortComparator;
 import com.taat.taskservices.services.filters.TaskCurrentOrOverdueFilter;
+import com.taat.taskservices.utils.Constants;
 
 import lombok.NonNull;
 
@@ -172,14 +180,47 @@ public class ImperativeTaskService {
             existingTask.setArchived(true);
             Task updatedTask = taskRepo.save(existingTask);
 
-            for (UserTask existingUserTask : userTaskRepo.findByTaskId(id)) {
-                existingUserTask.setArchived(true);
-                userTaskRepo.save(existingUserTask);
+            // If task has recurrence schedule, generate next instance
+            if (updatedTask.getRecurrence() != null && !updatedTask.getRecurrence().isEmpty()) {
+                createNextRecurringTask(updatedTask, owner);
             }
+
+            // Archive tasks for all assigned users
+            List<UserTask> existingUserTasks = userTaskRepo.findByTaskId(id).stream().map(userTask -> {
+                userTask.setArchived(true);
+                return userTask;
+            }).collect(Collectors.toList());
+            userTaskRepo.saveAll(existingUserTasks);
 
             return updatedTask;
         }
         return null;
+    }
+
+    private void createNextRecurringTask(Task task, String owner) {
+        try {
+            List<String> recurrenceParameters = task.getRecurrence();
+            List<RecurrenceSet> mergedList = new ArrayList<>();
+
+            Pattern rRulePattern = Pattern.compile(Constants.RRULE_REGEX);
+            Optional<String> ruleString = recurrenceParameters.stream().filter(rRulePattern.asPredicate()).findFirst();
+            if (ruleString.isPresent()) {
+                String rRule = ruleString.get().split(":")[1];
+                mergedList.add(new OfRule(new RecurrenceRule(rRule), DateTime.today()));
+            }
+
+            // Assume that the user always wants their next task to occur in the future
+            RecurrenceSet occurrences = new FastForwarded(DateTime.now(), new Merged(mergedList));
+            DateTime next = occurrences.iterator().next();
+            // Create new task with new due date
+            if (next != null) {
+                task.setId(null);
+                task.setDueDate(next.toString());
+                this.createUpdateTasks(Collections.singletonList(task), owner);
+            }
+        } catch (Exception e) {
+            logger.error("Exception when generating recurring task instance", e);
+        }
     }
 
     private UserTask createUserTask(final Task task, final String userId) {
