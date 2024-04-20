@@ -1,5 +1,7 @@
 package com.taat.taskservices.services;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -79,6 +81,12 @@ public class ImperativeTaskService {
     }
 
     public TaskDTO getTopTask(final String userId) {
+        UserTask currentTopTask = userTaskRepo.findTopUserTask(userId);
+        // Ensure that prioritization has run at least once today
+        Instant startOfDay = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        if (currentTopTask.getLastSorted() == null || currentTopTask.getLastSorted().isBefore(startOfDay)) {
+            this.runPrioritization(userId);
+        }
         return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId), Collections.emptyList());
     }
 
@@ -115,44 +123,52 @@ public class ImperativeTaskService {
                 }
             }
 
-            List<Task> unsortedTasks = new ArrayList<>();
-            List<UserTask> sortedJoinRecords = new ArrayList<>();
-            // Select all tasks connected to the user
             logger.info("Insertion complete, starting sort operation...");
-            List<UserTask> joinList = userTaskRepo.findByUserId(owner);
-            for (UserTask joinRecord : joinList) {
-                logger.debug(String.format("Found join record: %s", joinRecord.toString()));
-                Optional<Task> taskRecordOptional = taskRepo.findById(joinRecord.getTaskId());
-                if (taskRecordOptional.isPresent()) {
-                    logger.debug(String.format("Corresponding Task: %s",
-                            taskRecordOptional.toString()));
-                    unsortedTasks.add(taskRecordOptional.get());
-                }
-            }
-            // Priority-Sort tasks then apply sorting values to UserTask records
-            double currentPriorityValue = unsortedTasks.size();
-            logger.info(String.format("Tasks to sort: %d", unsortedTasks.size()));
-            for (Task sortedTask : prioritySortTasks(unsortedTasks)) {
-                Optional<UserTask> userTaskOptional = joinList.stream()
-                        .filter(ut -> ut.getTaskId().equals(sortedTask.getId())).findFirst();
-                if (userTaskOptional.isPresent()) {
-                    UserTask userTask = userTaskOptional.get();
-                    userTask.setSortValue(currentPriorityValue--);
-                    sortedJoinRecords.add(userTask);
-                }
-            }
-            logger.info(String.format("Saving %d records", sortedJoinRecords.size()));
-            // update UserTask records
-            List<UserTask> output = userTaskRepo.saveAll(sortedJoinRecords);
-            if (output != null) {
-                for (UserTask userTask : output) {
-                    logger.info(String.format("Saved join record: %s", userTask.toString()));
-                }
-            }
+            this.runPrioritization(owner);
             return savedTasks;
         } catch (Exception e) {
             logger.error("Exception in save/update", e);
             return null;
+        }
+    }
+
+    private void runPrioritization(String userId) {
+        List<Task> unsortedTasks = new ArrayList<>();
+        List<UserTask> sortedJoinRecords = new ArrayList<>();
+
+        // Select all tasks connected to the user
+        List<UserTask> joinList = userTaskRepo.findByUserId(userId);
+        for (UserTask joinRecord : joinList) {
+            logger.debug(String.format("Found join record: %s", joinRecord.toString()));
+            Optional<Task> taskRecordOptional = taskRepo.findById(joinRecord.getTaskId());
+            if (taskRecordOptional.isPresent()) {
+                logger.debug(String.format("Corresponding Task: %s",
+                        taskRecordOptional.toString()));
+                unsortedTasks.add(taskRecordOptional.get());
+            }
+        }
+
+        // Priority-Sort tasks then apply sorting values to UserTask records
+        double currentPriorityValue = unsortedTasks.size();
+        logger.info(String.format("Tasks to sort: %d", unsortedTasks.size()));
+        for (Task sortedTask : prioritySortTasks(unsortedTasks)) {
+            Optional<UserTask> userTaskOptional = joinList.stream()
+                    .filter(ut -> ut.getTaskId().equals(sortedTask.getId())).findFirst();
+            if (userTaskOptional.isPresent()) {
+                UserTask userTask = userTaskOptional.get();
+                userTask.setSortValue(currentPriorityValue--);
+                userTask.setLastSorted(Instant.now());
+                sortedJoinRecords.add(userTask);
+            }
+        }
+        logger.info(String.format("Saving %d records", sortedJoinRecords.size()));
+
+        // update UserTask records
+        List<UserTask> output = userTaskRepo.saveAll(sortedJoinRecords);
+        if (output != null) {
+            for (UserTask userTask : output) {
+                logger.info(String.format("Saved join record: %s", userTask.toString()));
+            }
         }
     }
 

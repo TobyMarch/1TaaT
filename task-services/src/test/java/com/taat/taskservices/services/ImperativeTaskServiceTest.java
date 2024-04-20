@@ -1,6 +1,8 @@
 package com.taat.taskservices.services;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.aggregation.DateOperators.TemporalUnit;
 
 import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.Task;
@@ -45,6 +48,32 @@ public class ImperativeTaskServiceTest {
         List<Task> results = taskService.getPrioritizedTasks("");
         Assertions.assertNotNull(results);
         Mockito.verify(impTaskRepo, Mockito.times(1)).findAllByOwner(Mockito.anyString());
+    }
+
+    @Test
+    public void testGetTopTasks() {
+        List<Task> testTasks = getTestTasks();
+        UserTask testUserTask = getTestTaskJoinEntries(testTasks).get(0);
+        testUserTask.setLastSorted(Instant.now());
+        Mockito.when(impUserTaskRepo.findTopUserTask(Mockito.anyString())).thenReturn(testUserTask);
+        Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString())).thenReturn(testTasks.get(0));
+
+        TaskDTO topTask = taskService.getTopTask("");
+        Assertions.assertNotNull(topTask);
+        Mockito.verify(impUserTaskRepo, Mockito.times(0)).saveAll(Mockito.anyIterable());
+    }
+
+    @Test
+    public void testGetTopTasks_ForcePrioritization() {
+        List<Task> testTasks = getTestTasks();
+        UserTask testUserTask = getTestTaskJoinEntries(testTasks).get(0);
+        testUserTask.setLastSorted(Instant.now().minus(1, ChronoUnit.DAYS));
+        Mockito.when(impUserTaskRepo.findTopUserTask(Mockito.anyString())).thenReturn(testUserTask);
+        Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString())).thenReturn(testTasks.get(0));
+
+        TaskDTO topTask = taskService.getTopTask("");
+        Assertions.assertNotNull(topTask);
+        Mockito.verify(impUserTaskRepo, Mockito.times(1)).saveAll(Mockito.anyIterable());
     }
 
     @Test

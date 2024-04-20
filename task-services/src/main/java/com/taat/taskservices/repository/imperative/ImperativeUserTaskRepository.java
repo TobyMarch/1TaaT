@@ -14,6 +14,10 @@ import com.taat.taskservices.model.UserTask;
 public interface ImperativeUserTaskRepository extends MongoRepository<UserTask, String> {
 
     @Aggregation(pipeline = { "{$match: {userId: '?0', archived: {$ne : true}}}", "{$sort: { sortValue: -1 }}",
+            "{$limit: 1}" })
+    UserTask findTopUserTask(String userId);
+
+    @Aggregation(pipeline = { "{$match: {userId: '?0', archived: {$ne : true}}}", "{$sort: { sortValue: -1 }}",
             "{$addFields: {taskId: {$toObjectId: \"$taskId\"} }}",
             "{$lookup: {from: \"tasksTest\", localField: \"taskId\", foreignField:\"_id\", as: \"result\"}}",
             "{$addFields: {result: {$first: \"$result\"}}}", "{$match: {result: {$ne: null}}}", "{$limit: 1}",
