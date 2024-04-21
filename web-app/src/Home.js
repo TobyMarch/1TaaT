@@ -65,18 +65,16 @@ const sortItems = (filter) => {
 
 const doneTask = async (taskId) => {
     try {
-        await axios.put(`${TASK_API_URL}/${taskId}/archive`, {
+        const response = await axios.put(`${TASK_API_URL}/${taskId}/archive`, {}, {
             withCredentials: true,
             headers: {
-                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-            },
+                "X-XSRF-TOKEN": cookies['XSRF-TOKEN'],
+            }
         });
-
         setItems((items) => items.filter((item) => item.id !== taskId));
-
         alert("Task done successfully");
     } catch (error) {
-        console.error("Error finishng the task:", error);
+        console.error("Error finishing the task:", error);
         alert("Failed to finish task");
     }
 };
@@ -189,6 +187,7 @@ useEffect(() => {
         startDate,
         dueDate,
         priority,
+         duration,
         color: priorityGradientStyles[priority - 1],
       };
 
@@ -246,7 +245,7 @@ const fetchTasks = async () => {
     const handleArchiveClick = async () => {
         const archivedTasks = await fetchArchivedTasks();
         setArchivedItems(archivedTasks);
-        setShowArchived(true); // Show archived tasks
+        setShowArchived(true);
     };
 
   return (
@@ -297,7 +296,7 @@ const fetchTasks = async () => {
           style={priorityGradientStyles[item.priority - 1]} // Apply gradient based on priority
         >
                   <h2 className="title">{item.title}</h2>
-                  <p className="duration"> duration</p>
+                  <p className="duration">Duration: {item.duration}</p>
 
                   <p className="dueDate">
           Start: {item.startDate.split("T")[0]}
@@ -411,18 +410,16 @@ const fetchTasks = async () => {
               />
               <span>{priority}</span>
             </div>
-            <div>
-              <label htmlFor="Duration">Duration:</label>
-              <input
-                type="range"
-                id="duration"
-                value={duration}
-                min="1"
-                max="3"
-                onChange={(e) => setDuration(parseInt(e.target.value, 10))}
-              />
-              <span>{duration}</span>
-            </div>
+<label htmlFor="duration">Duration:</label>
+             <div className="durationDropdown">
+          <select onChange={(e) => setDuration(e.target.value)} value={duration}>
+
+            <option value="S">Small</option>
+            <option value="M">Medium</option>
+            <option value="L">Large</option>
+            <option value="XL">XLarge</option>
+          </select>
+        </div>
            <div class="button-container">
   <button class="back" onClick={toggleMenu}>Back</button>
   <button class="submit" type="submit">Submit</button>
