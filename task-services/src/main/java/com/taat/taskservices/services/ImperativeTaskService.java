@@ -24,6 +24,7 @@ import com.taat.taskservices.repository.imperative.ImperativeTaskRepository;
 import com.taat.taskservices.repository.imperative.ImperativeUserTaskRepository;
 import com.taat.taskservices.services.comparators.TaskDelayableComparator;
 import com.taat.taskservices.services.comparators.TaskDueDateComparator;
+import com.taat.taskservices.services.comparators.TaskDurationComparator;
 import com.taat.taskservices.services.comparators.TaskPriorityComparator;
 import com.taat.taskservices.services.comparators.TaskStartDateComparator;
 import com.taat.taskservices.services.comparators.UserTaskSortComparator;
@@ -197,13 +198,14 @@ public class ImperativeTaskService {
         TaskDelayableComparator delayableComparator = new TaskDelayableComparator();
         TaskPriorityComparator priorityComparator = new TaskPriorityComparator();
         TaskStartDateComparator startDateComparator = new TaskStartDateComparator();
+        TaskDurationComparator taskDurationComparator = new TaskDurationComparator();
 
         // filter by date to apply different priority sorting logic
         List<Task> currentOrOverdueTasks = taskList.stream().filter(currentOrOverdueFilter)
-                .sorted(delayableComparator.thenComparing(dueDateComparator).thenComparing(priorityComparator))
+                .sorted(delayableComparator.thenComparing(dueDateComparator).thenComparing(priorityComparator).thenComparing(taskDurationComparator))
                 .collect(Collectors.toList());
         List<Task> futureTasks = taskList.stream().filter(Predicate.not(currentOrOverdueFilter))
-                .sorted(dueDateComparator.thenComparing(startDateComparator).thenComparing(priorityComparator))
+                .sorted(dueDateComparator.thenComparing(startDateComparator).thenComparing(priorityComparator).thenComparing(taskDurationComparator))
                 .collect(Collectors.toList());
 
         List<Task> returnList = new ArrayList<>();
