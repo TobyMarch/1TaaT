@@ -63,6 +63,25 @@ const sortItems = (filter) => {
   setItems(sortedItems);
 };
 
+const doneTask = async (taskId) => {
+    try {
+        await axios.put(`${TASK_API_URL}/${taskId}/archive`, {
+            withCredentials: true,
+            headers: {
+                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+            },
+        });
+
+        setItems((items) => items.filter((item) => item.id !== taskId));
+
+        alert("Task done successfully");
+    } catch (error) {
+        console.error("Error finishng the task:", error);
+        alert("Failed to finish task");
+    }
+};
+
+
 const removeTask = async (taskId) => {
     try {
         await axios.delete(`${TASK_API_URL}/${taskId}`, {
@@ -146,7 +165,6 @@ const fetchArchivedTasks = async () => {
   }, []);
 
 useEffect(() => {
-
 
 
   fetchTasks();
@@ -304,7 +322,7 @@ const fetchTasks = async () => {
               >
                 Remove<SVGremove/>
               </button>
-              <button className="doneButton" onClick={() => removeTask(item.id)}>Done<SVGdone/></button>
+              <button className="doneButton" onClick={() => doneTask(item.id)}>Done<SVGdone/></button>
 
             </div>
             <div className="taskInfo">{item.owner}{item.priority}created{item.createdDate}</div>
