@@ -82,18 +82,18 @@ public class TaskController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<TaskDTO>> addNewTasks(@RequestBody List<TaskDTO> tasksDTOs,
+    public ResponseEntity<List<TaskDTO>> saveTasks(@RequestBody List<TaskDTO> tasksDTOs,
                                                   @AuthenticationPrincipal OAuth2User principal) {
         Map<String, Object> userDetails = principal.getAttributes();
         User user = userService.getOrAddUser(userDetails);
 
-        List<Task> tasks = new ArrayList<>();
-        for (Task task : tasks) {
-            task.setOwner(user.getUserId());
+        List<TaskDTO> taskList = taskService.createUpdateTasks(tasksDTOs, user.getUserId());
+        if (taskList != null) {
+            return new ResponseEntity<>(taskList, HttpStatus.CREATED);
+        } else {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        List<TaskDTO> taskList = taskService.createUpdateTasks(tasksDTOs, user.getUserId());
-        return new ResponseEntity<>(taskList, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{id}")
