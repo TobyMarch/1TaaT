@@ -50,7 +50,9 @@ public class TaskDTO {
         taskEntity.setDuration(duration);
         taskEntity.setDelayable(isDelayable);
         taskEntity.setArchived(archived);
-        taskEntity.setSubTasks(subTasks.stream().map(TaskDTO::getId).collect(Collectors.toList()));
+        if (subTasks != null) {
+            taskEntity.setSubTasks(subTasks.stream().map(TaskDTO::getId).collect(Collectors.toList()));
+        }
 
         return taskEntity;
     }

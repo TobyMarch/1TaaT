@@ -12,6 +12,7 @@ function Login() {
 
   const handleLogin = () => {
     if (username && password) {
+
       setLoggedIn(true);
       navigate('/app');
     } else {
@@ -34,7 +35,7 @@ function Login() {
         <div className="login-form">
           <img src={logo} alt="Logo" className="logo" />
         <h2>1TaaT Login</h2>
-          <p>one thing at a time</p> 
+          <p>one thing <br/> at a time</p>
           <button className="gsi-material-button" onClick={handleGoogleLogin} style={{ width: '200px' }}>
       <div className="gsi-material-button-state"></div>
       <div className="gsi-material-button-content-wrapper">
@@ -70,7 +71,7 @@ function Login() {
       </div>
     </button>
         </div>
-        
+
     </div>
   );
 }
