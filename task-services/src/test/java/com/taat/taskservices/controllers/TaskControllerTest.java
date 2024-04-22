@@ -25,12 +25,11 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.taat.taskservices.dto.TaskDTO;
-// import com.taat.taskservices.services.TaskService;
+import com.taat.taskservices.model.User;
 import com.taat.taskservices.services.ImperativeTaskService;
+import com.taat.taskservices.services.UserService;
 import com.taat.taskservices.utils.Duration;
 
-// import reactor.core.publisher.Flux;
-// import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskControllerTest {
@@ -38,41 +37,25 @@ public class TaskControllerTest {
     @Mock
     ImperativeTaskService taskService;
 
+    @Mock
+    UserService userService;
+
     @InjectMocks
     TaskController taskController;
 
-    // @Test
-    // public void testGetTasks() {
-    // ResponseEntity<Flux<Task>> results = taskController.getTasks();
-    // Assertions.assertNotNull(results);
-    // }
-
-    // @Test
-    // public void testGetTopTask() {
-    // Mono<Task> taskFlux = Mono.just(getTestTasks().get(0));
-    // Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(taskFlux);
-    // ResponseEntity<Mono<Task>> results = taskController.getTopTask();
-    // Assertions.assertNotNull(results);
-    // }
-
     @Test
     public void testGetTopTask_Imperative() {
-        String userName = "testuser";
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("sub", userName);
-        OAuth2User principal = new DefaultOAuth2User(Collections.emptyList(), attributes, "sub");
+        OAuth2User principal = getTestUserPrincipal();
         TaskDTO taskDto = getTestTasks().get(0);
         Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(taskDto);
         ResponseEntity<TaskDTO> results = taskController.getTopTask(principal);
         Assertions.assertNotNull(results);
-        Mockito.verify(taskService, Mockito.times(1)).getTopTask(Mockito.eq(userName));
+        Mockito.verify(taskService, Mockito.times(1)).getTopTask(Mockito.eq(principal.getAttribute("sub")));
     }
 
     @Test
     public void testGetTopTask_Exception() {
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("sub", "testUser");
-        OAuth2User principal = new DefaultOAuth2User(Collections.emptyList(), attributes, "sub");
+        OAuth2User principal = getTestUserPrincipal();
         Mockito.when(taskService.getTopTask(Mockito.anyString()))
                 .thenThrow(new NullPointerException("Test Service NPE"));
         ResponseEntity<TaskDTO> results = taskController.getTopTask(principal);
@@ -80,42 +63,23 @@ public class TaskControllerTest {
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, results.getStatusCode());
     }
 
-    // @Test
-    // public void testGetPaginatedTasks() {
-    // Flux<Task> taskFlux = Flux.fromIterable(getTestTasks());
-    // Mono<Long> taskCount = Mono.just(5l);
-    // Mockito.when(taskService.getPaginatedTasks(Mockito.any(Pageable.class))).thenReturn(taskFlux);
-    // Mockito.when(taskService.getTaskCount()).thenReturn(taskCount);
-
-    // Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
-    // ResponseEntity<Mono<Page<Task>>> results =
-    // taskController.getPaginatedTasks(testPageable);
-    // Assertions.assertNotNull(results);
-    // }
-
     @Test
     public void testGetPaginatedTasks_Imperative() {
-        String userName = "testuser";
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("sub", userName);
-        OAuth2User principal = new DefaultOAuth2User(Collections.emptyList(), attributes, "sub");
-        List<TaskDTO> taskFlux = getTestTasks();
+        OAuth2User principal = getTestUserPrincipal();
+        List<TaskDTO> taskList = getTestTasks();
         Mockito.when(taskService.getPaginatedTasks(Mockito.anyString(), Mockito.any(Pageable.class)))
-                .thenReturn(new PageImpl<TaskDTO>(taskFlux));
+                .thenReturn(new PageImpl<TaskDTO>(taskList));
 
         Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
         ResponseEntity<Page<TaskDTO>> results = taskController.getPaginatedTasks(testPageable, principal);
         Assertions.assertNotNull(results);
-        Mockito.verify(taskService, Mockito.times(1)).getPaginatedTasks(Mockito.eq(userName),
+        Mockito.verify(taskService, Mockito.times(1)).getPaginatedTasks(Mockito.eq(principal.getAttribute("sub")),
                 Mockito.any(Pageable.class));
     }
 
     @Test
     public void testGetPaginatedTasks_Exception() {
-        String userName = "testuser";
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("sub", userName);
-        OAuth2User principal = new DefaultOAuth2User(Collections.emptyList(), attributes, "sub");
+        OAuth2User principal = getTestUserPrincipal();
         Mockito.when(taskService.getPaginatedTasks(Mockito.anyString(), Mockito.any(Pageable.class)))
                 .thenThrow(new NullPointerException("Test Service NPE"));
         Pageable testPageable = PageRequest.of(0, 5, Sort.unsorted());
@@ -126,10 +90,7 @@ public class TaskControllerTest {
 
     @Test
     public void testGetArchivedTasks_Imperative() {
-        String userName = "testuser";
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("sub", userName);
-        OAuth2User principal = new DefaultOAuth2User(Collections.emptyList(), attributes, "sub");
+        OAuth2User principal = getTestUserPrincipal();
         List<TaskDTO> taskList = getTestTasks();
         Page<TaskDTO> pageData = new PageImpl<>(taskList);
 
@@ -138,8 +99,46 @@ public class TaskControllerTest {
 
         ResponseEntity<Page<TaskDTO>> results = taskController.getArchivedTasks(testPageable, principal);
         Assertions.assertNotNull(results);
-        Mockito.verify(taskService, Mockito.times(1)).getArchivedTasks(Mockito.eq(userName),
+        Mockito.verify(taskService, Mockito.times(1)).getArchivedTasks(Mockito.eq(principal.getAttribute("sub")),
                 Mockito.any(Pageable.class));
+    }
+
+    @Test
+    public void testSaveTasks() {
+        OAuth2User principal = getTestUserPrincipal();
+        List<TaskDTO> taskList = getTestTasks();
+
+        Mockito.when(userService.getOrAddUser(Mockito.anyMap())).thenReturn(getTestUser());
+        Mockito.when(taskService.createUpdateTasks(Mockito.anyList(), Mockito.eq(principal.getAttribute("sub"))))
+                .thenReturn(taskList);
+        ResponseEntity<List<TaskDTO>> results = taskController.saveTasks(taskList, principal);
+        Assertions.assertNotNull(results);
+        Assertions.assertEquals(HttpStatus.CREATED, results.getStatusCode());
+    }
+
+    @Test
+    public void testSaveTasks_Exception() {
+        OAuth2User principal = getTestUserPrincipal();
+        List<TaskDTO> taskList = getTestTasks();
+
+        Mockito.when(userService.getOrAddUser(Mockito.anyMap())).thenReturn(getTestUser());
+        Mockito.when(taskService.createUpdateTasks(Mockito.anyList(), Mockito.eq(principal.getAttribute("sub"))))
+                .thenReturn(null);
+        ResponseEntity<List<TaskDTO>> results = taskController.saveTasks(taskList, principal);
+        Assertions.assertNotNull(results);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, results.getStatusCode());
+    }
+
+    private OAuth2User getTestUserPrincipal() {
+        String userName = "testuser";
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("sub", userName);
+        OAuth2User principal = new DefaultOAuth2User(Collections.emptyList(), attributes, "sub");
+        return principal;
+    }
+
+    private User getTestUser() {
+        return new User("testuser");
     }
 
     private List<TaskDTO> getTestTasks() {
