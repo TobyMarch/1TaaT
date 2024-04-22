@@ -230,6 +230,19 @@ public class ImperativeTaskService {
         return null;
     }
 
+    public Optional<UserTask> skipTask(String taskId, String userId) throws NullPointerException {
+        UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(userId, taskId);
+        if (userTaskRecord != null) {
+            // By default, skip task for remainder of the day
+            Instant skipDate = Instant.now().plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+            userTaskRecord.setSkipUntil(skipDate);
+            UserTask savedRecord = userTaskRepo.save(userTaskRecord);
+            return Optional.of(savedRecord);
+        } else {
+            return Optional.empty();
+        }
+    }
+
     private UserTask createUserTask(final Task task, final String userId) {
         UserTask joinEntry = new UserTask();
         joinEntry.setUserId(userId);

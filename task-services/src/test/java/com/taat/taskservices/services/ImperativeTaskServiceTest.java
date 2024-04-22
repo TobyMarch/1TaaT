@@ -175,6 +175,49 @@ public class ImperativeTaskServiceTest {
         Mockito.verify(impUserTaskRepo, Mockito.times(1)).save(Mockito.any(UserTask.class));
     }
 
+    @Test
+    public void testSkipTask() {
+        String taskId = "1";
+        String userId = "testUser";
+        UserTask userTask = new UserTask("2", userId, taskId, null, null, null, false);
+        UserTask spyUserTask = Mockito.spy(userTask);
+        Mockito.when(impUserTaskRepo.findByUserIdTaskId(userId, taskId)).thenReturn(spyUserTask);
+        Mockito.when(impUserTaskRepo.save(Mockito.any(UserTask.class))).thenReturn(spyUserTask);
+
+        Optional<UserTask> result = taskService.skipTask(taskId, "testUser");
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.isPresent());
+
+        Mockito.verify(impUserTaskRepo, Mockito.times(1)).save(Mockito.any(UserTask.class));
+        Instant skipDate = Instant.now().plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+        Mockito.verify(spyUserTask).setSkipUntil(skipDate);
+    }
+
+    @Test
+    public void testSkipTask_NotFound() {
+        String taskId = "1";
+        String userId = "testUser";
+        Mockito.when(impUserTaskRepo.findByUserIdTaskId(userId, taskId)).thenReturn(null);
+
+        Optional<UserTask> result = taskService.skipTask(taskId, "testUser");
+        Assertions.assertFalse(result.isPresent());
+        Mockito.verify(impUserTaskRepo, Mockito.times(0)).save(Mockito.any(UserTask.class));
+    }
+
+    @Test
+    public void testSkipTask_ThrowException() {
+        String taskId = "1";
+        String userId = "testUser";
+        UserTask userTask = new UserTask("2", userId, taskId, null, null, null, false);
+        UserTask spyUserTask = Mockito.spy(userTask);
+        Mockito.when(impUserTaskRepo.findByUserIdTaskId(userId, taskId)).thenReturn(spyUserTask);
+        Mockito.when(impUserTaskRepo.save(Mockito.any(UserTask.class))).thenReturn(null);
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            taskService.skipTask(taskId, "testUser");
+        });
+    }
+
     private List<Task> getTestTasks() {
         List<Task> taskList = new ArrayList<>();
         String currentDateString = LocalDateTime.now().toString().split("T")[0];

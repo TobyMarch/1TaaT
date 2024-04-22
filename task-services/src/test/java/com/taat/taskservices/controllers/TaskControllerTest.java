@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.User;
+import com.taat.taskservices.model.UserTask;
 import com.taat.taskservices.services.ImperativeTaskService;
 import com.taat.taskservices.services.UserService;
 import com.taat.taskservices.utils.Duration;
@@ -127,6 +129,44 @@ public class TaskControllerTest {
         ResponseEntity<List<TaskDTO>> results = taskController.saveTasks(taskList, principal);
         Assertions.assertNotNull(results);
         Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, results.getStatusCode());
+    }
+
+    @Test
+    public void testSkipTask() {
+        OAuth2User principal = getTestUserPrincipal();
+        Mockito.when(taskService.skipTask(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(Optional.of(new UserTask()));
+
+        ResponseEntity<UserTask> result = taskController.skipTask("1", principal);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
+        Mockito.verify(taskService, Mockito.times(1)).skipTask(Mockito.eq("1"),
+                Mockito.eq(principal.getAttribute("sub")));
+    }
+
+    @Test
+    public void testSkipTask_NotFound() {
+        OAuth2User principal = getTestUserPrincipal();
+        Mockito.when(taskService.skipTask(Mockito.anyString(), Mockito.anyString())).thenReturn(Optional.empty());
+
+        ResponseEntity<UserTask> result = taskController.skipTask("1", principal);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        Mockito.verify(taskService, Mockito.times(1)).skipTask(Mockito.eq("1"),
+                Mockito.eq(principal.getAttribute("sub")));
+    }
+
+    @Test
+    public void testSkipTask_Exception() {
+        OAuth2User principal = getTestUserPrincipal();
+        Mockito.when(taskService.skipTask(Mockito.anyString(), Mockito.anyString()))
+                .thenThrow(new NullPointerException());
+
+        ResponseEntity<UserTask> result = taskController.skipTask("1", principal);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+        Mockito.verify(taskService, Mockito.times(1)).skipTask(Mockito.eq("1"),
+                Mockito.eq(principal.getAttribute("sub")));
     }
 
     private OAuth2User getTestUserPrincipal() {

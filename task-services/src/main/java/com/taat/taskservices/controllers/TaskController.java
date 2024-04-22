@@ -1,8 +1,8 @@
 package com.taat.taskservices.controllers;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.Task;
 import com.taat.taskservices.model.User;
+import com.taat.taskservices.model.UserTask;
 import com.taat.taskservices.services.ImperativeTaskService;
 import com.taat.taskservices.services.UserService;
 
@@ -116,6 +117,22 @@ public class TaskController {
             return new ResponseEntity<>(result, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping(path = "/{id}/skip", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<UserTask> skipTask(@PathVariable String id, @AuthenticationPrincipal OAuth2User principal) {
+        try {
+            String userId = principal.getAttributes().get("sub").toString();
+            Optional<UserTask> skipResult = taskService.skipTask(id, userId);
+            if (skipResult.isPresent()) {
+                return new ResponseEntity<>(skipResult.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            logger.warn("Exception while skipping Task: ", e);
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
