@@ -96,21 +96,10 @@ public class ImperativeTaskService {
 
     public List<TaskDTO> createUpdateTasks(final List<TaskDTO> tasks, String owner) {
         try {
+            // create/update Tasks with parent-to-subTask relationships preserved
             List<Task> savedTasks = batchSaveTasks(tasks, owner);
-            for (Task inputTask : savedTasks) {
-                UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(owner,
-                        inputTask.getId());
-                // Create a new db entry linking the task to the user if none exists
-                if (userTaskRecord == null) {
-                    logger.info(String.format("Inserting record for task: %s",
-                            inputTask.getTitle()));
-                    UserTask newUserTask = createUserTask(inputTask, owner);
-                    userTaskRepo.insert(newUserTask);
-                } else {
-                    userTaskRecord.setArchived(inputTask.isArchived());
-                    userTaskRepo.save(userTaskRecord);
-                }
-            }
+            // create/update UserTask join records for all created/updated Tasks
+            this.saveUserTasks(savedTasks, owner);
 
             List<Task> unsortedTasks = new ArrayList<>();
             List<UserTask> sortedJoinRecords = new ArrayList<>();
@@ -180,6 +169,23 @@ public class ImperativeTaskService {
             }
         }
         return taskEntities;
+    }
+
+    private void saveUserTasks(List<Task> taskEntities, String userId) {
+        for (Task inputTask : taskEntities) {
+            UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(userId,
+                    inputTask.getId());
+            // Create a new db entry linking the task to the user if none exists
+            if (userTaskRecord == null) {
+                logger.info(String.format("Inserting record for task: %s",
+                        inputTask.getTitle()));
+                UserTask newUserTask = createUserTask(inputTask, userId);
+                userTaskRepo.insert(newUserTask);
+            } else {
+                userTaskRecord.setArchived(inputTask.isArchived());
+                userTaskRepo.save(userTaskRecord);
+            }
+        }
     }
 
     public boolean deleteById(String id, String owner) {
