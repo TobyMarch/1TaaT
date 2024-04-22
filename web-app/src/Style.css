@@ -154,7 +154,7 @@ input[type="range"] {
   width: calc(100% - 40px);
   height: 8px;
   border-radius: 5px;
-  background: linear-gradient(to right, #eb235d, #eb6223, #ebc323, #73eb23, #23d4eb);
+  background: linear-gradient(to right, #b8b8b8, #80ee8d, #d1ee80, #eeaf71, #ee5c5c);
   padding: 20px;
   margin: 0 20px;
 }
@@ -214,6 +214,9 @@ input[type="range"]::-webkit-slider-thumb {
   text-align:left;
   margin-left: 30px;
   color: #000;
+   word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 .taskInfo{
 bottom:40px;

@@ -36,6 +36,20 @@ function Home() {
     const [showArchived, setShowArchived] = useState(false);
   const [selectedOption, setSelectedOption] = useState("option");
   const [cookies] = useCookies(["XSRF-TOKEN"]);
+   const [charTitleCount, setTitleCharCount] = useState(0);
+   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
+
+const handleTitleChange = (event) => {
+        const newTitle = event.target.value.slice(0, 50);
+        setTitle(newTitle);
+        setTitleCharCount(newTitle.length); // Update character count based on description length
+    };
+
+const handleDescriptionChange = (event) => {
+        const newDescription = event.target.value.slice(0, 350);
+        setDescription(newDescription);
+        setDescriptionCharCount(newDescription.length); // Update character count based on description length
+    };
 
 const handleOptionChange = (event) => {
   setSelectedOption(event.target.value);
@@ -350,26 +364,28 @@ const fetchTasks = async () => {
 
             {/* Add New Task Form */}
             <div>
-              <label htmlFor="title">Task Title:</label>
+              <label htmlFor="title">Task Title:</label><p>Characters: {charTitleCount}/50 </p>
               <input
                 type="text"
                 id="title"
                 value={title}
-                onChange={(e) => setTitle(e.target.value.slice(0, 50))}
+                onChange={handleTitleChange}
                 maxLength={50}
                 required
               />
+
             </div>
              <div>
-              <label htmlFor="">Task:</label>
+              <label htmlFor="">Task:</label><p>Characters: {charDescriptionCount}/250</p>
               <input
   type="text"
   id="task"
   value={description}
-  onChange={(e) => setDescription(e.target.value.slice(0, 350))}
-  maxLength={350}
+  onChange={handleDescriptionChange}
+  maxLength={250}
   required
 />
+
             </div>
             <div>
               <label htmlFor="startDate">Start Date:</label>
@@ -393,10 +409,9 @@ const fetchTasks = async () => {
             </div>
             <div>
 
-  <input type="checkbox" id="Reoccurring " name="Reoccurring " value="Car"></input>
-  <label for="Reoccurring "> Reoccurring </label>
-  <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat"></input>
-  <label for="vehicle3"> placeholder</label>
+  <input type="checkbox" id="Recurring " name="Recurring " value="true"></input>
+  <label for="Recurring "> Recurring</label>
+
             </div>
             <div>
               <label htmlFor="priority">Priority:</label>
