@@ -55,7 +55,8 @@ public class ImperativeTaskServiceTest {
         UserTask testUserTask = getTestTaskJoinEntries(testTasks, "testUser").get(0);
         testUserTask.setLastSorted(Instant.now());
         Mockito.when(impUserTaskRepo.findTopUserTask(Mockito.anyString())).thenReturn(testUserTask);
-        Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString())).thenReturn(testTasks.get(0));
+        Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString(), Mockito.any(Instant.class)))
+                .thenReturn(testTasks.get(0));
 
         TaskDTO topTask = taskService.getTopTask("");
         Assertions.assertNotNull(topTask);
@@ -68,7 +69,8 @@ public class ImperativeTaskServiceTest {
         UserTask testUserTask = getTestTaskJoinEntries(testTasks, "testUser").get(0);
         testUserTask.setLastSorted(Instant.now().minus(1, ChronoUnit.DAYS));
         Mockito.when(impUserTaskRepo.findTopUserTask(Mockito.anyString())).thenReturn(testUserTask);
-        Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString())).thenReturn(testTasks.get(0));
+        Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString(), Mockito.any(Instant.class)))
+                .thenReturn(testTasks.get(0));
 
         TaskDTO topTask = taskService.getTopTask("");
         Assertions.assertNotNull(topTask);

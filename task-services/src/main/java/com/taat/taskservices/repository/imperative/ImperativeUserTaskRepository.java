@@ -1,5 +1,6 @@
 package com.taat.taskservices.repository.imperative;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.springframework.data.mongodb.repository.Aggregation;
@@ -17,12 +18,13 @@ public interface ImperativeUserTaskRepository extends MongoRepository<UserTask, 
             "{$limit: 1}" })
     UserTask findTopUserTask(String userId);
 
-    @Aggregation(pipeline = { "{$match: {userId: '?0', archived: {$ne : true}}}", "{$sort: { sortValue: -1 }}",
-            "{$addFields: {taskId: {$toObjectId: \"$taskId\"} }}",
+    @Aggregation(pipeline = {
+            "{$match: {userId: '?0', archived: {$ne : true}, $or: [{skipUntil: {$eq: null}}, {skipUntil: {$lte: ?1}}]}}",
+            "{$sort: { sortValue: -1 }}", "{$addFields: {taskId: {$toObjectId: \"$taskId\"} }}",
             "{$lookup: {from: \"tasksTest\", localField: \"taskId\", foreignField:\"_id\", as: \"result\"}}",
             "{$addFields: {result: {$first: \"$result\"}}}", "{$match: {result: {$ne: null}}}", "{$limit: 1}",
             "{$replaceRoot: {newRoot:\"$result\"}}" })
-    Task findTopTaskByUserTaskSort(String userId);
+    Task findTopTaskByUserTaskSort(String userId, Instant skipUntil);
 
     @Aggregation(pipeline = { "{$match: {userId: '?0', archived: {$ne : true}}}",
             "{$addFields: {taskId: {$toObjectId: \"$taskId\"} }}",

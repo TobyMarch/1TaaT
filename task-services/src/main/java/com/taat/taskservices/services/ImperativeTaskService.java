@@ -88,7 +88,7 @@ public class ImperativeTaskService {
         if (currentTopTask.getLastSorted() == null || currentTopTask.getLastSorted().isBefore(startOfDay)) {
             this.runPrioritization(userId);
         }
-        return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId), Collections.emptyList());
+        return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId, startOfDay), Collections.emptyList());
     }
 
     public Page<TaskDTO> getArchivedTasks(final String userId, Pageable pageable) {

@@ -1,10 +1,9 @@
 package com.taat.taskservices.model;
 
+import java.time.Instant;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.LocalDateTime;
-import java.time.Instant;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
