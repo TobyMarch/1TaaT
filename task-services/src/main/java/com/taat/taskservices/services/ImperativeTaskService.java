@@ -1,5 +1,7 @@
 package com.taat.taskservices.services;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -80,7 +82,13 @@ public class ImperativeTaskService {
     }
 
     public TaskDTO getTopTask(final String userId) {
-        return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId), Collections.emptyList());
+        UserTask currentTopTask = userTaskRepo.findTopUserTask(userId);
+        // Ensure that prioritization has run at least once today
+        Instant startOfDay = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        if (currentTopTask.getLastSorted() == null || currentTopTask.getLastSorted().isBefore(startOfDay)) {
+            this.runPrioritization(userId);
+        }
+        return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId, startOfDay), Collections.emptyList());
     }
 
     public Page<TaskDTO> getArchivedTasks(final String userId, Pageable pageable) {
@@ -101,40 +109,8 @@ public class ImperativeTaskService {
             // create/update UserTask join records for all created/updated Tasks
             this.saveUserTasks(savedTasks, owner);
 
-            List<Task> unsortedTasks = new ArrayList<>();
-            List<UserTask> sortedJoinRecords = new ArrayList<>();
-            // Select all tasks connected to the user
             logger.info("Insertion complete, starting sort operation...");
-            List<UserTask> joinList = userTaskRepo.findByUserId(owner);
-            for (UserTask joinRecord : joinList) {
-                logger.debug(String.format("Found join record: %s", joinRecord.toString()));
-                Optional<Task> taskRecordOptional = taskRepo.findById(joinRecord.getTaskId());
-                if (taskRecordOptional.isPresent()) {
-                    logger.debug(String.format("Corresponding Task: %s",
-                            taskRecordOptional.toString()));
-                    unsortedTasks.add(taskRecordOptional.get());
-                }
-            }
-            // Priority-Sort tasks then apply sorting values to UserTask records
-            double currentPriorityValue = unsortedTasks.size();
-            logger.info(String.format("Tasks to sort: %d", unsortedTasks.size()));
-            for (Task sortedTask : prioritySortTasks(unsortedTasks)) {
-                Optional<UserTask> userTaskOptional = joinList.stream()
-                        .filter(ut -> ut.getTaskId().equals(sortedTask.getId())).findFirst();
-                if (userTaskOptional.isPresent()) {
-                    UserTask userTask = userTaskOptional.get();
-                    userTask.setSortValue(currentPriorityValue--);
-                    sortedJoinRecords.add(userTask);
-                }
-            }
-            logger.info(String.format("Saving %d records", sortedJoinRecords.size()));
-            // update UserTask records
-            List<UserTask> output = userTaskRepo.saveAll(sortedJoinRecords);
-            if (output != null) {
-                for (UserTask userTask : output) {
-                    logger.info(String.format("Saved join record: %s", userTask.toString()));
-                }
-            }
+            this.runPrioritization(owner);
             return savedTasks.stream().map(task -> {
                 return TaskDTO.entityToDTO(task, Collections.emptyList());
             }).collect(Collectors.toList());
@@ -188,6 +164,46 @@ public class ImperativeTaskService {
         }
     }
 
+    private void runPrioritization(String userId) {
+        List<Task> unsortedTasks = new ArrayList<>();
+        List<UserTask> sortedJoinRecords = new ArrayList<>();
+
+        // Select all tasks connected to the user
+        List<UserTask> joinList = userTaskRepo.findByUserId(userId);
+        for (UserTask joinRecord : joinList) {
+            logger.debug(String.format("Found join record: %s", joinRecord.toString()));
+            Optional<Task> taskRecordOptional = taskRepo.findById(joinRecord.getTaskId());
+            if (taskRecordOptional.isPresent()) {
+                logger.debug(String.format("Corresponding Task: %s",
+                        taskRecordOptional.toString()));
+                unsortedTasks.add(taskRecordOptional.get());
+            }
+        }
+
+        // Priority-Sort tasks then apply sorting values to UserTask records
+        double currentPriorityValue = unsortedTasks.size();
+        logger.info(String.format("Tasks to sort: %d", unsortedTasks.size()));
+        for (Task sortedTask : prioritySortTasks(unsortedTasks)) {
+            Optional<UserTask> userTaskOptional = joinList.stream()
+                    .filter(ut -> ut.getTaskId().equals(sortedTask.getId())).findFirst();
+            if (userTaskOptional.isPresent()) {
+                UserTask userTask = userTaskOptional.get();
+                userTask.setSortValue(currentPriorityValue--);
+                userTask.setLastSorted(Instant.now());
+                sortedJoinRecords.add(userTask);
+            }
+        }
+        logger.info(String.format("Saving %d records", sortedJoinRecords.size()));
+
+        // update UserTask records
+        List<UserTask> output = userTaskRepo.saveAll(sortedJoinRecords);
+        if (output != null) {
+            for (UserTask userTask : output) {
+                logger.info(String.format("Saved join record: %s", userTask.toString()));
+            }
+        }
+    }
+
     public boolean deleteById(String id, String owner) {
         if (taskRepo.existsByOwnerAndId(owner, id)) {
             taskRepo.deleteById(id);
@@ -212,6 +228,19 @@ public class ImperativeTaskService {
             return updatedTask;
         }
         return null;
+    }
+
+    public Optional<UserTask> skipTask(String taskId, String userId) throws NullPointerException {
+        UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(userId, taskId);
+        if (userTaskRecord != null) {
+            // By default, skip task for remainder of the day
+            Instant skipDate = Instant.now().plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+            userTaskRecord.setSkipUntil(skipDate);
+            UserTask savedRecord = userTaskRepo.save(userTaskRecord);
+            return Optional.of(savedRecord);
+        } else {
+            return Optional.empty();
+        }
     }
 
     private UserTask createUserTask(final Task task, final String userId) {

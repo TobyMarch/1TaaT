@@ -1,6 +1,8 @@
 package com.taat.taskservices.services;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +47,34 @@ public class ImperativeTaskServiceTest {
         List<Task> results = taskService.getPrioritizedTasks("");
         Assertions.assertNotNull(results);
         Mockito.verify(impTaskRepo, Mockito.times(1)).findAllByOwner(Mockito.anyString());
+    }
+
+    @Test
+    public void testGetTopTasks() {
+        List<Task> testTasks = getTestTasks();
+        UserTask testUserTask = getTestTaskJoinEntries(testTasks, "testUser").get(0);
+        testUserTask.setLastSorted(Instant.now());
+        Mockito.when(impUserTaskRepo.findTopUserTask(Mockito.anyString())).thenReturn(testUserTask);
+        Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString(), Mockito.any(Instant.class)))
+                .thenReturn(testTasks.get(0));
+
+        TaskDTO topTask = taskService.getTopTask("");
+        Assertions.assertNotNull(topTask);
+        Mockito.verify(impUserTaskRepo, Mockito.times(0)).saveAll(Mockito.anyIterable());
+    }
+
+    @Test
+    public void testGetTopTasks_ForcePrioritization() {
+        List<Task> testTasks = getTestTasks();
+        UserTask testUserTask = getTestTaskJoinEntries(testTasks, "testUser").get(0);
+        testUserTask.setLastSorted(Instant.now().minus(1, ChronoUnit.DAYS));
+        Mockito.when(impUserTaskRepo.findTopUserTask(Mockito.anyString())).thenReturn(testUserTask);
+        Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString(), Mockito.any(Instant.class)))
+                .thenReturn(testTasks.get(0));
+
+        TaskDTO topTask = taskService.getTopTask("");
+        Assertions.assertNotNull(topTask);
+        Mockito.verify(impUserTaskRepo, Mockito.times(1)).saveAll(Mockito.anyIterable());
     }
 
     @Test
@@ -143,6 +173,49 @@ public class ImperativeTaskServiceTest {
         Mockito.verify(impTaskRepo, Mockito.times(1)).save(testTask);
         Mockito.verify(impUserTaskRepo, Mockito.times(1)).findByTaskId(taskId);
         Mockito.verify(impUserTaskRepo, Mockito.times(1)).save(Mockito.any(UserTask.class));
+    }
+
+    @Test
+    public void testSkipTask() {
+        String taskId = "1";
+        String userId = "testUser";
+        UserTask userTask = new UserTask("2", userId, taskId, null, null, null, false);
+        UserTask spyUserTask = Mockito.spy(userTask);
+        Mockito.when(impUserTaskRepo.findByUserIdTaskId(userId, taskId)).thenReturn(spyUserTask);
+        Mockito.when(impUserTaskRepo.save(Mockito.any(UserTask.class))).thenReturn(spyUserTask);
+
+        Optional<UserTask> result = taskService.skipTask(taskId, "testUser");
+        Assertions.assertNotNull(result);
+        Assertions.assertTrue(result.isPresent());
+
+        Mockito.verify(impUserTaskRepo, Mockito.times(1)).save(Mockito.any(UserTask.class));
+        Instant skipDate = Instant.now().plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+        Mockito.verify(spyUserTask).setSkipUntil(skipDate);
+    }
+
+    @Test
+    public void testSkipTask_NotFound() {
+        String taskId = "1";
+        String userId = "testUser";
+        Mockito.when(impUserTaskRepo.findByUserIdTaskId(userId, taskId)).thenReturn(null);
+
+        Optional<UserTask> result = taskService.skipTask(taskId, "testUser");
+        Assertions.assertFalse(result.isPresent());
+        Mockito.verify(impUserTaskRepo, Mockito.times(0)).save(Mockito.any(UserTask.class));
+    }
+
+    @Test
+    public void testSkipTask_ThrowException() {
+        String taskId = "1";
+        String userId = "testUser";
+        UserTask userTask = new UserTask("2", userId, taskId, null, null, null, false);
+        UserTask spyUserTask = Mockito.spy(userTask);
+        Mockito.when(impUserTaskRepo.findByUserIdTaskId(userId, taskId)).thenReturn(spyUserTask);
+        Mockito.when(impUserTaskRepo.save(Mockito.any(UserTask.class))).thenReturn(null);
+
+        Assertions.assertThrows(NullPointerException.class, () -> {
+            taskService.skipTask(taskId, "testUser");
+        });
     }
 
     private List<Task> getTestTasks() {
