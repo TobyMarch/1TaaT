@@ -1,5 +1,7 @@
 package com.taat.taskservices.services;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,6 +33,7 @@ import com.taat.taskservices.repository.imperative.ImperativeTaskRepository;
 import com.taat.taskservices.repository.imperative.ImperativeUserTaskRepository;
 import com.taat.taskservices.services.comparators.TaskDelayableComparator;
 import com.taat.taskservices.services.comparators.TaskDueDateComparator;
+import com.taat.taskservices.services.comparators.TaskDurationComparator;
 import com.taat.taskservices.services.comparators.TaskPriorityComparator;
 import com.taat.taskservices.services.comparators.TaskStartDateComparator;
 import com.taat.taskservices.services.comparators.UserTaskSortComparator;
@@ -87,7 +90,13 @@ public class ImperativeTaskService {
     }
 
     public TaskDTO getTopTask(final String userId) {
-        return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId), Collections.emptyList());
+        UserTask currentTopTask = userTaskRepo.findTopUserTask(userId);
+        // Ensure that prioritization has run at least once today
+        Instant startOfDay = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        if (currentTopTask.getLastSorted() == null || currentTopTask.getLastSorted().isBefore(startOfDay)) {
+            this.runPrioritization(userId);
+        }
+        return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId, startOfDay), Collections.emptyList());
     }
 
     public Page<TaskDTO> getArchivedTasks(final String userId, Pageable pageable) {
@@ -101,66 +110,105 @@ public class ImperativeTaskService {
         return new PageImpl<>(content, pageable, userTaskCount);
     }
 
-    public List<Task> createUpdateTasks(final List<Task> tasks, String owner) {
+    public List<TaskDTO> createUpdateTasks(final List<TaskDTO> tasks, String owner) {
         try {
-            List<Task> savedTasks = new ArrayList<>();
-            for (Task inputTask : tasks) {
-                Task savedTaskRecord = taskRepo.save(inputTask);
-                if (savedTaskRecord != null) {
-                    savedTasks.add(savedTaskRecord);
-                    UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(owner,
-                            savedTaskRecord.getId());
-                    // Create a new db entry linking the task to the user if none exists
-                    if (userTaskRecord == null) {
-                        logger.info(String.format("Inserting record for task: %s",
-                                savedTaskRecord.getTitle()));
-                        UserTask newUserTask = createUserTask(savedTaskRecord, owner);
-                        userTaskRepo.insert(newUserTask);
-                    } else {
-                        userTaskRecord.setArchived(savedTaskRecord.isArchived());
-                        userTaskRepo.save(userTaskRecord);
-                    }
-                }
-            }
+            // create/update Tasks with parent-to-subTask relationships preserved
+            List<Task> savedTasks = batchSaveTasks(tasks, owner);
+            // create/update UserTask join records for all created/updated Tasks
+            this.saveUserTasks(savedTasks, owner);
 
-            List<Task> unsortedTasks = new ArrayList<>();
-            List<UserTask> sortedJoinRecords = new ArrayList<>();
-            // Select all tasks connected to the user
             logger.info("Insertion complete, starting sort operation...");
-            List<UserTask> joinList = userTaskRepo.findByUserId(owner);
-            for (UserTask joinRecord : joinList) {
-                logger.debug(String.format("Found join record: %s", joinRecord.toString()));
-                Optional<Task> taskRecordOptional = taskRepo.findById(joinRecord.getTaskId());
-                if (taskRecordOptional.isPresent()) {
-                    logger.debug(String.format("Corresponding Task: %s",
-                            taskRecordOptional.toString()));
-                    unsortedTasks.add(taskRecordOptional.get());
-                }
-            }
-            // Priority-Sort tasks then apply sorting values to UserTask records
-            double currentPriorityValue = unsortedTasks.size();
-            logger.info(String.format("Tasks to sort: %d", unsortedTasks.size()));
-            for (Task sortedTask : prioritySortTasks(unsortedTasks)) {
-                Optional<UserTask> userTaskOptional = joinList.stream()
-                        .filter(ut -> ut.getTaskId().equals(sortedTask.getId())).findFirst();
-                if (userTaskOptional.isPresent()) {
-                    UserTask userTask = userTaskOptional.get();
-                    userTask.setSortValue(currentPriorityValue--);
-                    sortedJoinRecords.add(userTask);
-                }
-            }
-            logger.info(String.format("Saving %d records", sortedJoinRecords.size()));
-            // update UserTask records
-            List<UserTask> output = userTaskRepo.saveAll(sortedJoinRecords);
-            if (output != null) {
-                for (UserTask userTask : output) {
-                    logger.info(String.format("Saved join record: %s", userTask.toString()));
-                }
-            }
-            return savedTasks;
+            this.runPrioritization(owner);
+            return savedTasks.stream().map(task -> {
+                return TaskDTO.entityToDTO(task, Collections.emptyList());
+            }).collect(Collectors.toList());
         } catch (Exception e) {
             logger.error("Exception in save/update", e);
             return null;
+        }
+    }
+
+    private List<Task> batchSaveTasks(List<TaskDTO> taskDTOs, String owner) {
+        List<Task> taskEntities = new ArrayList<>();
+        for (TaskDTO dto : taskDTOs) {
+            Task inputTaskEntity = dto.dtoToEntity();
+            inputTaskEntity.setOwner(owner);
+            inputTaskEntity.setSubTasks(null);
+
+            if (dto.getSubTasks() != null && !dto.getSubTasks().isEmpty()) {
+                List<String> subTaskIds = new ArrayList<>();
+                for (TaskDTO subTaskDTO : dto.getSubTasks()) {
+                    Task inputSubTaskEntity = subTaskDTO.dtoToEntity();
+                    Task savedEntity = taskRepo.save(inputSubTaskEntity);
+                    if (savedEntity != null) {
+                        taskEntities.add(savedEntity);
+                        subTaskIds.add(savedEntity.getId());
+                    }
+                }
+                inputTaskEntity.setSubTasks(subTaskIds);
+            }
+            Task savedTaskEntity = taskRepo.save(inputTaskEntity);
+            if (savedTaskEntity != null) {
+                taskEntities.add(inputTaskEntity);
+            }
+        }
+        return taskEntities;
+    }
+
+    private void saveUserTasks(List<Task> taskEntities, String userId) {
+        for (Task inputTask : taskEntities) {
+            UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(userId,
+                    inputTask.getId());
+            // Create a new db entry linking the task to the user if none exists
+            if (userTaskRecord == null) {
+                logger.info(String.format("Inserting record for task: %s",
+                        inputTask.getTitle()));
+                UserTask newUserTask = createUserTask(inputTask, userId);
+                userTaskRepo.insert(newUserTask);
+            } else {
+                userTaskRecord.setArchived(inputTask.isArchived());
+                userTaskRepo.save(userTaskRecord);
+            }
+        }
+    }
+
+    private void runPrioritization(String userId) {
+        List<Task> unsortedTasks = new ArrayList<>();
+        List<UserTask> sortedJoinRecords = new ArrayList<>();
+
+        // Select all tasks connected to the user
+        List<UserTask> joinList = userTaskRepo.findByUserId(userId);
+        for (UserTask joinRecord : joinList) {
+            logger.debug(String.format("Found join record: %s", joinRecord.toString()));
+            Optional<Task> taskRecordOptional = taskRepo.findById(joinRecord.getTaskId());
+            if (taskRecordOptional.isPresent()) {
+                logger.debug(String.format("Corresponding Task: %s",
+                        taskRecordOptional.toString()));
+                unsortedTasks.add(taskRecordOptional.get());
+            }
+        }
+
+        // Priority-Sort tasks then apply sorting values to UserTask records
+        double currentPriorityValue = unsortedTasks.size();
+        logger.info(String.format("Tasks to sort: %d", unsortedTasks.size()));
+        for (Task sortedTask : prioritySortTasks(unsortedTasks)) {
+            Optional<UserTask> userTaskOptional = joinList.stream()
+                    .filter(ut -> ut.getTaskId().equals(sortedTask.getId())).findFirst();
+            if (userTaskOptional.isPresent()) {
+                UserTask userTask = userTaskOptional.get();
+                userTask.setSortValue(currentPriorityValue--);
+                userTask.setLastSorted(Instant.now());
+                sortedJoinRecords.add(userTask);
+            }
+        }
+        logger.info(String.format("Saving %d records", sortedJoinRecords.size()));
+
+        // update UserTask records
+        List<UserTask> output = userTaskRepo.saveAll(sortedJoinRecords);
+        if (output != null) {
+            for (UserTask userTask : output) {
+                logger.info(String.format("Saved join record: %s", userTask.toString()));
+            }
         }
     }
 
@@ -216,10 +264,24 @@ public class ImperativeTaskService {
             if (next != null) {
                 task.setId(null);
                 task.setDueDate(next.toString());
-                this.createUpdateTasks(Collections.singletonList(task), owner);
+                this.createUpdateTasks(Collections.singletonList(TaskDTO.entityToDTO(task, Collections.emptyList())),
+                        owner);
             }
         } catch (Exception e) {
             logger.error("Exception when generating recurring task instance", e);
+        }
+    }
+    
+    public Optional<UserTask> skipTask(String taskId, String userId) throws NullPointerException {
+        UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(userId, taskId);
+        if (userTaskRecord != null) {
+            // By default, skip task for remainder of the day
+            Instant skipDate = Instant.now().plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+            userTaskRecord.setSkipUntil(skipDate);
+            UserTask savedRecord = userTaskRepo.save(userTaskRecord);
+            return Optional.of(savedRecord);
+        } else {
+            return Optional.empty();
         }
     }
 
@@ -238,13 +300,14 @@ public class ImperativeTaskService {
         TaskDelayableComparator delayableComparator = new TaskDelayableComparator();
         TaskPriorityComparator priorityComparator = new TaskPriorityComparator();
         TaskStartDateComparator startDateComparator = new TaskStartDateComparator();
+        TaskDurationComparator taskDurationComparator = new TaskDurationComparator();
 
         // filter by date to apply different priority sorting logic
         List<Task> currentOrOverdueTasks = taskList.stream().filter(currentOrOverdueFilter)
-                .sorted(delayableComparator.thenComparing(dueDateComparator).thenComparing(priorityComparator))
+                .sorted(delayableComparator.thenComparing(dueDateComparator).thenComparing(priorityComparator).thenComparing(taskDurationComparator))
                 .collect(Collectors.toList());
         List<Task> futureTasks = taskList.stream().filter(Predicate.not(currentOrOverdueFilter))
-                .sorted(dueDateComparator.thenComparing(startDateComparator).thenComparing(priorityComparator))
+                .sorted(dueDateComparator.thenComparing(startDateComparator).thenComparing(priorityComparator).thenComparing(taskDurationComparator))
                 .collect(Collectors.toList());
 
         List<Task> returnList = new ArrayList<>();

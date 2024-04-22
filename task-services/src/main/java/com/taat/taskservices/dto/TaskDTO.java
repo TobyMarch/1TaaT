@@ -53,7 +53,9 @@ public class TaskDTO {
         taskEntity.setRecurrence(recurrence);
         taskEntity.setDelayable(delayable);
         taskEntity.setArchived(archived);
-        taskEntity.setSubTasks(subTasks.stream().map(TaskDTO::getId).collect(Collectors.toList()));
+        if (subTasks != null) {
+            taskEntity.setSubTasks(subTasks.stream().map(TaskDTO::getId).collect(Collectors.toList()));
+        }
 
         return taskEntity;
     }
