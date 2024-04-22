@@ -94,25 +94,21 @@ public class ImperativeTaskService {
         return new PageImpl<>(content, pageable, userTaskCount);
     }
 
-    public List<Task> createUpdateTasks(final List<Task> tasks, String owner) {
+    public List<TaskDTO> createUpdateTasks(final List<TaskDTO> tasks, String owner) {
         try {
-            List<Task> savedTasks = new ArrayList<>();
-            for (Task inputTask : tasks) {
-                Task savedTaskRecord = taskRepo.save(inputTask);
-                if (savedTaskRecord != null) {
-                    savedTasks.add(savedTaskRecord);
-                    UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(owner,
-                            savedTaskRecord.getId());
-                    // Create a new db entry linking the task to the user if none exists
-                    if (userTaskRecord == null) {
-                        logger.info(String.format("Inserting record for task: %s",
-                                savedTaskRecord.getTitle()));
-                        UserTask newUserTask = createUserTask(savedTaskRecord, owner);
-                        userTaskRepo.insert(newUserTask);
-                    } else {
-                        userTaskRecord.setArchived(savedTaskRecord.isArchived());
-                        userTaskRepo.save(userTaskRecord);
-                    }
+            List<Task> savedTasks = batchSaveTasks(tasks, owner);
+            for (Task inputTask : savedTasks) {
+                UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(owner,
+                        inputTask.getId());
+                // Create a new db entry linking the task to the user if none exists
+                if (userTaskRecord == null) {
+                    logger.info(String.format("Inserting record for task: %s",
+                            inputTask.getTitle()));
+                    UserTask newUserTask = createUserTask(inputTask, owner);
+                    userTaskRepo.insert(newUserTask);
+                } else {
+                    userTaskRecord.setArchived(inputTask.isArchived());
+                    userTaskRepo.save(userTaskRecord);
                 }
             }
 
@@ -150,11 +146,40 @@ public class ImperativeTaskService {
                     logger.info(String.format("Saved join record: %s", userTask.toString()));
                 }
             }
-            return savedTasks;
+            return savedTasks.stream().map(task -> {
+                return TaskDTO.entityToDTO(task, Collections.emptyList());
+            }).collect(Collectors.toList());
         } catch (Exception e) {
             logger.error("Exception in save/update", e);
             return null;
         }
+    }
+
+    private List<Task> batchSaveTasks(List<TaskDTO> taskDTOs, String owner) {
+        List<Task> taskEntities = new ArrayList<>();
+        for (TaskDTO dto : taskDTOs) {
+            Task inputTaskEntity = dto.dtoToEntity();
+            inputTaskEntity.setOwner(owner);
+            inputTaskEntity.setSubTasks(null);
+
+            if (dto.getSubTasks() != null && !dto.getSubTasks().isEmpty()) {
+                List<String> subTaskIds = new ArrayList<>();
+                for (TaskDTO subTaskDTO : dto.getSubTasks()) {
+                    Task inputSubTaskEntity = subTaskDTO.dtoToEntity();
+                    Task savedEntity = taskRepo.save(inputSubTaskEntity);
+                    if (savedEntity != null) {
+                        taskEntities.add(savedEntity);
+                        subTaskIds.add(savedEntity.getId());
+                    }
+                }
+                inputTaskEntity.setSubTasks(subTaskIds);
+            }
+            Task savedTaskEntity = taskRepo.save(inputTaskEntity);
+            if (savedTaskEntity != null) {
+                taskEntities.add(inputTaskEntity);
+            }
+        }
+        return taskEntities;
     }
 
     public boolean deleteById(String id, String owner) {
