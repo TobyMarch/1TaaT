@@ -14,6 +14,7 @@ public class CorsConfig implements WebMvcConfigurer {
                 // "http://localhost:3000",
                 // "https://onetaat-web.onrender.com",
                 // "https://onetaat.com")
+                .allowedOriginPatterns("*")
                 .allowCredentials(true).allowedMethods("*");
     }
 }
