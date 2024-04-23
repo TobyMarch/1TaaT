@@ -252,9 +252,10 @@ public class ImperativeTaskService {
 
             Pattern rRulePattern = Pattern.compile(Constants.RRULE_REGEX);
             Optional<String> ruleString = recurrenceParameters.stream().filter(rRulePattern.asPredicate()).findFirst();
-            if (ruleString.isPresent()) {
+            if (ruleString.isPresent() && task.getDueDate() != null) {
                 String rRule = ruleString.get().split(":")[1];
-                mergedList.add(new OfRule(new RecurrenceRule(rRule), DateTime.today()));
+                DateTime firstInstance = new DateTime(task.getDueDate().toEpochMilli());
+                mergedList.add(new OfRule(new RecurrenceRule(rRule), firstInstance));
             }
 
             // Assume that the user always wants their next task to occur in the future
@@ -263,9 +264,10 @@ public class ImperativeTaskService {
             // Create new task with new due date
             if (next != null) {
                 task.setId(null);
-                task.setDueDate(next.toString());
-                this.createUpdateTasks(Collections.singletonList(TaskDTO.entityToDTO(task, Collections.emptyList())),
-                        owner);
+                task.setDueDate(Instant.ofEpochMilli(next.getTimestamp()));
+                List<TaskDTO> nextTaskList = Collections
+                        .singletonList(TaskDTO.entityToDTO(task, Collections.emptyList()));
+                this.createUpdateTasks(nextTaskList, owner);
             }
         } catch (Exception e) {
             logger.error("Exception when generating recurring task instance", e);

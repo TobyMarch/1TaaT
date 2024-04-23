@@ -1,5 +1,6 @@
 package com.taat.taskservices.dto;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,9 +46,9 @@ public class TaskDTO {
         taskEntity.setOwner(owner);
         taskEntity.setTitle(title);
         taskEntity.setDescription(description);
-        taskEntity.setCreatedDate(createdDate);
-        taskEntity.setStartDate(startDate);
-        taskEntity.setDueDate(dueDate);
+        taskEntity.setCreatedDate(createdDate != null ? Instant.parse(createdDate) : null);
+        taskEntity.setStartDate(startDate != null ? Instant.parse(startDate) : null);
+        taskEntity.setDueDate(dueDate != null ? Instant.parse(dueDate) : null);
         taskEntity.setPriority(priority);
         taskEntity.setDuration(duration);
         taskEntity.setRecurrence(recurrence);
@@ -66,9 +67,9 @@ public class TaskDTO {
         taskDTO.setOwner(taskEntity.getOwner());
         taskDTO.setTitle(taskEntity.getTitle());
         taskDTO.setDescription(taskEntity.getDescription());
-        taskDTO.setCreatedDate(taskEntity.getCreatedDate());
-        taskDTO.setStartDate(taskEntity.getStartDate());
-        taskDTO.setDueDate(taskEntity.getDueDate());
+        taskDTO.setCreatedDate(taskEntity.getCreatedDate() != null ? taskEntity.getCreatedDate().toString() : null);
+        taskDTO.setStartDate(taskEntity.getStartDate() != null ? taskEntity.getStartDate().toString() : null);
+        taskDTO.setDueDate(taskEntity.getDueDate() != null ? taskEntity.getDueDate().toString() : null);
         taskDTO.setPriority(taskEntity.getPriority());
         taskDTO.setDuration(taskEntity.getDuration());
         taskDTO.setRecurrence(taskEntity.getRecurrence());

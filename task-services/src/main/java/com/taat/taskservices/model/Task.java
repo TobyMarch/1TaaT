@@ -1,20 +1,17 @@
 package com.taat.taskservices.model;
 
-import com.google.api.client.util.DateTime;
-import com.taat.taskservices.utils.Duration;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Getter
 @Setter
@@ -33,11 +30,11 @@ public class Task {
 
   private String description;
 
-  private String createdDate;
+  private Instant createdDate;
 
-  private String startDate;
+  private Instant startDate;
 
-  private String dueDate;
+  private Instant dueDate;
 
   private int priority;
 
