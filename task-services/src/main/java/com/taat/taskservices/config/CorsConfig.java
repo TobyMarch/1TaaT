@@ -10,12 +10,11 @@ public class CorsConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins(
-                        "http://localhost:3000",
-                        "https://onetaat-web.onrender.com",
-                        "https://onetaat.com",
-                        "https://onetaat-services.com")
-                // .allowedOriginPatterns("*")
+                // .allowedOrigins(
+                // "http://localhost:3000",
+                // "https://onetaat-web.onrender.com",
+                // "https://onetaat.com")
+                .allowedOriginPatterns("*")
                 .allowCredentials(true).allowedMethods("*");
     }
 }
