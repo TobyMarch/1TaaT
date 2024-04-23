@@ -134,11 +134,18 @@ public class ImperativeTaskService {
             Task inputTaskEntity = dto.dtoToEntity();
             inputTaskEntity.setOwner(owner);
             inputTaskEntity.setSubTasks(null);
+            if (inputTaskEntity.getCreatedDate() == null) {
+                inputTaskEntity.setCreatedDate(Instant.now());
+            }
 
             if (dto.getSubTasks() != null && !dto.getSubTasks().isEmpty()) {
                 List<String> subTaskIds = new ArrayList<>();
                 for (TaskDTO subTaskDTO : dto.getSubTasks()) {
                     Task inputSubTaskEntity = subTaskDTO.dtoToEntity();
+                    if (inputSubTaskEntity.getCreatedDate() == null) {
+                        inputSubTaskEntity.setCreatedDate(Instant.now());
+                    }
+
                     Task savedEntity = taskRepo.save(inputSubTaskEntity);
                     if (savedEntity != null) {
                         taskEntities.add(savedEntity);
@@ -176,8 +183,10 @@ public class ImperativeTaskService {
         List<Task> unsortedTasks = new ArrayList<>();
         List<UserTask> sortedJoinRecords = new ArrayList<>();
 
-        // Select all tasks connected to the user
-        List<UserTask> joinList = userTaskRepo.findByUserId(userId);
+        // Select all active tasks connected to the user
+        List<UserTask> joinList = userTaskRepo.findByUserId(userId).stream()
+                .filter(Predicate.not(UserTask::isArchived))
+                .collect(Collectors.toList());
         for (UserTask joinRecord : joinList) {
             logger.debug(String.format("Found join record: %s", joinRecord.toString()));
             Optional<Task> taskRecordOptional = taskRepo.findById(joinRecord.getTaskId());
@@ -230,7 +239,7 @@ public class ImperativeTaskService {
 
             // If task has recurrence schedule, generate next instance
             if (updatedTask.getRecurrence() != null && !updatedTask.getRecurrence().isEmpty()) {
-                createNextRecurringTask(updatedTask, owner);
+                this.createNextRecurringTask(updatedTask, owner);
             }
 
             // Archive tasks for all assigned users
