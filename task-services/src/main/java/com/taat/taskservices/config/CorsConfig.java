@@ -16,6 +16,7 @@ public class CorsConfig implements WebMvcConfigurer {
                 // "https://onetaat.com",
                 // "ken.ns.cloudflare.com",
                 // "selah.ns.cloudflare.com")
+                .allowedOriginPatterns("*")
                 .allowCredentials(true)
                 .allowedMethods("*");
     }
