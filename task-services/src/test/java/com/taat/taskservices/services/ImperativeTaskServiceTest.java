@@ -48,6 +48,7 @@ public class ImperativeTaskServiceTest {
         Mockito.verify(impTaskRepo, Mockito.times(1)).findAllByOwner(Mockito.anyString());
     }
 
+    @Test
     public void testGetTopTasks() {
         List<Task> testTasks = getTestTasks();
         UserTask testUserTask = getTestTaskJoinEntries(testTasks, "testUser").get(0);
