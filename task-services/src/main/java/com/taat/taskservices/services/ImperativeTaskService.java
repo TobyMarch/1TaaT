@@ -274,6 +274,7 @@ public class ImperativeTaskService {
             if (next != null) {
                 task.setId(null);
                 task.setDueDate(Instant.ofEpochMilli(next.getTimestamp()));
+                task.setArchived(false);
                 List<TaskDTO> nextTaskList = Collections
                         .singletonList(TaskDTO.entityToDTO(task, Collections.emptyList()));
                 this.createUpdateTasks(nextTaskList, owner);

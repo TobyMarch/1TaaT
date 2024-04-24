@@ -1,6 +1,7 @@
 package com.taat.taskservices.controllers;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -183,29 +184,29 @@ public class TaskControllerTest {
 
     private List<TaskDTO> getTestTasks() {
         List<TaskDTO> taskList = new ArrayList<>();
-        String currentDateString = LocalDateTime.now().toString().split("T")[0];
-        String previousDateString = LocalDateTime.now().minusDays(1l).toString().split("T")[0];
-        String futureDateString = LocalDateTime.now().plusDays(1l).toString().split("T")[0];
+        Instant currentDateMidnight = Instant.now().truncatedTo(ChronoUnit.DAYS);
+        Instant previousDateMidnight = currentDateMidnight.minus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+        Instant futureDateMidnight = currentDateMidnight.plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
         taskList.add(
                 new TaskDTO("1", "testOwner", "Test Task 1", "A task for testing", null, null,
-                        currentDateString + "T09:45:00", 5, Duration.M.toString(), Collections.emptyList(), false,
-                        false, Collections.emptyList()));
+                        currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(45, ChronoUnit.MINUTES), 5,
+                        Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
                 new TaskDTO("2", "testOwner", "Test Task 2", "A task for testing", null, null,
-                        currentDateString + "T09:30:00", 5, Duration.M.toString(), Collections.emptyList(), false,
-                        false, Collections.emptyList()));
+                        currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES), 5,
+                        Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
                 new TaskDTO("3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
                         null, 5, Duration.M.toString(), Collections.emptyList(), false, false,
                         Collections.emptyList()));
         taskList.add(
                 new TaskDTO("4", "testOwner", "Test Task 4", "A task that was due yesterday", null, null,
-                        previousDateString + "T09:15:00", 5, Duration.M.toString(), Collections.emptyList(), false,
-                        false, Collections.emptyList()));
+                        previousDateMidnight.plus(9, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES), 5,
+                        Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
                 new TaskDTO("5", "testOwner", "Test Task 5", "A task that is due tomorrow", null, null,
-                        futureDateString + "T14:15:00", 5, Duration.M.toString(), Collections.emptyList(), false, false,
-                        Collections.emptyList()));
+                        futureDateMidnight.plus(14, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES), 5,
+                        Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
 
         return taskList;
     }
