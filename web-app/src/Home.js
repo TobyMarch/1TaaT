@@ -254,9 +254,18 @@ const fetchTasks = async () => {
   }
 };
 
-  const handleArchiveClick = () => {
-    fetchArchivedTasks();
-  };
+const handleArchiveClick = async () => {
+  try {
+    const response = await axios.get(ARCHIVED_API_URL, {
+      withCredentials: true,
+      headers: { "X-XSRF-TOKEN": cookies["XSRF-TOKEN"] },
+    });
+    setArchivedItems(response.data);
+    setShowArchived(!showArchived);
+  } catch (error) {
+    console.error("Failed to fetch archived tasks:", error);
+  }
+};
 
   return (
  <div className="App">
@@ -296,23 +305,21 @@ const fetchTasks = async () => {
       </div>
 
 
-      {/* Task List */}
-      {!menuVisible && (
+     {/* Task List */}
+{!menuVisible && (
   <div className={`List ${isThreeColumns ? "threeColumns" : ""}`}>
-    {items && items.map((item, index) => (
-             <div
-          className="item"
-          key={index}
-          style={priorityGradientStyles[item.priority - 1]} // Apply gradient based on priority
-        >
-                  <h2 className="title">{item.title}</h2>
-                  <p className="duration">Duration: {item.duration}</p>
-
-                  <p className="dueDate">
+    {(showArchived ? archivedItems : items).map((item, index) => (
+      <div
+        className="item"
+        key={index}
+        style={priorityGradientStyles[item.priority - 1]}
+      >
+        <h2 className="title">{item.title}</h2>
+        <p className="duration">Duration: {item.duration}</p>
+        <p className="dueDate">
           Start: {item.startDate.split("T")[0]}
         </p>
-
-                     <p className="dueDate">
+        <p className="dueDate">
           Due: {item.dueDate.split("T")[0]}
           {isOverdue(item.dueDate) && (
             <span style={{ color: 'red', marginLeft: '10px' }}>
@@ -320,37 +327,33 @@ const fetchTasks = async () => {
             </span>
           )}
         </p>
-                  <p className="description">{item.description}</p>
-
+        <p className="description">{item.description}</p>
         <div className="buttonGroup">
-        <button className="shareTaskButton" onClick={() => removeTask(item.id)}>Share<SVGdone/></button>
-
-              <button
-                className="archiveButton"
-                onClick={() => removeTask(item.id)}
-              >
-                Remove<SVGremove/>
-              </button>
-              <button className="doneButton" onClick={() => doneTask(item.id)}>Done<SVGdone/></button>
-
-            </div>
-            <div className="taskInfo">{item.owner}{item.priority}created{item.createdDate}</div>
-            </div>
-          ))}
+          <button className="shareTaskButton" onClick={() => removeTask(item.id)}>Share<SVGdone/></button>
+          <button className="archiveButton" onClick={() => removeTask(item.id)}>Remove<SVGremove/></button>
+          <button className="doneButton" onClick={() => doneTask(item.id)}>Done<SVGdone/></button>
         </div>
-      )}
+        <div className="taskInfo">debug:ownerID:{item.owner}_priority:{item.priority}{item.createdDate}</div>
+      </div>
+    ))}
+  </div>
+)}
 
         {/* Settings button to toggle new task form */}
         <div className="sideBar">
-        <button className="trashButton" onClick={handleArchiveClick}>
+          <p htmlFor="archiveButton">History</p>
+        <button className="archiveButton" onClick={handleArchiveClick}>
                 <SVGarchive />
             </button>
+            <p htmlFor="shareButton">Share</p>
       <button className="shareButton" onClick={toggleMenu}>
         <SVGshare />
       </button>
+      <p htmlFor="shareButton">New</p>
       <button className="addButton" onClick={toggleMenu}>
         <SVGAdd />
       </button>
+      
 </div>
       {/* Conditional rendering of the new task form */}
       {menuVisible && (
