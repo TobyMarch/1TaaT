@@ -100,11 +100,15 @@ public class TaskController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable String id,
                                            @AuthenticationPrincipal OAuth2User principal) {
-        String userId = principal.getAttributes().get("sub").toString();
-        if (taskService.deleteById(id, userId)) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            String userId = principal.getAttributes().get("sub").toString();
+            if (taskService.deleteById(id, userId)) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

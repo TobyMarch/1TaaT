@@ -143,13 +143,45 @@ public class ImperativeTaskServiceTest {
     @Test
     public void testDeleteById() {
         String taskId = "1";
+        Task testTask = new Task(taskId, "testUser", "Test Task 1", "A task for testing", null, null,
+                null, 5, Duration.M.toString(), Collections.emptyList(), false, false, null);
+
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
+        Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
 
         boolean result = taskService.deleteById(taskId, "owner");
         Assertions.assertTrue(result);
 
         Mockito.verify(impTaskRepo, Mockito.times(1)).deleteById(taskId);
         Mockito.verify(impUserTaskRepo, Mockito.times(1)).deleteByTaskId(taskId);
+    }
+
+    @Test
+    public void testDeleteById_SubTasks() {
+        String taskId = "1";
+        Task testTask = new Task(taskId, "testUser", "Test Task 1", "A task for testing", null, null,
+                null, 5, Duration.M.toString(), Collections.emptyList(), false, false, List.of("2", "3"));
+
+        Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
+        Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
+
+        boolean result = taskService.deleteById(taskId, "owner");
+        Assertions.assertTrue(result);
+
+        Mockito.verify(impTaskRepo, Mockito.times(3)).deleteById(Mockito.anyString());
+        Mockito.verify(impUserTaskRepo, Mockito.times(3)).deleteByTaskId(Mockito.anyString());
+    }
+
+    @Test
+    public void testDeleteById_NotFound() {
+        String taskId = "1";
+        Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(false);
+
+        boolean result = taskService.deleteById(taskId, "owner");
+        Assertions.assertFalse(result);
+
+        Mockito.verify(impTaskRepo, Mockito.times(0)).deleteById(Mockito.anyString());
+        Mockito.verify(impUserTaskRepo, Mockito.times(0)).deleteByTaskId(Mockito.anyString());
     }
 
     @Test

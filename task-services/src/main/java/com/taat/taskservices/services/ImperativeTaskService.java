@@ -224,6 +224,14 @@ public class ImperativeTaskService {
 
     public boolean deleteById(String id, String owner) {
         if (taskRepo.existsByOwnerAndId(owner, id)) {
+            Task existingTask = taskRepo.findById(id).get();
+            // iterate through sub-tasks
+            if (existingTask.getSubTasks() != null && !existingTask.getSubTasks().isEmpty()) {
+                existingTask.getSubTasks().stream().forEach(subTaskId -> {
+                    taskRepo.deleteById(subTaskId);
+                    userTaskRepo.deleteByTaskId(subTaskId);
+                });
+            }
             taskRepo.deleteById(id);
             userTaskRepo.deleteByTaskId(id);
             return true;
@@ -240,7 +248,7 @@ public class ImperativeTaskService {
             Task existingTask = taskRepo.findById(id).get();
             existingTask.setArchived(true);
             allTaskIds.add(existingTask.getId());
-            // recurse through sub-tasks
+            // iterate through sub-tasks
             if (existingTask.getSubTasks() != null && !existingTask.getSubTasks().isEmpty()) {
                 existingTask.getSubTasks().stream().forEach(subTaskId -> {
                     if (taskRepo.existsByOwnerAndId(owner, subTaskId)) {

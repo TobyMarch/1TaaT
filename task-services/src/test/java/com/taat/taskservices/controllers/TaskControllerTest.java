@@ -133,6 +133,44 @@ public class TaskControllerTest {
     }
 
     @Test
+    public void testDeleteTask() {
+        OAuth2User principal = getTestUserPrincipal();
+        Mockito.when(taskService.deleteById(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(true);
+
+        ResponseEntity<Void> result = taskController.deleteTask("1", principal);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, result.getStatusCode());
+        Mockito.verify(taskService, Mockito.times(1)).deleteById(Mockito.eq("1"),
+                Mockito.eq(principal.getAttribute("sub")));
+    }
+
+    @Test
+    public void testDeleteTask_NotFound() {
+        OAuth2User principal = getTestUserPrincipal();
+        Mockito.when(taskService.deleteById(Mockito.anyString(), Mockito.anyString())).thenReturn(false);
+
+        ResponseEntity<Void> result = taskController.deleteTask("1", principal);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        Mockito.verify(taskService, Mockito.times(1)).deleteById(Mockito.eq("1"),
+                Mockito.eq(principal.getAttribute("sub")));
+    }
+
+    @Test
+    public void testDeleteTask_Exception() {
+        OAuth2User principal = getTestUserPrincipal();
+        Mockito.when(taskService.deleteById(Mockito.anyString(), Mockito.anyString()))
+                .thenThrow(new NullPointerException());
+
+        ResponseEntity<Void> result = taskController.deleteTask("1", principal);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+        Mockito.verify(taskService, Mockito.times(1)).deleteById(Mockito.eq("1"),
+                Mockito.eq(principal.getAttribute("sub")));
+    }
+
+    @Test
     public void testArchiveTask() {
         OAuth2User principal = getTestUserPrincipal();
         Mockito.when(taskService.archiveTask(Mockito.anyString(), Mockito.anyString()))
