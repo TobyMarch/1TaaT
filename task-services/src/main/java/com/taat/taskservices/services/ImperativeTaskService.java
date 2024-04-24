@@ -232,52 +232,81 @@ public class ImperativeTaskService {
         }
     }
 
-    public Task archiveTask(String id, String owner) {
+    public TaskDTO archiveTask(String id, String owner) {
         if (taskRepo.existsByOwnerAndId(owner, id)) {
+            List<Task> relatedSubTasks = new ArrayList<>();
+            List<String> allTaskIds = new ArrayList<>();
+
             Task existingTask = taskRepo.findById(id).get();
             existingTask.setArchived(true);
-            Task updatedTask = taskRepo.save(existingTask);
-
-            // If task has recurrence schedule, generate next instance
-            if (updatedTask.getRecurrence() != null && !updatedTask.getRecurrence().isEmpty()
-                    && (updatedTask.getStartDate() != null || updatedTask.getDueDate() != null)) {
-                this.createNextRecurringTask(updatedTask, owner);
+            allTaskIds.add(existingTask.getId());
+            // recurse through sub-tasks
+            if (existingTask.getSubTasks() != null && !existingTask.getSubTasks().isEmpty()) {
+                existingTask.getSubTasks().stream().forEach(subTaskId -> {
+                    if (taskRepo.existsByOwnerAndId(owner, subTaskId)) {
+                        Task existingSubTask = taskRepo.findById(subTaskId).get();
+                        existingSubTask.setArchived(true);
+                        relatedSubTasks.add(existingSubTask);
+                        allTaskIds.add(existingSubTask.getId());
+                    }
+                });
             }
+            Task updatedParentTask = taskRepo.save(existingTask);
+            List<Task> updatedSubTasks = (!relatedSubTasks.isEmpty()) ? taskRepo.saveAll(relatedSubTasks)
+                    : Collections.emptyList();
 
             // Archive tasks for all assigned users
-            List<UserTask> existingUserTasks = userTaskRepo.findByTaskId(id).stream().map(userTask -> {
+            List<UserTask> existingUserTasks = userTaskRepo.findByTaskIds(allTaskIds).stream().map(userTask -> {
                 userTask.setArchived(true);
                 return userTask;
             }).collect(Collectors.toList());
             userTaskRepo.saveAll(existingUserTasks);
 
-            return updatedTask;
+            // If task has recurrence schedule, generate next instance(s)
+            if (existingTask.getRecurrence() != null && !existingTask.getRecurrence().isEmpty()) {
+                TaskDTO parentDTO = this.createTaskDTOForNextRecurringDate(existingTask, owner);
+                List<TaskDTO> subTaskDTOs = updatedSubTasks.stream()
+                        .map(subTask -> {
+                            return this.createTaskDTOForNextRecurringDate(subTask, owner);
+                        }).filter(subTask -> {
+                            return subTask != null;
+                        }).collect(Collectors.toList());
+                parentDTO.setSubTasks(subTaskDTOs);
+                this.createUpdateTasks(Collections.singletonList(parentDTO), owner);
+            }
+
+            List<TaskDTO> updatedSubTaskDTOs = updatedSubTasks.stream()
+                    .map(savedSubTask -> {
+                        return TaskDTO.entityToDTO(savedSubTask, Collections.emptyList());
+                    }).collect(Collectors.toList());
+
+            return TaskDTO.entityToDTO(updatedParentTask, updatedSubTaskDTOs);
         }
         return null;
     }
 
-    private void createNextRecurringTask(Task task, String owner) {
+    private TaskDTO createTaskDTOForNextRecurringDate(Task task, String owner) {
         try {
             List<String> recurrenceParameters = task.getRecurrence();
+            TaskDTO newRecurringTask = TaskDTO.entityToDTO(task, null);
             if (recurrenceParameters != null && !recurrenceParameters.isEmpty()
                     && (task.getStartDate() != null || task.getDueDate() != null)) {
                 // Create new task with new start and due dates
-                task.setId(null);
-                task.setArchived(false);
-                if (task.getStartDate() != null) {
-                    task.setStartDate(generateNextDate(recurrenceParameters, task.getStartDate()));
+                newRecurringTask.setId(null);
+                newRecurringTask.setArchived(false);
+                if (newRecurringTask.getStartDate() != null) {
+                    newRecurringTask
+                            .setStartDate(generateNextDate(recurrenceParameters, newRecurringTask.getStartDate()));
                 }
-                if (task.getDueDate() != null) {
-                    task.setDueDate(generateNextDate(recurrenceParameters, task.getDueDate()));
+                if (newRecurringTask.getDueDate() != null) {
+                    newRecurringTask.setDueDate(generateNextDate(recurrenceParameters, newRecurringTask.getDueDate()));
                 }
-
-                List<TaskDTO> nextTaskList = Collections
-                        .singletonList(TaskDTO.entityToDTO(task, Collections.emptyList()));
-                this.createUpdateTasks(nextTaskList, owner);
+                return newRecurringTask;
             }
         } catch (Exception e) {
             logger.error("Exception when generating recurring task instance", e);
         }
+        return null;
     }
 
     private Instant generateNextDate(List<String> recurrenceParameters, Instant previousDate)

@@ -159,28 +159,26 @@ public class ImperativeTaskServiceTest {
         Instant dueDate = Instant.now().minus(30, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.HOURS);
         List<String> recurrence = new ArrayList<>(List.of("RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=SU,TH"));
         Task testTask = new Task(taskId, "testUser", "Test Task", "A task for testing", null, startDate, dueDate, 5,
-                Duration.S.toString(), recurrence, false, false, Collections.emptyList());
+                Duration.S.toString(), recurrence, false, false, null);
         Task spyTestTask = Mockito.spy(testTask);
         Task nextTask = new Task(String.valueOf(Integer.parseInt(taskId) + 1), "testUser", "Test Task",
-                "A task for testing", null, null, null, 5,
-                Duration.S.toString(), recurrence, false, false, Collections.emptyList());
+                "A task for testing", null, null, null, 5, Duration.S.toString(), recurrence, false, false, null);
 
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
-        Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
+        Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(spyTestTask));
         Mockito.when(impTaskRepo.save(Mockito.any(Task.class))).thenReturn(spyTestTask);
 
         List<UserTask> joinEntries = getTestTaskJoinEntries(List.of(testTask, nextTask), "testUser");
-        Mockito.when(impUserTaskRepo.findByTaskId(taskId)).thenReturn(Collections.singletonList(joinEntries.get(0)));
+        Mockito.when(impUserTaskRepo.findByTaskIds(List.of(taskId)))
+                .thenReturn(Collections.singletonList(joinEntries.get(0)));
         Mockito.when(impUserTaskRepo.insert(Mockito.any(UserTask.class))).thenReturn(joinEntries.get(1));
 
-        Task result = taskService.archiveTask(taskId, "testUser");
+        TaskDTO result = taskService.archiveTask(taskId, "testUser");
         Assertions.assertNotNull(result);
-        Mockito.verify(spyTestTask).setArchived(false);
-        Mockito.verify(spyTestTask).setStartDate(Mockito.any(Instant.class));
-        Mockito.verify(spyTestTask).setDueDate(Mockito.any(Instant.class));
+        Mockito.verify(spyTestTask).setArchived(true);
         Mockito.verify(impTaskRepo, Mockito.times(1)).findById(taskId);
         Mockito.verify(impTaskRepo, Mockito.times(2)).save(Mockito.any(Task.class));
-        Mockito.verify(impUserTaskRepo, Mockito.times(1)).findByTaskId(taskId);
+        Mockito.verify(impUserTaskRepo, Mockito.times(1)).findByTaskIds(List.of(taskId));
         Mockito.verify(impUserTaskRepo, Mockito.times(2)).saveAll(Mockito.anyIterable());
     }
 

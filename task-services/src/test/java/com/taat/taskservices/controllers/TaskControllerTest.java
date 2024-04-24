@@ -133,6 +133,44 @@ public class TaskControllerTest {
     }
 
     @Test
+    public void testArchiveTask() {
+        OAuth2User principal = getTestUserPrincipal();
+        Mockito.when(taskService.archiveTask(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(new TaskDTO());
+
+        ResponseEntity<TaskDTO> result = taskController.archiveTask("1", principal);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.OK, result.getStatusCode());
+        Mockito.verify(taskService, Mockito.times(1)).archiveTask(Mockito.eq("1"),
+                Mockito.eq(principal.getAttribute("sub")));
+    }
+
+    @Test
+    public void testArchiveTask_NotFound() {
+        OAuth2User principal = getTestUserPrincipal();
+        Mockito.when(taskService.archiveTask(Mockito.anyString(), Mockito.anyString())).thenReturn(null);
+
+        ResponseEntity<TaskDTO> result = taskController.archiveTask("1", principal);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, result.getStatusCode());
+        Mockito.verify(taskService, Mockito.times(1)).archiveTask(Mockito.eq("1"),
+                Mockito.eq(principal.getAttribute("sub")));
+    }
+
+    @Test
+    public void testArchiveTask_Exception() {
+        OAuth2User principal = getTestUserPrincipal();
+        Mockito.when(taskService.archiveTask(Mockito.anyString(), Mockito.anyString()))
+                .thenThrow(new NullPointerException());
+
+        ResponseEntity<TaskDTO> result = taskController.archiveTask("1", principal);
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, result.getStatusCode());
+        Mockito.verify(taskService, Mockito.times(1)).archiveTask(Mockito.eq("1"),
+                Mockito.eq(principal.getAttribute("sub")));
+    }
+
+    @Test
     public void testSkipTask() {
         OAuth2User principal = getTestUserPrincipal();
         Mockito.when(taskService.skipTask(Mockito.anyString(), Mockito.anyString()))
