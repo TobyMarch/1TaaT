@@ -155,9 +155,10 @@ public class ImperativeTaskServiceTest {
     @Test
     public void testArchiveTask() {
         String taskId = "1";
+        Instant startDate = Instant.now().minus(2, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
         Instant dueDate = Instant.now().minus(30, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.HOURS);
         List<String> recurrence = new ArrayList<>(List.of("RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=SU,TH"));
-        Task testTask = new Task(taskId, "testUser", "Test Task", "A task for testing", null, null, dueDate, 5,
+        Task testTask = new Task(taskId, "testUser", "Test Task", "A task for testing", null, startDate, dueDate, 5,
                 Duration.S.toString(), recurrence, false, false, Collections.emptyList());
         Task spyTestTask = Mockito.spy(testTask);
         Task nextTask = new Task(String.valueOf(Integer.parseInt(taskId) + 1), "testUser", "Test Task",
@@ -165,7 +166,7 @@ public class ImperativeTaskServiceTest {
                 Duration.S.toString(), recurrence, false, false, Collections.emptyList());
 
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
-        Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(spyTestTask));
+        Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
         Mockito.when(impTaskRepo.save(Mockito.any(Task.class))).thenReturn(spyTestTask);
 
         List<UserTask> joinEntries = getTestTaskJoinEntries(List.of(testTask, nextTask), "testUser");
@@ -174,7 +175,8 @@ public class ImperativeTaskServiceTest {
 
         Task result = taskService.archiveTask(taskId, "testUser");
         Assertions.assertNotNull(result);
-        Mockito.verify(spyTestTask).setArchived(true);
+        Mockito.verify(spyTestTask).setArchived(false);
+        Mockito.verify(spyTestTask).setStartDate(Mockito.any(Instant.class));
         Mockito.verify(spyTestTask).setDueDate(Mockito.any(Instant.class));
         Mockito.verify(impTaskRepo, Mockito.times(1)).findById(taskId);
         Mockito.verify(impTaskRepo, Mockito.times(2)).save(Mockito.any(Task.class));

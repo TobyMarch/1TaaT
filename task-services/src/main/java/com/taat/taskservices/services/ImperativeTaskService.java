@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.dmfs.rfc5545.DateTime;
 import org.dmfs.rfc5545.RecurrenceSet;
+import org.dmfs.rfc5545.recur.InvalidRecurrenceRuleException;
 import org.dmfs.rfc5545.recur.RecurrenceRule;
 import org.dmfs.rfc5545.recurrenceset.FastForwarded;
 import org.dmfs.rfc5545.recurrenceset.Merged;
@@ -238,7 +239,8 @@ public class ImperativeTaskService {
             Task updatedTask = taskRepo.save(existingTask);
 
             // If task has recurrence schedule, generate next instance
-            if (updatedTask.getRecurrence() != null && !updatedTask.getRecurrence().isEmpty()) {
+            if (updatedTask.getRecurrence() != null && !updatedTask.getRecurrence().isEmpty()
+                    && (updatedTask.getStartDate() != null || updatedTask.getDueDate() != null)) {
                 this.createNextRecurringTask(updatedTask, owner);
             }
 
@@ -257,24 +259,18 @@ public class ImperativeTaskService {
     private void createNextRecurringTask(Task task, String owner) {
         try {
             List<String> recurrenceParameters = task.getRecurrence();
-            List<RecurrenceSet> mergedList = new ArrayList<>();
-
-            Pattern rRulePattern = Pattern.compile(Constants.RRULE_REGEX);
-            Optional<String> ruleString = recurrenceParameters.stream().filter(rRulePattern.asPredicate()).findFirst();
-            if (ruleString.isPresent() && task.getDueDate() != null) {
-                String rRule = ruleString.get().split(":")[1];
-                DateTime firstInstance = new DateTime(task.getDueDate().toEpochMilli());
-                mergedList.add(new OfRule(new RecurrenceRule(rRule), firstInstance));
-            }
-
-            // Assume that the user always wants their next task to occur in the future
-            RecurrenceSet occurrences = new FastForwarded(DateTime.now(), new Merged(mergedList));
-            DateTime next = occurrences.iterator().next();
-            // Create new task with new due date
-            if (next != null) {
+            if (recurrenceParameters != null && !recurrenceParameters.isEmpty()
+                    && (task.getStartDate() != null || task.getDueDate() != null)) {
+                // Create new task with new start and due dates
                 task.setId(null);
-                task.setDueDate(Instant.ofEpochMilli(next.getTimestamp()));
                 task.setArchived(false);
+                if (task.getStartDate() != null) {
+                    task.setStartDate(generateNextDate(recurrenceParameters, task.getStartDate()));
+                }
+                if (task.getDueDate() != null) {
+                    task.setDueDate(generateNextDate(recurrenceParameters, task.getDueDate()));
+                }
+
                 List<TaskDTO> nextTaskList = Collections
                         .singletonList(TaskDTO.entityToDTO(task, Collections.emptyList()));
                 this.createUpdateTasks(nextTaskList, owner);
@@ -283,7 +279,24 @@ public class ImperativeTaskService {
             logger.error("Exception when generating recurring task instance", e);
         }
     }
-    
+
+    private Instant generateNextDate(List<String> recurrenceParameters, Instant previousDate)
+            throws InvalidRecurrenceRuleException {
+        List<RecurrenceSet> mergedList = new ArrayList<>();
+        Pattern rRulePattern = Pattern.compile(Constants.RRULE_REGEX);
+        Optional<String> ruleString = recurrenceParameters.stream().filter(rRulePattern.asPredicate()).findFirst();
+        if (ruleString.isPresent() && previousDate != null) {
+            String rRule = ruleString.get().split(":")[1];
+            DateTime firstInstance = new DateTime(previousDate.toEpochMilli());
+            mergedList.add(new OfRule(new RecurrenceRule(rRule), firstInstance));
+        }
+        // Assume that the user always wants their next task to occur in the future
+        RecurrenceSet occurrences = new FastForwarded(DateTime.now(), new Merged(mergedList));
+        DateTime next = occurrences.iterator().next();
+
+        return Instant.ofEpochMilli(next.getTimestamp());
+    }
+
     public Optional<UserTask> skipTask(String taskId, String userId) throws NullPointerException {
         UserTask userTaskRecord = userTaskRepo.findByUserIdTaskId(userId, taskId);
         if (userTaskRecord != null) {
