@@ -8,6 +8,7 @@ html, body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: linear-gradient(11deg, rgba(140,230,160) 10%, rgba(140,230,210) 100%);
+
 }
 
 @font-face {
@@ -30,16 +31,19 @@ html, body {
   width: 100%;
   overflow: hidden;
   background: inherit;
+
 }
 
 .topBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 90vw;
-  margin-top: 1vw;
+  width: 80vw;
+  margin-top: 0.5vw;
   background: #0001;
   border-radius: 10px;
+  min-width: 600px;
+  box-shadow: 3px -3px 10px #eee3, -5px 5px 11px #0223;
 }
 
 .sideBar {
@@ -50,6 +54,7 @@ html, body {
   position: absolute;
   bottom: 0;
   left: 0;
+  box-shadow: 3px -3px 10px #eee3, -5px 5px 11px #0223;
 }
 
 /* Components and elements */
@@ -59,6 +64,7 @@ html, body {
   border-radius: 15px;
   height: 50px;
   padding: 12px;
+
 }
 
 .toggle p {
@@ -76,10 +82,10 @@ html, body {
 .filterDropdown select {
   font-size: x-large;
   padding: 5px 20px;
-  border-radius: 10px;
   border: none;
   width: 250px;
-  background-color: #fff5;
+  background-color: #0000;
+  border-bottom: 3px solid #afe9af;
   font-family: 'cool';
   color: #6059;
 }
@@ -179,17 +185,17 @@ input[type="range"]::-webkit-slider-thumb {
   justify-content: flex-start;
   width: 100%;
   margin: 0 auto;
-  animation: 1s popin ;
+  animation: popin 1s ease forwards;
 }
 
 .item {
   width: 70vw;
-  min-height: 350px;
-  padding: 20px;
+  min-height: 380px;
+  padding: 25px;
   margin: 15px auto;
-  border-radius: 20px;
+  border-radius: 10px;
   background: #FFF;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 3px -3px 10px #eee2, -5px 5px 11px #0223;
   animation: popin 1s ease forwards;
 }
 
@@ -284,7 +290,7 @@ bottom:40px;
   align-items: center;
   padding: 30px;
   border-radius: 20px;
-  box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
+  box-shadow: 3px -3px 10px #eee3, -5px 5px 11px #0223;
   background: linear-gradient(11deg, rgba(175,233,175,.9) 10%, rgba(145,203,184,.9) 100%);
   width: 300px;
   height: 500px;

@@ -39,16 +39,20 @@ function Home() {
    const [charTitleCount, setTitleCharCount] = useState(0);
    const [charDescriptionCount, setDescriptionCharCount] = useState(0);
 
+
+const handleLogout = () => {
+};
+
 const handleTitleChange = (event) => {
         const newTitle = event.target.value.slice(0, 50);
         setTitle(newTitle);
-        setTitleCharCount(newTitle.length); // Update character count based on description length
+        setTitleCharCount(newTitle.length);
     };
 
 const handleDescriptionChange = (event) => {
         const newDescription = event.target.value.slice(0, 350);
         setDescription(newDescription);
-        setDescriptionCharCount(newDescription.length); // Update character count based on description length
+        setDescriptionCharCount(newDescription.length);
     };
 
 const handleOptionChange = (event) => {
@@ -118,7 +122,7 @@ const removeTask = async (taskId) => {
 
 const isOverdue = (dueDateString) => {
   const today = new Date();
-  today.setHours(0, 0, 0, 0); // Normalize today's date to midnight for accurate comparison
+  today.setHours(0, 0, 0, 0);
 
   const dueDate = new Date(dueDateString);
   return dueDate < today;
@@ -150,27 +154,21 @@ const priorityGradientStyles = [
     return newTaskFail;
   };
 
-const fetchArchivedTasks = async () => {
+ const fetchArchivedTasks = async () => {
     try {
-        const response = await axios.get(ARCHIVED_API_URL, {
-            withCredentials: true,
-            headers: {
-                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-            },
-        });
-        if (response.data) {
-            console.log('Archived tasks fetched successfully:', response.data);
-            return response.data;
-        }
+      const response = await axios.get(ARCHIVED_API_URL, {
+        withCredentials: true,
+        headers: { "X-XSRF-TOKEN": cookies["XSRF-TOKEN"] },
+      });
+      setArchivedItems(response.data);
+      setShowArchived(true);
     } catch (error) {
-        console.error('Failed to fetch archived tasks:', error);
-        alert('Failed to fetch archived tasks');
-        return [];
+      console.error("Failed to fetch archived tasks:", error);
     }
-}
+  };
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem('username'); // Retrieve username from local storage
+    const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
       setUsername(storedUsername);
     }
@@ -256,11 +254,9 @@ const fetchTasks = async () => {
   }
 };
 
-    const handleArchiveClick = async () => {
-        const archivedTasks = await fetchArchivedTasks();
-        setArchivedItems(archivedTasks);
-        setShowArchived(true);
-    };
+  const handleArchiveClick = () => {
+    fetchArchivedTasks();
+  };
 
   return (
  <div className="App">
@@ -268,7 +264,7 @@ const fetchTasks = async () => {
   <div className="topBar">
     <div className="leftItems">
      <img src={logo} alt="Logo" className="logo" />
- <p>{username}<br/>Logout</p>
+ <p>{username}<br/> <button onClick={handleLogout}>Logout</button></p>
     </div>
 
         <div className="filterDropdown">
