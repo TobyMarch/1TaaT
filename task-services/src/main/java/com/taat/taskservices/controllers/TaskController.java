@@ -100,23 +100,31 @@ public class TaskController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable String id,
                                            @AuthenticationPrincipal OAuth2User principal) {
-        String userId = principal.getAttributes().get("sub").toString();
-        if (taskService.deleteById(id, userId)) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            String userId = principal.getAttributes().get("sub").toString();
+            if (taskService.deleteById(id, userId)) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping(path = "/{id}/archive", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Task> archiveTask(@PathVariable String id,
+    public ResponseEntity<TaskDTO> archiveTask(@PathVariable String id,
                                             @AuthenticationPrincipal OAuth2User principal) {
-        String userId = principal.getAttributes().get("sub").toString();
-        Task result = taskService.archiveTask(id, userId);
-        if (result != null) {
-            return new ResponseEntity<>(result, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        try {
+            String userId = principal.getAttributes().get("sub").toString();
+            TaskDTO result = taskService.archiveTask(id, userId);
+            if (result != null) {
+                return new ResponseEntity<>(result, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

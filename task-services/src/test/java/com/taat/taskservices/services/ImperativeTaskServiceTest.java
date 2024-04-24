@@ -143,7 +143,11 @@ public class ImperativeTaskServiceTest {
     @Test
     public void testDeleteById() {
         String taskId = "1";
+        Task testTask = new Task(taskId, "testUser", "Test Task 1", "A task for testing", null, null,
+                null, 5, Duration.M.toString(), Collections.emptyList(), false, false, null);
+
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
+        Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
 
         boolean result = taskService.deleteById(taskId, "owner");
         Assertions.assertTrue(result);
@@ -153,32 +157,60 @@ public class ImperativeTaskServiceTest {
     }
 
     @Test
+    public void testDeleteById_SubTasks() {
+        String taskId = "1";
+        Task testTask = new Task(taskId, "testUser", "Test Task 1", "A task for testing", null, null,
+                null, 5, Duration.M.toString(), Collections.emptyList(), false, false, List.of("2", "3"));
+
+        Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
+        Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(testTask));
+
+        boolean result = taskService.deleteById(taskId, "owner");
+        Assertions.assertTrue(result);
+
+        Mockito.verify(impTaskRepo, Mockito.times(3)).deleteById(Mockito.anyString());
+        Mockito.verify(impUserTaskRepo, Mockito.times(3)).deleteByTaskId(Mockito.anyString());
+    }
+
+    @Test
+    public void testDeleteById_NotFound() {
+        String taskId = "1";
+        Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(false);
+
+        boolean result = taskService.deleteById(taskId, "owner");
+        Assertions.assertFalse(result);
+
+        Mockito.verify(impTaskRepo, Mockito.times(0)).deleteById(Mockito.anyString());
+        Mockito.verify(impUserTaskRepo, Mockito.times(0)).deleteByTaskId(Mockito.anyString());
+    }
+
+    @Test
     public void testArchiveTask() {
         String taskId = "1";
+        Instant startDate = Instant.now().minus(2, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
         Instant dueDate = Instant.now().minus(30, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.HOURS);
-        List<String> recurrence = new ArrayList<>(List.of("RRULE:FREQ=DAILY;COUNT=10"));
-        Task testTask = new Task(taskId, "testUser", "Test Task", "A task for testing", null, null, dueDate, 5,
-                Duration.S.toString(), recurrence, false, false, Collections.emptyList());
+        List<String> recurrence = new ArrayList<>(List.of("RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=SU,TH"));
+        Task testTask = new Task(taskId, "testUser", "Test Task", "A task for testing", null, startDate, dueDate, 5,
+                Duration.S.toString(), recurrence, false, false, null);
         Task spyTestTask = Mockito.spy(testTask);
         Task nextTask = new Task(String.valueOf(Integer.parseInt(taskId) + 1), "testUser", "Test Task",
-                "A task for testing", null, null, null, 5,
-                Duration.S.toString(), recurrence, false, false, Collections.emptyList());
+                "A task for testing", null, null, null, 5, Duration.S.toString(), recurrence, false, false, null);
 
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
         Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(spyTestTask));
         Mockito.when(impTaskRepo.save(Mockito.any(Task.class))).thenReturn(spyTestTask);
 
         List<UserTask> joinEntries = getTestTaskJoinEntries(List.of(testTask, nextTask), "testUser");
-        Mockito.when(impUserTaskRepo.findByTaskId(taskId)).thenReturn(Collections.singletonList(joinEntries.get(0)));
+        Mockito.when(impUserTaskRepo.findByTaskIds(List.of(taskId)))
+                .thenReturn(Collections.singletonList(joinEntries.get(0)));
         Mockito.when(impUserTaskRepo.insert(Mockito.any(UserTask.class))).thenReturn(joinEntries.get(1));
 
-        Task result = taskService.archiveTask(taskId, "testUser");
+        TaskDTO result = taskService.archiveTask(taskId, "testUser");
         Assertions.assertNotNull(result);
         Mockito.verify(spyTestTask).setArchived(true);
-        Mockito.verify(spyTestTask).setDueDate(Mockito.any(Instant.class));
         Mockito.verify(impTaskRepo, Mockito.times(1)).findById(taskId);
         Mockito.verify(impTaskRepo, Mockito.times(2)).save(Mockito.any(Task.class));
-        Mockito.verify(impUserTaskRepo, Mockito.times(1)).findByTaskId(taskId);
+        Mockito.verify(impUserTaskRepo, Mockito.times(1)).findByTaskIds(List.of(taskId));
         Mockito.verify(impUserTaskRepo, Mockito.times(2)).saveAll(Mockito.anyIterable());
     }
 
@@ -274,15 +306,15 @@ public class ImperativeTaskServiceTest {
 
         List<TaskDTO> task1SubTasks = new ArrayList<>(
                 List.of(new TaskDTO("6", "testUser", "Test Task 6", "A sub-task", null, null,
-                        currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES).toString(), 5,
+                        currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList())));
         taskList.add(
                 new TaskDTO("1", "testUser", "Test Task 1", "A task for testing", null, null,
-                        currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(45, ChronoUnit.MINUTES).toString(), 5,
+                        currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(45, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, task1SubTasks));
         taskList.add(
                 new TaskDTO("2", "testUser", "Test Task 2", "A task for testing", null, null,
-                        currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES).toString(), 5,
+                        currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         List<TaskDTO> task3SubTasks = new ArrayList<>(
                 List.of(new TaskDTO("7", "testUser", "Test Task 7", "A sub-task of Task 3", null, null,
@@ -295,11 +327,11 @@ public class ImperativeTaskServiceTest {
                         null, 5, Duration.L.toString(), Collections.emptyList(), false, false, task3SubTasks));
         taskList.add(
                 new TaskDTO("4", "testUser", "Test Task 4", "A task that was due yesterday", null, null,
-                        previousDateMidnight.plus(9, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES).toString(), 5,
+                        previousDateMidnight.plus(9, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
                 new TaskDTO("5", "testUser", "Test Task 5", "A task that is due tomorrow", null, null,
-                        futureDateMidnight.plus(14, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES).toString(), 5,
+                        futureDateMidnight.plus(14, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
 
         return taskList;
