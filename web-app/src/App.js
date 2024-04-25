@@ -4,13 +4,14 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './Login.js';
 import Home from './Home.js'
 import { ProtectedRoute } from './ProtectedRoute.js';
+import Calendar from './components/calendar';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route element={<ProtectedRoute/>}>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Calendar />} />
         </Route>
         <Route element={<ProtectedRoute loginPage={true} redirectPath="/"/>}>
           <Route path="/login" element={<Login />} />

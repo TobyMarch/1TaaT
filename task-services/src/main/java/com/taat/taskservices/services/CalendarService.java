@@ -14,12 +14,14 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
+import com.google.api.client.util.Value;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.CalendarScopes;
 import com.google.api.services.calendar.model.Event;
 import com.taat.taskservices.TaskServicesApplication;
 import org.springframework.stereotype.Service;
+import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -38,7 +40,13 @@ public class CalendarService {
           Collections.singletonList(CalendarScopes.CALENDAR_READONLY);
   private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
 
-  public static Calendar getCalendar() throws IOException, GeneralSecurityException {
+  @Value("${spring.security.oauth2.client.registration.google.client-id}")
+  private String clientId;
+
+  @Value("${spring.security.oauth2.client.registration.google.client-secret}")
+  private String clientSecret;
+
+  public Calendar getCalendar() throws IOException, GeneralSecurityException {
     final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 //    Calendar service =
 //            new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
@@ -55,7 +63,7 @@ public class CalendarService {
     return service;
   }
 
-  public static List<Event> getEvents(Calendar calendar, int maxResults) throws IOException {
+  public List<Event> getEvents(Calendar calendar, int maxResults) throws IOException {
     DateTime now = new DateTime(System.currentTimeMillis());
     com.google.api.services.calendar.model.Events events = calendar.events().list("primary")
             .setMaxResults(maxResults)
@@ -67,7 +75,7 @@ public class CalendarService {
     return items;
   }
 
-  private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT)
+  private Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT)
           throws IOException {
 
     InputStream in = TaskServicesApplication.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
@@ -88,12 +96,12 @@ public class CalendarService {
     return credential;
   }
 
-  public static GoogleTokenResponse requestAccessToken(String code) throws IOException {
+  public GoogleTokenResponse requestAccessToken(String code) throws IOException {
     try {
       GoogleTokenResponse response = new GoogleAuthorizationCodeTokenRequest(
               new NetHttpTransport(), new GsonFactory(),
-              "",
-              "",
+              clientId,
+              clientSecret,
               code,
               "")
               .execute();

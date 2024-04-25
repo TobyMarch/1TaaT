@@ -31,9 +31,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import com.google.auth.oauth2.GoogleCredentials;
+import org.springframework.web.servlet.view.RedirectView;
 import reactor.core.publisher.Mono;
 
 import javax.imageio.IIOException;
@@ -51,16 +56,34 @@ public class CalendarController {
   @Autowired
   UserRepository userRepository;
 
+  @Autowired
+  CalendarService calendarService;
+
+  @Autowired
+  private OAuth2AuthorizedClientService authorizedClientService;
+
   private static final String APPLICATION_NAME = "1TaaT";
   private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
+
+  @GetMapping("/calendar/oauth2/code/google")
+  public RedirectView calendarRedirect(@RequestParam(required = false) String code) {
+    if (code != null) {
+      try {
+        GoogleTokenResponse response = calendarService.requestAccessToken(code);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return new RedirectView("http://localhost:3000");
+  }
 
   @GetMapping("/calendar/events")
   public ResponseEntity<List<Task>> getCalendarEvents() {
     List<Task> tasks = new ArrayList<>();
 
     try {
-      Calendar calendar = CalendarService.getCalendar();
-      List<Event> events = CalendarService.getEvents(calendar, 10);
+      Calendar calendar = calendarService.getCalendar();
+      List<Event> events = calendarService.getEvents(calendar, 10);
       if (events.isEmpty()) {
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
       } else {
@@ -87,7 +110,7 @@ public class CalendarController {
   public ResponseEntity<List<Task>> calendarSaved(@RequestParam String code, @RequestParam String userId) {
     List<Task> tasks = new ArrayList<>();
     try {
-      GoogleTokenResponse response = CalendarService.requestAccessToken(code);
+      GoogleTokenResponse response = calendarService.requestAccessToken(code);
       String refreshToken = response.getRefreshToken();
       NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
 
@@ -109,7 +132,7 @@ public class CalendarController {
               .setApplicationName(APPLICATION_NAME)
               .build();
 
-      List<Event> events = CalendarService.getEvents(calendar, 10);
+      List<Event> events = calendarService.getEvents(calendar, 10);
       tasks = buildList(events, tasks);
 
       userRepository.findById(userId)
@@ -153,7 +176,7 @@ public class CalendarController {
                         .setApplicationName(APPLICATION_NAME)
                         .build();
 
-                List<Event> events = CalendarService.getEvents(calendar, 10);
+                List<Event> events = calendarService.getEvents(calendar, 10);
                 taskList = buildList(events, taskList);
               } catch (IOException | GeneralSecurityException e) {
                 e.printStackTrace();
@@ -173,5 +196,31 @@ public class CalendarController {
 //      tasks.add(new Task(event.getSummary(), start.toString(), 0, event.getId()));
     }
     return tasks;
+  }
+
+  @GetMapping("/calendar/checkRefreshToken")
+  public ResponseEntity<?> checkRefreshToken(@AuthenticationPrincipal OAuth2User principal) {
+    OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+            "google",
+            principal.getName()
+    );
+
+    System.out.println(authorizedClient.getAccessToken().getTokenValue());
+    System.out.println(authorizedClient.getRefreshToken().getTokenValue());
+
+    return new ResponseEntity<>(null, HttpStatus.OK);
+  }
+
+  @GetMapping("/calendar/getAccessToken")
+  public ResponseEntity<?> getAccessToken(@AuthenticationPrincipal OAuth2User principal) {
+    OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(
+            "google",
+            principal.getName()
+    );
+
+    System.out.println(authorizedClient.getAccessToken().getTokenValue());
+    System.out.println(authorizedClient.getRefreshToken().getTokenValue());
+
+    return new ResponseEntity<>(null, HttpStatus.OK);
   }
 }
