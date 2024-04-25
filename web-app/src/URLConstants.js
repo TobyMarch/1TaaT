@@ -35,5 +35,3 @@ export const ADD_USER_API_URL = TASK_SVC_URL + "/api/users/addUser";
 export const GOOGLE_CLIENT_URL = "https://accounts.google.com/gsi/client";
 
 export const AUTH_ROUTE = TASK_SVC_URL + "/private";
-
-export const LOGOUT_ROUTE = TASK_SVC_URL + "/logout";
