@@ -31,7 +31,6 @@ html, body {
   width: 100%;
   overflow: hidden;
   background: inherit;
-
 }
 
 .topBar {
@@ -55,6 +54,7 @@ html, body {
   bottom: 0;
   left: 0;
   box-shadow: 3px -3px 10px #eee3, -5px 5px 11px #0223;
+
 }
 
 /* Components and elements */
@@ -64,7 +64,6 @@ html, body {
   border-radius: 15px;
   height: 50px;
   padding: 12px;
-
 }
 
 .toggle p {
@@ -112,7 +111,6 @@ button {
   align-items: center;
   cursor: pointer;
   box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
- 
   z-index: 10;
   opacity: 0.8;
   margin-top: -14px;
@@ -122,10 +120,10 @@ button {
 }
 .archiveButton{
   background-color:#60725b;
+
 }
 .shareButton{
   background-color: #62a2be;
-
 }
 .addButton:hover, .shareButton:hover, .trashButton:hover {
   background-color: #0356b3;
@@ -187,6 +185,7 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* List and Items */
+
 .List{
   overflow-y: auto;
 }

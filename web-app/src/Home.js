@@ -12,10 +12,11 @@ import { ReactComponent as SVGdone} from "./img/done.svg";
 import { ReactComponent as SVGflag} from "./img/flag.svg";
 
 import {
-  TASK_API_URL,
-  TOP_TASK_API_URL,
-  PAGINATED_TASKS_API_URL,
-  ARCHIVED_API_URL,
+    TASK_API_URL,
+    TOP_TASK_API_URL,
+    PAGINATED_TASKS_API_URL,
+    ARCHIVED_API_URL,
+    LOGOUT_ROUTE,
 } from "./URLConstants";
 import { useCookies } from "react-cookie";
 
@@ -39,9 +40,6 @@ function Home() {
    const [charTitleCount, setTitleCharCount] = useState(0);
    const [charDescriptionCount, setDescriptionCharCount] = useState(0);
 
-
-const handleLogout = () => {
-};
 
 const handleTitleChange = (event) => {
         const newTitle = event.target.value.slice(0, 50);
@@ -154,18 +152,32 @@ const priorityGradientStyles = [
     return newTaskFail;
   };
 
- const fetchArchivedTasks = async () => {
+const fetchArchivedTasks = async () => {
     try {
-      const response = await axios.get(ARCHIVED_API_URL, {
-        withCredentials: true,
-        headers: { "X-XSRF-TOKEN": cookies["XSRF-TOKEN"] },
-      });
-      setArchivedItems(response.data);
-      setShowArchived(true);
+        const response = await axios.get(ARCHIVED_API_URL, {
+            withCredentials: true,
+            headers: {
+                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+            },
+        });
+        if (response.data) {
+            console.log('Archived tasks fetched successfully:', response.data);
+            return response.data;
+        }
     } catch (error) {
-      console.error("Failed to fetch archived tasks:", error);
+        console.error('Failed to fetch archived tasks:', error);
+        alert('Failed to fetch archived tasks');
+        return [];
     }
-  };
+}
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem('username'); // Retrieve username from local storage
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
+
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
@@ -195,11 +207,10 @@ useEffect(() => {
         owner,
         title,
         description,
-        createdDate,
-        startDate,
-        dueDate,
+        startDate: new Date(startDate).toISOString(),
+        dueDate: new Date(dueDate).toISOString(),
         priority,
-         duration,
+        duration,
         color: priorityGradientStyles[priority - 1],
       };
 
@@ -254,26 +265,32 @@ const fetchTasks = async () => {
   }
 };
 
-const handleArchiveClick = async () => {
-  try {
-    const response = await axios.get(ARCHIVED_API_URL, {
-      withCredentials: true,
-      headers: { "X-XSRF-TOKEN": cookies["XSRF-TOKEN"] },
-    });
-    setArchivedItems(response.data);
-    setShowArchived(!showArchived);
-  } catch (error) {
-    console.error("Failed to fetch archived tasks:", error);
-  }
-};
+    const handleArchiveClick = async () => {
+        const archivedTasks = await fetchArchivedTasks();
+        setArchivedItems(archivedTasks);
+        setShowArchived(true);
+    };
+
+    const handleLogout = () => {
+        fetch(LOGOUT_ROUTE, {
+            method:'post',
+            credentials: 'include',
+            headers: {
+                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"]
+            }
+        })
+        .then(res => {
+            if (res.status === 200) {window.location.href = window.location.origin;}
+        });
+    }
 
   return (
  <div className="App">
   {/* Top Bar Nav */}
   <div className="topBar">
     <div className="leftItems">
-     <img src={logo} alt="Logo" className="logo" />
- <p>{username}<br/> <button onClick={handleLogout}>Logout</button></p>
+        <img src={logo} alt="Logo" className="logo" />
+        <button onClick={handleLogout}>Logout</button>
     </div>
 
         <div className="filterDropdown">
@@ -353,7 +370,6 @@ const handleArchiveClick = async () => {
       <button className="addButton" onClick={toggleMenu}>
         <SVGAdd />
       </button>
-
 </div>
       {/* Conditional rendering of the new task form */}
       {menuVisible && (
@@ -369,6 +385,7 @@ const handleArchiveClick = async () => {
                 id="title"
                 value={title}
                 onChange={handleTitleChange}
+
                 maxLength={50}
                 required
               />
@@ -385,6 +402,17 @@ const handleArchiveClick = async () => {
   required
 />
 
+            </div>
+             <div>
+              <label htmlFor="">Task:</label>
+              <input
+  type="text"
+  id="task"
+  value={description}
+  onChange={(e) => setDescription(e.target.value.slice(0, 350))}
+  maxLength={350}
+  required
+/>
             </div>
             <div>
               <label htmlFor="startDate">Start Date:</label>
