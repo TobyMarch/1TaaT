@@ -67,16 +67,10 @@ public class ImperativeTaskService {
                 Sort.by(Sort.Direction.DESC, "priority"));
 
         // Get all task IDs for a specific user, in parameter-defined sort order
-        String sortByValue = generateSortValue(pageable.getSort());
-        List<String> activeTaskIDs = new ArrayList<>();
-        logger.info("SortBy parameter: {}", sortByValue);
-        try {
-            activeTaskIDs = userTaskRepo.findUserTasksByUserIdSortParams(userId, "sortValue", -1).stream()
-                .map(UserTask::getTaskId)
-                .collect(Collectors.toList());
-        } catch (Exception e) {
-            logger.error("FindSort exception!");
-        }
+        String[] sortByValues = generateSortValue(pageable.getSort()).split(":");
+        List<String> activeTaskIDs = userTaskRepo
+                .findUserTasksByUserIdSortParams(userId, sortByValues[0], Integer.valueOf(sortByValues[1])).stream()
+                .map(UserTask::getTaskId).collect(Collectors.toList());
 
         // Filter out tasks that are subtasks
         List<Task> subTasks = userTaskRepo.findSubTasksByUserId(userId);
@@ -99,22 +93,26 @@ public class ImperativeTaskService {
     }
 
     private String generateSortValue(Sort pageableSort) {
-        String defaultSort = String.format("\\\"%s\\\":%d", TaskSortField.DEFAULT.getMongoSearchValue(),
+        final String SORT_FORMAT = "%s:%d";
+        String defaultSort = String.format(SORT_FORMAT, TaskSortField.DEFAULT.getMongoSearchValue(),
                 TaskSortOrder.DESC.getMongoSearchValue());
 
-        if (pageableSort != null) {
-            List<String> outputPairs = new ArrayList<>();
-            for (Order sortPairing : pageableSort.toList()) {
-                String[] current = sortPairing.toString().replaceAll("\\s", "").split(":");
-                TaskSortField field = TaskSortField.findByParamName(current[0]);
-                TaskSortOrder order = TaskSortOrder.findByName(current[1]);
+        if (pageableSort != null && !pageableSort.toList().isEmpty()) {
+            String parameterSort = "";
+            // Because of limitations in mongoAggregations, we can only insert a
+            // predetermined number of sort conditions into the aggregation
+            Order firstOrder = pageableSort.toList().get(0);
+            if (firstOrder != null && !firstOrder.toString().isBlank()) {
+                String[] sortArguments = firstOrder.toString().replaceAll("\\s", "").split(":");
+                TaskSortField field = TaskSortField.findByParamName(sortArguments[0]);
+                TaskSortOrder order = TaskSortOrder.findByName(sortArguments[1]);
                 if (field != null && order != null) {
-                    String output = String.format("\\\"%s\\\":%d", field.getMongoSearchValue(),
+                    String output = String.format(SORT_FORMAT, field.getMongoSearchValue(),
                             order.getMongoSearchValue());
-                    outputPairs.add(output);
+                    parameterSort = output;
                 }
             }
-            return (!outputPairs.isEmpty()) ? outputPairs.stream().collect(Collectors.joining(",")) : defaultSort;
+            return (!parameterSort.isEmpty()) ? parameterSort : defaultSort;
         } else {
             return defaultSort;
         }
@@ -396,10 +394,12 @@ public class ImperativeTaskService {
 
         // filter by date to apply different priority sorting logic
         List<Task> currentOrOverdueTasks = taskList.stream().filter(currentOrOverdueFilter)
-                .sorted(delayableComparator.thenComparing(dueDateComparator).thenComparing(priorityComparator).thenComparing(taskDurationComparator))
+                .sorted(delayableComparator.thenComparing(dueDateComparator).thenComparing(priorityComparator)
+                        .thenComparing(taskDurationComparator))
                 .collect(Collectors.toList());
         List<Task> futureTasks = taskList.stream().filter(Predicate.not(currentOrOverdueFilter))
-                .sorted(dueDateComparator.thenComparing(startDateComparator).thenComparing(priorityComparator).thenComparing(taskDurationComparator))
+                .sorted(dueDateComparator.thenComparing(startDateComparator).thenComparing(priorityComparator)
+                        .thenComparing(taskDurationComparator))
                 .collect(Collectors.toList());
 
         List<Task> returnList = new ArrayList<>();
