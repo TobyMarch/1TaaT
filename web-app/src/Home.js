@@ -247,13 +247,26 @@ const fetchTasks = async () => {
         setShowArchived(true);
     };
 
+    const handleLogout = () => {
+        fetch('http://localhost:8080/logout', {
+            method:'post',
+            credentials: 'include',
+            headers: {
+                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"]
+            }
+        })
+        .then(res => {
+            if (res.status == 200) {window.location.href = window.location.origin;}
+        });
+    }
+
   return (
  <div className="App">
   {/* Top Bar Nav */}
   <div className="topBar">
     <div className="leftItems">
-     <img src={logo} alt="Logo" className="logo" />
- <p>{username}<br/>Logout</p>
+        <img src={logo} alt="Logo" className="logo" />
+        <button onClick={handleLogout}>Logout</button>
     </div>
 
         <div className="filterDropdown">
