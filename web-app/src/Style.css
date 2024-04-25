@@ -112,7 +112,7 @@ button {
   align-items: center;
   cursor: pointer;
   box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
- 
+
   z-index: 10;
   opacity: 0.8;
   margin-top: -14px;
@@ -198,7 +198,7 @@ input[type="range"]::-webkit-slider-thumb {
   width: 100%;
   margin: 0 auto;
   animation: popin 1s ease forwards;
-  
+
 }
 
 .item {
