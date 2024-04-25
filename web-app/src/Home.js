@@ -12,10 +12,11 @@ import { ReactComponent as SVGdone} from "./img/done.svg";
 import { ReactComponent as SVGflag} from "./img/flag.svg";
 
 import {
-  TASK_API_URL,
-  TOP_TASK_API_URL,
-  PAGINATED_TASKS_API_URL,
-  ARCHIVED_API_URL,
+    TASK_API_URL,
+    TOP_TASK_API_URL,
+    PAGINATED_TASKS_API_URL,
+    ARCHIVED_API_URL,
+    LOGOUT_ROUTE,
 } from "./URLConstants";
 import { useCookies } from "react-cookie";
 
@@ -247,13 +248,26 @@ const fetchTasks = async () => {
         setShowArchived(true);
     };
 
+    const handleLogout = () => {
+        fetch(LOGOUT_ROUTE, {
+            method:'post',
+            credentials: 'include',
+            headers: {
+                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"]
+            }
+        })
+        .then(res => {
+            if (res.status === 200) {window.location.href = window.location.origin;}
+        });
+    }
+
   return (
  <div className="App">
   {/* Top Bar Nav */}
   <div className="topBar">
     <div className="leftItems">
-     <img src={logo} alt="Logo" className="logo" />
- <p>{username}<br/>Logout</p>
+        <img src={logo} alt="Logo" className="logo" />
+        <button onClick={handleLogout}>Logout</button>
     </div>
 
         <div className="filterDropdown">
