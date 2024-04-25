@@ -30,6 +30,14 @@ public interface ImperativeUserTaskRepository extends MongoRepository<UserTask, 
             "{$addFields: {taskId: {$toObjectId: \"$taskId\"} }}",
             "{$lookup: {from: \"tasksTest\", localField: \"taskId\", foreignField: \"_id\", as: \"result\"}}",
             "{$addFields: {result: {$first: \"$result\"}}}", "{$match: {result: {$ne: null}}}",
+            "{$sort: {\"?1\":?2}}",
+            "{$unset: \"result\"}" })
+    List<UserTask> findUserTasksByUserIdSortParams(String userId, String sortBy, Integer sortOrder);
+
+    @Aggregation(pipeline = { "{$match: {userId: '?0', archived: {$ne : true}}}",
+            "{$addFields: {taskId: {$toObjectId: \"$taskId\"} }}",
+            "{$lookup: {from: \"tasksTest\", localField: \"taskId\", foreignField: \"_id\", as: \"result\"}}",
+            "{$addFields: {result: {$first: \"$result\"}}}", "{$match: {result: {$ne: null}}}",
             "{$replaceRoot: {newRoot: \"$result\"}}",
             "{$unwind: {path: \"$subTasks\",preserveNullAndEmptyArrays: false}}",
             "{$addFields: {subTasks: {$toObjectId: \"$subTasks\"}}}",

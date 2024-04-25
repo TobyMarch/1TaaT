@@ -25,6 +25,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 
 import com.taat.taskservices.dto.TaskDTO;
@@ -37,9 +38,10 @@ import com.taat.taskservices.services.comparators.TaskDueDateComparator;
 import com.taat.taskservices.services.comparators.TaskDurationComparator;
 import com.taat.taskservices.services.comparators.TaskPriorityComparator;
 import com.taat.taskservices.services.comparators.TaskStartDateComparator;
-import com.taat.taskservices.services.comparators.UserTaskSortComparator;
 import com.taat.taskservices.services.filters.TaskCurrentOrOverdueFilter;
 import com.taat.taskservices.utils.Constants;
+import com.taat.taskservices.utils.TaskSortField;
+import com.taat.taskservices.utils.TaskSortOrder;
 
 import lombok.NonNull;
 
@@ -64,12 +66,18 @@ public class ImperativeTaskService {
                 pageable.getPageSize(),
                 Sort.by(Sort.Direction.DESC, "priority"));
 
-        // Get all task IDs for a specific user, in descending order
-        List<String> activeTaskIDs = userTaskRepo.findByUserId(userId).stream()
-                .filter(Predicate.not(UserTask::isArchived))
-                .sorted(new UserTaskSortComparator())
+        // Get all task IDs for a specific user, in parameter-defined sort order
+        String sortByValue = generateSortValue(pageable.getSort());
+        List<String> activeTaskIDs = new ArrayList<>();
+        logger.info("SortBy parameter: {}", sortByValue);
+        try {
+            activeTaskIDs = userTaskRepo.findUserTasksByUserIdSortParams(userId, "sortValue", -1).stream()
                 .map(UserTask::getTaskId)
                 .collect(Collectors.toList());
+        } catch (Exception e) {
+            logger.error("FindSort exception!");
+        }
+
         // Filter out tasks that are subtasks
         List<Task> subTasks = userTaskRepo.findSubTasksByUserId(userId);
         List<String> subTaskIds = subTasks.stream().map(Task::getId).collect(Collectors.toList());
@@ -88,6 +96,28 @@ public class ImperativeTaskService {
         List<TaskDTO> pageContent = (start <= end) ? taskDTOs.subList(start, end) : Collections.emptyList();
 
         return new PageImpl<>(pageContent, sortingByPriorityPageable, taskDTOs.size());
+    }
+
+    private String generateSortValue(Sort pageableSort) {
+        String defaultSort = String.format("\\\"%s\\\":%d", TaskSortField.DEFAULT.getMongoSearchValue(),
+                TaskSortOrder.DESC.getMongoSearchValue());
+
+        if (pageableSort != null) {
+            List<String> outputPairs = new ArrayList<>();
+            for (Order sortPairing : pageableSort.toList()) {
+                String[] current = sortPairing.toString().replaceAll("\\s", "").split(":");
+                TaskSortField field = TaskSortField.findByParamName(current[0]);
+                TaskSortOrder order = TaskSortOrder.findByName(current[1]);
+                if (field != null && order != null) {
+                    String output = String.format("\\\"%s\\\":%d", field.getMongoSearchValue(),
+                            order.getMongoSearchValue());
+                    outputPairs.add(output);
+                }
+            }
+            return (!outputPairs.isEmpty()) ? outputPairs.stream().collect(Collectors.joining(",")) : defaultSort;
+        } else {
+            return defaultSort;
+        }
     }
 
     public TaskDTO getTopTask(final String userId) {
@@ -169,8 +199,8 @@ public class ImperativeTaskService {
                     inputTask.getId());
             // Create a new db entry linking the task to the user if none exists
             if (userTaskRecord == null) {
-                logger.info(String.format("Inserting record for task: %s",
-                        inputTask.getTitle()));
+                logger.info(String.format("User: %s Inserting record for Task: %s",
+                        userId, inputTask.getTitle()));
                 UserTask newUserTask = createUserTask(inputTask, userId);
                 userTaskRepo.insert(newUserTask);
             } else {
@@ -200,7 +230,7 @@ public class ImperativeTaskService {
 
         // Priority-Sort tasks then apply sorting values to UserTask records
         double currentPriorityValue = unsortedTasks.size();
-        logger.info(String.format("Tasks to sort: %d", unsortedTasks.size()));
+        logger.info(String.format("User: %s Tasks to sort: %d", userId, unsortedTasks.size()));
         for (Task sortedTask : prioritySortTasks(unsortedTasks)) {
             Optional<UserTask> userTaskOptional = joinList.stream()
                     .filter(ut -> ut.getTaskId().equals(sortedTask.getId())).findFirst();
@@ -211,13 +241,13 @@ public class ImperativeTaskService {
                 sortedJoinRecords.add(userTask);
             }
         }
-        logger.info(String.format("Saving %d records", sortedJoinRecords.size()));
+        logger.info(String.format("User: %s Saving %d records", userId, sortedJoinRecords.size()));
 
         // update UserTask records
         List<UserTask> output = userTaskRepo.saveAll(sortedJoinRecords);
         if (output != null) {
             for (UserTask userTask : output) {
-                logger.info(String.format("Saved join record: %s", userTask.toString()));
+                logger.info(String.format("User: %s Saved join record: %s", userId, userTask.toString()));
             }
         }
     }
