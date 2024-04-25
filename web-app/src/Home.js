@@ -353,7 +353,7 @@ const handleArchiveClick = async () => {
       <button className="addButton" onClick={toggleMenu}>
         <SVGAdd />
       </button>
-      
+
 </div>
       {/* Conditional rendering of the new task form */}
       {menuVisible && (
