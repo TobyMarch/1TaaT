@@ -16,6 +16,7 @@ import {
   TOP_TASK_API_URL,
   PAGINATED_TASKS_API_URL,
   ARCHIVED_API_URL,
+  LOGOUT_ROUTE,
 } from "./URLConstants";
 import { useCookies } from "react-cookie";
 
@@ -32,16 +33,24 @@ function Home() {
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState(1);
   const [duration, setDuration] = useState(1);
-  const [archivedItems, setArchivedItems] = useState([]);
-    const [showArchived, setShowArchived] = useState(false);
   const [selectedOption, setSelectedOption] = useState("option");
   const [cookies] = useCookies(["XSRF-TOKEN"]);
    const [charTitleCount, setTitleCharCount] = useState(0);
    const [charDescriptionCount, setDescriptionCharCount] = useState(0);
 
 
-const handleLogout = () => {
-};
+  const handleLogout = () => {
+        fetch(LOGOUT_ROUTE, {
+            method:'post',
+            credentials: 'include',
+            headers: {
+                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"]
+            }
+        })
+        .then(res => {
+            if (res.status === 200) {window.location.href = window.location.origin;}
+        });
+    }
 
 const handleTitleChange = (event) => {
         const newTitle = event.target.value.slice(0, 50);
@@ -154,18 +163,6 @@ const priorityGradientStyles = [
     return newTaskFail;
   };
 
- const fetchArchivedTasks = async () => {
-    try {
-      const response = await axios.get(ARCHIVED_API_URL, {
-        withCredentials: true,
-        headers: { "X-XSRF-TOKEN": cookies["XSRF-TOKEN"] },
-      });
-      setArchivedItems(response.data);
-      setShowArchived(true);
-    } catch (error) {
-      console.error("Failed to fetch archived tasks:", error);
-    }
-  };
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('username');
@@ -254,18 +251,7 @@ const fetchTasks = async () => {
   }
 };
 
-const handleArchiveClick = async () => {
-  try {
-    const response = await axios.get(ARCHIVED_API_URL, {
-      withCredentials: true,
-      headers: { "X-XSRF-TOKEN": cookies["XSRF-TOKEN"] },
-    });
-    setArchivedItems(response.data);
-    setShowArchived(!showArchived);
-  } catch (error) {
-    console.error("Failed to fetch archived tasks:", error);
-  }
-};
+
 
   return (
  <div className="App">
@@ -308,7 +294,7 @@ const handleArchiveClick = async () => {
      {/* Task List */}
 {!menuVisible && (
   <div className={`List ${isThreeColumns ? "threeColumns" : ""}`}>
-    {(showArchived ? archivedItems : items).map((item, index) => (
+    {items.map((item, index) => (
       <div
         className="item"
         key={index}
@@ -342,7 +328,7 @@ const handleArchiveClick = async () => {
         {/* Settings button to toggle new task form */}
         <div className="sideBar">
           <p htmlFor="archiveButton">History</p>
-        <button className="archiveButton" onClick={handleArchiveClick}>
+        <button className="archiveButton" >
                 <SVGarchive />
             </button>
             <p htmlFor="shareButton">Share</p>
@@ -353,7 +339,7 @@ const handleArchiveClick = async () => {
       <button className="addButton" onClick={toggleMenu}>
         <SVGAdd />
       </button>
-      
+
 </div>
       {/* Conditional rendering of the new task form */}
       {menuVisible && (
