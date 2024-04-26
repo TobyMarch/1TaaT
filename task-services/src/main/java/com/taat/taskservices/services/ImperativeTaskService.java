@@ -227,7 +227,7 @@ public class ImperativeTaskService {
         }
 
         // Priority-Sort tasks then apply sorting values to UserTask records
-        double currentPriorityValue = unsortedTasks.size();
+        int currentPriorityValue = unsortedTasks.size();
         logger.info(String.format("User: %s Tasks to sort: %d", userId, unsortedTasks.size()));
         for (Task sortedTask : prioritySortTasks(unsortedTasks)) {
             Optional<UserTask> userTaskOptional = joinList.stream()
