@@ -16,7 +16,6 @@ import {
   TOP_TASK_API_URL,
   PAGINATED_TASKS_API_URL,
   ARCHIVED_API_URL,
-  LOGOUT_ROUTE,
 } from "./URLConstants";
 import { useCookies } from "react-cookie";
 
@@ -33,36 +32,10 @@ function Home() {
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState(1);
   const [duration, setDuration] = useState(1);
+  const [archivedItems, setArchivedItems] = useState([]);
+    const [showArchived, setShowArchived] = useState(false);
   const [selectedOption, setSelectedOption] = useState("option");
   const [cookies] = useCookies(["XSRF-TOKEN"]);
-   const [charTitleCount, setTitleCharCount] = useState(0);
-   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
-
-
-  const handleLogout = () => {
-        fetch(LOGOUT_ROUTE, {
-            method:'post',
-            credentials: 'include',
-            headers: {
-                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"]
-            }
-        })
-        .then(res => {
-            if (res.status === 200) {window.location.href = window.location.origin;}
-        });
-    }
-
-const handleTitleChange = (event) => {
-        const newTitle = event.target.value.slice(0, 50);
-        setTitle(newTitle);
-        setTitleCharCount(newTitle.length);
-    };
-
-const handleDescriptionChange = (event) => {
-        const newDescription = event.target.value.slice(0, 350);
-        setDescription(newDescription);
-        setDescriptionCharCount(newDescription.length);
-    };
 
 const handleOptionChange = (event) => {
   setSelectedOption(event.target.value);
@@ -131,7 +104,7 @@ const removeTask = async (taskId) => {
 
 const isOverdue = (dueDateString) => {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0); // Normalize today's date to midnight for accurate comparison
 
   const dueDate = new Date(dueDateString);
   return dueDate < today;
@@ -163,9 +136,27 @@ const priorityGradientStyles = [
     return newTaskFail;
   };
 
+const fetchArchivedTasks = async () => {
+    try {
+        const response = await axios.get(ARCHIVED_API_URL, {
+            withCredentials: true,
+            headers: {
+                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+            },
+        });
+        if (response.data) {
+            console.log('Archived tasks fetched successfully:', response.data);
+            return response.data;
+        }
+    } catch (error) {
+        console.error('Failed to fetch archived tasks:', error);
+        alert('Failed to fetch archived tasks');
+        return [];
+    }
+}
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem('username');
+    const storedUsername = localStorage.getItem('username'); // Retrieve username from local storage
     if (storedUsername) {
       setUsername(storedUsername);
     }
@@ -192,11 +183,10 @@ useEffect(() => {
         owner,
         title,
         description,
-        createdDate,
-        startDate,
-        dueDate,
+        startDate: new Date(startDate).toISOString(),
+        dueDate: new Date(dueDate).toISOString(),
         priority,
-         duration,
+        duration,
         color: priorityGradientStyles[priority - 1],
       };
 
@@ -251,7 +241,11 @@ const fetchTasks = async () => {
   }
 };
 
-
+    const handleArchiveClick = async () => {
+        const archivedTasks = await fetchArchivedTasks();
+        setArchivedItems(archivedTasks);
+        setShowArchived(true);
+    };
 
   return (
  <div className="App">
@@ -259,7 +253,7 @@ const fetchTasks = async () => {
   <div className="topBar">
     <div className="leftItems">
      <img src={logo} alt="Logo" className="logo" />
- <p>{username}<br/> <button onClick={handleLogout}>Logout</button></p>
+ <p>{username}<br/>Logout</p>
     </div>
 
         <div className="filterDropdown">
@@ -291,21 +285,23 @@ const fetchTasks = async () => {
       </div>
 
 
-     {/* Task List */}
-{!menuVisible && (
+      {/* Task List */}
+      {!menuVisible && (
   <div className={`List ${isThreeColumns ? "threeColumns" : ""}`}>
-    {items.map((item, index) => (
-      <div
-        className="item"
-        key={index}
-        style={priorityGradientStyles[item.priority - 1]}
-      >
-        <h2 className="title">{item.title}</h2>
-        <p className="duration">Duration: {item.duration}</p>
-        <p className="dueDate">
+    {items && items.map((item, index) => (
+             <div
+          className="item"
+          key={index}
+          style={priorityGradientStyles[item.priority - 1]} // Apply gradient based on priority
+        >
+                  <h2 className="title">{item.title}</h2>
+                  <p className="duration">Duration: {item.duration}</p>
+
+                  <p className="dueDate">
           Start: {item.startDate.split("T")[0]}
         </p>
-        <p className="dueDate">
+
+                     <p className="dueDate">
           Due: {item.dueDate.split("T")[0]}
           {isOverdue(item.dueDate) && (
             <span style={{ color: 'red', marginLeft: '10px' }}>
@@ -313,33 +309,37 @@ const fetchTasks = async () => {
             </span>
           )}
         </p>
-        <p className="description">{item.description}</p>
+                  <p className="description">{item.description}</p>
+
         <div className="buttonGroup">
-          <button className="shareTaskButton" onClick={() => removeTask(item.id)}>Share<SVGdone/></button>
-          <button className="archiveButton" onClick={() => removeTask(item.id)}>Remove<SVGremove/></button>
-          <button className="doneButton" onClick={() => doneTask(item.id)}>Done<SVGdone/></button>
+        <button className="shareTaskButton" onClick={() => removeTask(item.id)}>Share<SVGdone/></button>
+
+              <button
+                className="archiveButton"
+                onClick={() => removeTask(item.id)}
+              >
+                Remove<SVGremove/>
+              </button>
+              <button className="doneButton" onClick={() => doneTask(item.id)}>Done<SVGdone/></button>
+
+            </div>
+            <div className="taskInfo">{item.owner}{item.priority}created{item.createdDate}</div>
+            </div>
+          ))}
         </div>
-        <div className="taskInfo">debug:ownerID:{item.owner}_priority:{item.priority}{item.createdDate}</div>
-      </div>
-    ))}
-  </div>
-)}
+      )}
 
         {/* Settings button to toggle new task form */}
         <div className="sideBar">
-          <p htmlFor="archiveButton">History</p>
-        <button className="archiveButton" >
+        <button className="trashButton" onClick={handleArchiveClick}>
                 <SVGarchive />
             </button>
-            <p htmlFor="shareButton">Share</p>
       <button className="shareButton" onClick={toggleMenu}>
         <SVGshare />
       </button>
-      <p htmlFor="shareButton">New</p>
       <button className="addButton" onClick={toggleMenu}>
         <SVGAdd />
       </button>
-
 </div>
       {/* Conditional rendering of the new task form */}
       {menuVisible && (
@@ -349,28 +349,26 @@ const fetchTasks = async () => {
 
             {/* Add New Task Form */}
             <div>
-              <label htmlFor="title">Task Title:</label><p>Characters: {charTitleCount}/50 </p>
+              <label htmlFor="title">Task Title:</label>
               <input
                 type="text"
                 id="title"
                 value={title}
-                onChange={handleTitleChange}
+                onChange={(e) => setTitle(e.target.value.slice(0, 50))}
                 maxLength={50}
                 required
               />
-
             </div>
              <div>
-              <label htmlFor="">Task:</label><p>Characters: {charDescriptionCount}/250</p>
+              <label htmlFor="">Task:</label>
               <input
   type="text"
   id="task"
   value={description}
-  onChange={handleDescriptionChange}
-  maxLength={250}
+  onChange={(e) => setDescription(e.target.value.slice(0, 350))}
+  maxLength={350}
   required
 />
-
             </div>
             <div>
               <label htmlFor="startDate">Start Date:</label>
@@ -394,9 +392,10 @@ const fetchTasks = async () => {
             </div>
             <div>
 
-  <input type="checkbox" id="Recurring " name="Recurring " value="true"></input>
-  <label for="Recurring "> Recurring</label>
-
+  <input type="checkbox" id="Reoccurring " name="Reoccurring " value="Car"></input>
+  <label for="Reoccurring "> Reoccurring </label>
+  <input type="checkbox" id="vehicle3" name="vehicle3" value="Boat"></input>
+  <label for="vehicle3"> placeholder</label>
             </div>
             <div>
               <label htmlFor="priority">Priority:</label>

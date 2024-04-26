@@ -14,8 +14,6 @@ spring.data.mongodb.uri=
 The project was created using create-react-app. 
 
 ## Files 
-
-#### update
 ### `App.js`
 Login.js - handles login screen and request to google, and Java backend
   App.js - handles layout of the app and the input of the data, then sends to the Java backend. 
