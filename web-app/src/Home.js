@@ -27,6 +27,9 @@ function Home() {
   const [createdDate, setCreatedDate] = useState("");
   const [isThreeColumns, setIsThreeColumns] = useState(false);
   const [items, setItems] = useState([]);
+  const [editItemId, setEditItemId] = useState(null);
+  const [editableTitle, setEditableTitle] = useState("");
+  const [editableDescription, setEditableDescription] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -40,6 +43,32 @@ function Home() {
   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
   const [archivedItems, setArchivedItems] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
+
+
+  const handleEdit = (item) => {
+    setEditItemId(item.id);
+    setEditableTitle(item.title);
+    setEditableDescription(item.description);
+  };
+
+  const handleTitleEdit = (e) => {
+    setEditableTitle(e.target.value);
+  };
+
+  const handleDescriptionEdit = (e) => {
+    setEditableDescription(e.target.value);
+  };
+
+  const saveChanges = (item) => {
+    const updatedItems = items.map(it => {
+      if (it.id === item.id) {
+        return { ...it, title: editableTitle, description: editableDescription };
+      }
+      return it;
+    });
+    setItems(updatedItems);
+    setEditItemId(null); 
+  };
 
   const fetchArchivedTasks = async () => {
         try {
@@ -338,41 +367,91 @@ function Home() {
         </button>
       </div>
 
-      {/* Task List */}
-      {!menuVisible && (
-    <div className={`List ${isThreeColumns ? "threeColumns" : ""}`}>
-        {showArchived ? archivedItems.map((item, index) => (
-            <div className="item" key={index} style={priorityGradientStyles[item.priority - 1]}>
-                <h2 className="title">{item.title}</h2>
-                <p className="duration">Duration: {item.duration}</p>
-                <p className="dueDate">Start: {item.startDate.split("T")[0]}</p>
-                <p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
-                <p className="description">{item.description}</p>
-                <div className="taskInfo">Owner ID: {item.owner}, Priority: {item.priority}</div>
-            </div>
-        )) : items.map((item, index) => (
-            <div className="item" key={index} style={priorityGradientStyles[item.priority - 1]}>
-                <h2 className="title">{item.title}</h2>
-                <p className="duration">Duration: {item.duration}</p>
-                <p className="dueDate">Start: {item.startDate.split("T")[0]}</p>
-                <p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
-                <p className="description">{item.description}</p>
-                <div className="buttonGroup">
-                    <button className="shareTaskButton" onClick={() => removeTask(item.id)}>
-                        Share <SVGdone />
-                    </button>
-                    <button className="archiveButton" onClick={() => removeTask(item.id)}>
-                        Remove <SVGremove />
-                    </button>
-                    <button className="doneButton" onClick={() => doneTask(item.id)}>
-                        Done <SVGdone />
-                    </button>
-                </div>
-                <div className="taskInfo">Owner ID: {item.owner}, Priority: {item.priority}</div>
-            </div>
-        ))}
-    </div>
+   {/* Task List */}
+{!menuVisible && (
+  <div className={`List ${isThreeColumns ? "threeColumns" : ""}`}>
+    {showArchived ? archivedItems.map((item, index) => (
+      <div className="item" key={index} style={priorityGradientStyles[item.priority - 1]}>
+        {editItemId === item.id ? (
+          <div>
+            <input
+              value={editableTitle}
+              onChange={handleTitleEdit}
+              onBlur={() => saveChanges(item)}
+              onKeyPress={(e) => e.key === 'Enter' && saveChanges(item)}
+              autoFocus
+            />
+            <textarea
+              value={editableDescription}
+              onChange={handleDescriptionEdit}
+              onBlur={() => saveChanges(item)}
+            />
+          </div>
+        ) : (
+          <div onDoubleClick={() => handleEdit(item)}>
+            <h2 className="title">{item.title}</h2>
+            <p className="description">{item.description}</p>
+          </div>
+        )}
+        <p className="duration">Duration: {item.duration}</p>
+        <p className="dueDate">Start: {item.startDate.split("T")[0]}</p>
+        <p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
+        <div className="buttonGroup">
+          <button className="shareTaskButton" onClick={() => removeTask(item.id)}>
+            Share <SVGdone />
+          </button>
+          <button className="archiveButton" onClick={() => removeTask(item.id)}>
+            Remove <SVGremove />
+          </button>
+          <button className="doneButton" onClick={() => doneTask(item.id)}>
+            Done <SVGdone />
+          </button>
+        </div>
+        <div className="taskInfo">Owner ID: {item.owner}, Priority: {item.priority}</div>
+      </div>
+    )) : items.map((item, index) => (
+      <div className="item" key={index} style={priorityGradientStyles[item.priority - 1]}>
+        {editItemId === item.id ? (
+          <div>
+            <input
+              value={editableTitle}
+              onChange={handleTitleEdit}
+              onBlur={() => saveChanges(item)}
+              onKeyPress={(e) => e.key === 'Enter' && saveChanges(item)}
+              autoFocus
+            />
+            <textarea
+              value={editableDescription}
+              onChange={handleDescriptionEdit}
+              onBlur={() => saveChanges(item)}
+            />
+          </div>
+        ) : (
+          <div onDoubleClick={() => handleEdit(item)}>
+            <h2 className="title">{item.title}</h2>
+            <p className="description">{item.description}</p>
+          </div>
+        )}
+        <p className="duration">Duration: {item.duration}</p>
+        <p className="dueDate">Start: {item.startDate.split("T")[0]}</p>
+        <p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
+        <div className="buttonGroup">
+          <button className="shareTaskButton" onClick={() => removeTask(item.id)}>
+            Share <SVGdone />
+          </button>
+          <button className="archiveButton" onClick={() => removeTask(item.id)}>
+            Remove <SVGremove />
+          </button>
+          <button className="doneButton" onClick={() => doneTask(item.id)}>
+            Done <SVGdone />
+          </button>
+        </div>
+        <div className="taskInfo">Owner ID: {item.owner}, Priority: {item.priority}</div>
+      </div>
+    ))}
+  </div>
 )}
+
 
       {/* Settings button to toggle new task form */}
       <div className="sideBar">
