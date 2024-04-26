@@ -20,7 +20,6 @@ import {
   LOGOUT_ROUTE,
 } from "./URLConstants";
 
-
 function Home() {
   const [username, setUsername] = useState("");
   const [owner, setOwner] = useState("");
@@ -44,7 +43,21 @@ function Home() {
   const [archivedItems, setArchivedItems] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
 
-
+  const handleSubtaskChange = (event, taskId, subtaskId) => {
+    const updatedItems = items.map((item) => {
+      if (item.id === taskId) {
+        const updatedSubtasks = item.subtasks.map((subtask) => {
+          if (subtask.id === subtaskId) {
+            return { ...subtask, title: event.target.value };
+          }
+          return subtask;
+        });
+        return { ...item, subtasks: updatedSubtasks };
+      }
+      return item;
+    });
+    setItems(updatedItems);
+  };
   const handleEdit = (item) => {
     setEditItemId(item.id);
     setEditableTitle(item.title);
@@ -60,42 +73,46 @@ function Home() {
   };
 
   const saveChanges = (item) => {
-    const updatedItems = items.map(it => {
+    const updatedItems = items.map((it) => {
       if (it.id === item.id) {
-        return { ...it, title: editableTitle, description: editableDescription };
+        return {
+          ...it,
+          title: editableTitle,
+          description: editableDescription,
+        };
       }
       return it;
     });
     setItems(updatedItems);
-    setEditItemId(null); 
+    setEditItemId(null);
   };
 
   const fetchArchivedTasks = async () => {
-        try {
-            const response = await axios.get(ARCHIVED_API_URL, {
-                withCredentials: true,
-                headers: {
-                    "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-                },
-            });
-            if (response.data) {
-                console.log('Archived tasks fetched successfully:', response.data);
-                return response.data;
-            }
-        } catch (error) {
-            console.error('Failed to fetch archived tasks:', error);
-            alert('Failed to fetch archived tasks');
-            return [];
-        }
+    try {
+      const response = await axios.get(ARCHIVED_API_URL, {
+        withCredentials: true,
+        headers: {
+          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+        },
+      });
+      if (response.data) {
+        console.log("Archived tasks fetched successfully:", response.data);
+        return response.data;
+      }
+    } catch (error) {
+      console.error("Failed to fetch archived tasks:", error);
+      alert("Failed to fetch archived tasks");
+      return [];
     }
+  };
 
-   const handleArchiveClick = async () => {
-    if (!showArchived) {  
-        const archivedTasks = await fetchArchivedTasks();
-        setArchivedItems(archivedTasks);
+  const handleArchiveClick = async () => {
+    if (!showArchived) {
+      const archivedTasks = await fetchArchivedTasks();
+      setArchivedItems(archivedTasks);
     }
-    setShowArchived(!showArchived); 
-};
+    setShowArchived(!showArchived);
+  };
 
   const handleLogout = () => {
     fetch(LOGOUT_ROUTE, {
@@ -367,98 +384,148 @@ function Home() {
         </button>
       </div>
 
-   {/* Task List */}
-{!menuVisible && (
-  <div className={`List ${isThreeColumns ? "threeColumns" : ""}`}>
-    {showArchived ? archivedItems.map((item, index) => (
-      <div className="item" key={index} style={priorityGradientStyles[item.priority - 1]}>
-        {editItemId === item.id ? (
-          <div>
-            <input
-              value={editableTitle}
-              onChange={handleTitleEdit}
-              onBlur={() => saveChanges(item)}
-              onKeyPress={(e) => e.key === 'Enter' && saveChanges(item)}
-              autoFocus
-            />
-            <textarea
-              value={editableDescription}
-              onChange={handleDescriptionEdit}
-              onBlur={() => saveChanges(item)}
-            />
-          </div>
-        ) : (
-          <div onDoubleClick={() => handleEdit(item)}>
-            <h2 className="title">{item.title}</h2>
-            <p className="description">{item.description}</p>
-          </div>
-        )}
-        <p className="duration">Duration: {item.duration}</p>
-        <p className="dueDate">Start: {item.startDate.split("T")[0]}</p>
-        <p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
-        <div className="buttonGroup">
-          <button className="shareTaskButton" onClick={() => removeTask(item.id)}>
-            Share <SVGdone />
-          </button>
-          <button className="archiveButton" onClick={() => removeTask(item.id)}>
-            Remove <SVGremove />
-          </button>
-          <button className="doneButton" onClick={() => doneTask(item.id)}>
-            Done <SVGdone />
-          </button>
+      {/* Task List */}
+      {!menuVisible && (
+        <div className={`List ${isThreeColumns ? "threeColumns" : ""}`}>
+          {showArchived
+            ? archivedItems.map((item, index) => (
+                <div
+                  className="item"
+                  key={index}
+                  style={priorityGradientStyles[item.priority - 1]}
+                >
+                  {editItemId === item.id ? (
+                    <div>
+                      <input
+                        value={editableTitle}
+                        onChange={handleTitleEdit}
+                        onBlur={() => saveChanges(item)}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && saveChanges(item)
+                        }
+                        autoFocus
+                      />
+                      <textarea
+                        value={editableDescription}
+                        onChange={handleDescriptionEdit}
+                        onBlur={() => saveChanges(item)}
+                      />
+                    </div>
+                  ) : (
+                    <div onDoubleClick={() => handleEdit(item)}>
+                      <h2 className="title">{item.title}</h2>
+                      <p className="description">{item.description}</p>
+                      {item.subtasks &&
+                        item.subtasks.map((subtask) => (
+                          <div key={subtask.id} className="subtask">
+                            <p>
+                              {subtask.title} -{" "}
+                              {subtask.completed ? "Done" : "Pending"}
+                            </p>
+                          </div>
+                        ))}
+                      <p className="duration">Duration: {item.duration}</p>
+                      <p className="dueDate">
+                        Start: {item.startDate.split("T")[0]}
+                      </p>
+                      <p className="dueDate">
+                        Due: {item.dueDate.split("T")[0]}
+                      </p>
+                      <div className="buttonGroup">
+                        <button
+                          className="shareTaskButton"
+                          onClick={() => removeTask(item.id)}
+                        >
+                          Share <SVGdone />
+                        </button>
+                        <button
+                          className="archiveButton"
+                          onClick={() => removeTask(item.id)}
+                        >
+                          Remove <SVGremove />
+                        </button>
+                        <button
+                          className="doneButton"
+                          onClick={() => doneTask(item.id)}
+                        >
+                          Done <SVGdone />
+                        </button>
+                      </div>
+                      <div className="taskInfo">
+                        Owner ID: {item.owner}, Priority: {item.priority}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))
+            : items.map((item, index) => (
+                <div
+                  className="item"
+                  key={index}
+                  style={priorityGradientStyles[item.priority - 1]}
+                >
+                  {editItemId === item.id ? (
+                    <div>
+                      <input
+                        value={editableTitle}
+                        onChange={handleTitleEdit}
+                        onBlur={() => saveChanges(item)}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && saveChanges(item)
+                        }
+                        autoFocus
+                      />
+                      <textarea
+                        value={editableDescription}
+                        onChange={handleDescriptionEdit}
+                        onBlur={() => saveChanges(item)}
+                      />
+                    </div>
+                  ) : (
+                    <div onDoubleClick={() => handleEdit(item)}>
+                      <h2 className="title">{item.title}</h2>
+                      <p className="description">{item.description}</p>
+                    </div>
+                  )}
+                  <p className="duration">Duration: {item.duration}</p>
+                  <p className="dueDate">
+                    Start: {item.startDate.split("T")[0]}
+                  </p>
+                  <p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
+                  <div className="buttonGroup">
+                    <button
+                      className="shareTaskButton"
+                      onClick={() => removeTask(item.id)}
+                    >
+                      Share <SVGdone />
+                    </button>
+                    <button
+                      className="archiveButton"
+                      onClick={() => removeTask(item.id)}
+                    >
+                      Remove <SVGremove />
+                    </button>
+                    <button
+                      className="doneButton"
+                      onClick={() => doneTask(item.id)}
+                    >
+                      Done <SVGdone />
+                    </button>
+                  </div>
+                  <div className="taskInfo">
+                    Owner ID: {item.owner}, Priority: {item.priority}
+                  </div>
+                </div>
+              ))}
         </div>
-        <div className="taskInfo">Owner ID: {item.owner}, Priority: {item.priority}</div>
-      </div>
-    )) : items.map((item, index) => (
-      <div className="item" key={index} style={priorityGradientStyles[item.priority - 1]}>
-        {editItemId === item.id ? (
-          <div>
-            <input
-              value={editableTitle}
-              onChange={handleTitleEdit}
-              onBlur={() => saveChanges(item)}
-              onKeyPress={(e) => e.key === 'Enter' && saveChanges(item)}
-              autoFocus
-            />
-            <textarea
-              value={editableDescription}
-              onChange={handleDescriptionEdit}
-              onBlur={() => saveChanges(item)}
-            />
-          </div>
-        ) : (
-          <div onDoubleClick={() => handleEdit(item)}>
-            <h2 className="title">{item.title}</h2>
-            <p className="description">{item.description}</p>
-          </div>
-        )}
-        <p className="duration">Duration: {item.duration}</p>
-        <p className="dueDate">Start: {item.startDate.split("T")[0]}</p>
-        <p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
-        <div className="buttonGroup">
-          <button className="shareTaskButton" onClick={() => removeTask(item.id)}>
-            Share <SVGdone />
-          </button>
-          <button className="archiveButton" onClick={() => removeTask(item.id)}>
-            Remove <SVGremove />
-          </button>
-          <button className="doneButton" onClick={() => doneTask(item.id)}>
-            Done <SVGdone />
-          </button>
-        </div>
-        <div className="taskInfo">Owner ID: {item.owner}, Priority: {item.priority}</div>
-      </div>
-    ))}
-  </div>
-)}
-
+      )}
 
       {/* Settings button to toggle new task form */}
       <div className="sideBar">
         <p htmlFor="archiveButton">History</p>
         <button className="archiveButton" onClick={handleArchiveClick}>
-    <SVGarchive />
-</button>
+          <SVGarchive />
+        </button>
         <p htmlFor="shareButton">Share</p>
         <button className="shareButton" onClick={toggleMenu}>
           <SVGshare />
@@ -474,8 +541,8 @@ function Home() {
           <h2>Add New Task</h2>
           <form onSubmit={handleSubmit}>
             {/* Add New Task Form */}
-          
-            <div className="task-input"> 
+
+            <div className="task-input">
               <label htmlFor="title">Task Title:</label>
               <p>Task Title:: {charTitleCount}/50 </p>
               <input
@@ -487,7 +554,7 @@ function Home() {
                 required
               />
             </div>
-            <div className="task-input"> 
+            <div className="task-input">
               <label htmlFor="task">Task:</label>
               <p>Characters: {charDescriptionCount}/250</p>
               <textarea
@@ -499,7 +566,7 @@ function Home() {
                 required
               />
             </div>
-            <div className="task-input"> 
+            <div className="task-input">
               <label htmlFor="startDate">Start Date:</label>
               <input
                 type="datetime-local"
@@ -509,7 +576,7 @@ function Home() {
                 required
               />
             </div>
-            <div className="task-input"> 
+            <div className="task-input">
               <label htmlFor="dueDate">Due Date:</label>
               <input
                 type="datetime-local"
@@ -519,7 +586,7 @@ function Home() {
                 required
               />
             </div>
-            <div className="task-input"> 
+            <div className="task-input">
               <input
                 type="checkbox"
                 id="Recurring "
@@ -560,10 +627,8 @@ function Home() {
                 Submit
               </button>
             </div>
-          
           </form>
         </div>
-        
       )}
     </div>
   );
