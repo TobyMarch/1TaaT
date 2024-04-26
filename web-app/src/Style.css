@@ -141,37 +141,60 @@ button {
   z-index: 0;
   background: linear-gradient(11deg, rgba(175,233,175,1) 10%, rgba(145,203,184,1) 100%);
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-  border-radius: 15px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  font-size: 17px;
 }
+.add-task-form p {
+  align-self: flex-start; /* Align paragraphs to the left */
+}
+.task-input{
+  width: 80vw;
+  display: flex;
+  align-items: center;
 
+  padding: 5px;
+}
 label {
+  margin-right: 30px;
   font-family: 'cool';
-  font-size: 45px;
+  font-size: 30px;
   color: #6059;
-  margin-bottom: -10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align labels to the left */
 }
-
-input[type="text"], input[type="datetime-local"], textarea {
-  width: 100%;
+textarea {
+  width: 70%;
+  height: 150px; 
   padding: 10px;
   margin: 5px 0 20px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  resize: none;
+  word-wrap: break-word;
+}
+input[type="text"], textarea {
+  width: 70%;
+  padding: 10px;
+  border-radius: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
   resize: vertical;
+}
+input[type="datetime-local"]{
+
 }
 
 input[type="range"] {
   -webkit-appearance: none;
-  width: calc(100% - 40px);
+  width: calc(50% - 40px);
   height: 8px;
   border-radius: 5px;
-  background: linear-gradient(to right, #b8b8b8, #80ee8d, #d1ee80, #eeaf71, #ee5c5c);
-  padding: 20px;
+  background: linear-gradient(to right, #b8b8b8 0%, #b8b8b8 20%, #80ee8d 20%, #80ee8d 35%, #d1ee80 35%, #d1ee80 80%, #eeaf71 80%, #eeaf71 90%, #ee5c5c 90%);  padding: 20px;
   margin: 0 20px;
 }
 
