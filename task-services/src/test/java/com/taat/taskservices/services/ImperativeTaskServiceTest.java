@@ -79,7 +79,8 @@ public class ImperativeTaskServiceTest {
     @Test
     public void testGetPaginatedTasks() {
         List<Task> taskList = getTestTasks();
-        Mockito.when(impUserTaskRepo.findByUserId("testUser"))
+        Mockito.when(impUserTaskRepo.findUserTasksByUserIdSortParams(Mockito.eq("testUser"), Mockito.anyString(),
+                Mockito.anyInt()))
                 .thenReturn(getTestTaskJoinEntries(taskList, "testUser"));
         Mockito.when(impUserTaskRepo.findSubTasksByUserId("testUser"))
                 .thenReturn(new ArrayList<>(List.of(taskList.get(0), taskList.get(3), taskList.get(4))));
@@ -87,6 +88,24 @@ public class ImperativeTaskServiceTest {
         Mockito.when(impTaskRepo.buildHierarchicalRecordById(Mockito.anyString())).thenReturn(new TaskDTO());
 
         Pageable testPageable = PageRequest.of(0, 5, Sort.by(Sort.Direction.DESC, "priority"));
+        Page<TaskDTO> results = taskService.getPaginatedTasks("testUser", testPageable);
+        Assertions.assertNotNull(results);
+        Mockito.verify(impTaskRepo, Mockito.times(taskList.size() - 3))
+                .buildHierarchicalRecordById(Mockito.anyString());
+    }
+
+    @Test
+    public void testGetPaginatedTasks_InvalidProperty() {
+        List<Task> taskList = getTestTasks();
+        Mockito.when(impUserTaskRepo.findUserTasksByUserIdSortParams(Mockito.eq("testUser"), Mockito.anyString(),
+                Mockito.anyInt()))
+                .thenReturn(getTestTaskJoinEntries(taskList, "testUser"));
+        Mockito.when(impUserTaskRepo.findSubTasksByUserId("testUser"))
+                .thenReturn(new ArrayList<>(List.of(taskList.get(0), taskList.get(3), taskList.get(4))));
+        Mockito.when(impTaskRepo.existsById(Mockito.anyString())).thenReturn(true);
+        Mockito.when(impTaskRepo.buildHierarchicalRecordById(Mockito.anyString())).thenReturn(new TaskDTO());
+
+        Pageable testPageable = PageRequest.of(0, 5, Sort.by(Sort.DEFAULT_DIRECTION, "anInvalidProperty"));
         Page<TaskDTO> results = taskService.getPaginatedTasks("testUser", testPageable);
         Assertions.assertNotNull(results);
         Mockito.verify(impTaskRepo, Mockito.times(taskList.size() - 3))
