@@ -193,10 +193,10 @@ useEffect(() => {
         title,
         description,
         createdDate,
-        startDate: new Date(startDate).toISOString(),
-        dueDate: new Date(dueDate).toISOString(),
+        startDate,
+        dueDate,
         priority,
-        duration,
+         duration,
         color: priorityGradientStyles[priority - 1],
       };
 
