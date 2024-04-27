@@ -35,13 +35,39 @@ function Home() {
   const [startDate, setStartDate] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState(1);
-  const [duration, setDuration] = useState(1);
+  const [duration, setDuration] = useState("S");
   const [selectedOption, setSelectedOption] = useState("option");
   const [cookies] = useCookies(["XSRF-TOKEN"]);
   const [charTitleCount, setTitleCharCount] = useState(0);
   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
   const [archivedItems, setArchivedItems] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
+
+
+const skipTask = async (taskId) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    try {
+        const response = await axios.put(
+            `${TASK_API_URL}/${taskId}/skip`,
+            { dueDate: tomorrow.toISOString().split('T')[0] },
+            {
+                withCredentials: true,
+                headers: {
+                    "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+                },
+            }
+        );
+        if (response.status === 200) {
+            console.log("Task skipped to next day:", response.data);
+            fetchTasks();
+        }
+    } catch (error) {
+        console.error("Error skipping the task:", error);
+    }
+};
+
 
   const handleSubtaskChange = (event, taskId, subtaskId) => {
     const updatedItems = items.map((item) => {
@@ -87,32 +113,42 @@ function Home() {
     setEditItemId(null);
   };
 
-  const fetchArchivedTasks = async () => {
-    try {
-      const response = await axios.get(ARCHIVED_API_URL, {
-        withCredentials: true,
-        headers: {
-          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-        },
-      });
-      if (response.data) {
-        console.log("Archived tasks fetched successfully:", response.data);
-        return response.data;
-      }
-    } catch (error) {
-      console.error("Failed to fetch archived tasks:", error);
-      alert("Failed to fetch archived tasks");
+const fetchArchivedTasks = async () => {
+  try {
+    const response = await axios.get(ARCHIVED_API_URL, {
+      withCredentials: true,
+      headers: {
+        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+      },
+    });
+    if (response.data && Array.isArray(response.data.content)) {
+      console.log("Archived tasks fetched successfully:", response.data.content);
+      return response.data.content;
+    } else {
+      console.warn("Received non-array:", response.data);
       return [];
     }
-  };
+  } catch (error) {
+    console.error("Failed to fetch archived tasks:", error);
+  }
+};
 
-  const handleArchiveClick = async () => {
-    if (!showArchived) {
-      const archivedTasks = await fetchArchivedTasks();
-      setArchivedItems(archivedTasks);
+const handleArchiveClick = async () => {
+  setShowArchived(prevShowArchived => {
+    if (!prevShowArchived) {
+      fetchArchivedTasks()
+        .then(archivedTasks => {
+          setArchivedItems(archivedTasks);
+        })
+        .catch(error => {
+          console.error("Failed to fetch archived tasks:", error);
+          setArchivedItems([]);
+        });
     }
-    setShowArchived(!showArchived);
-  };
+    return !prevShowArchived;
+  });
+};
+
 
   const handleLogout = () => {
     fetch(LOGOUT_ROUTE, {
@@ -183,10 +219,9 @@ function Home() {
         }
       );
       setItems((items) => items.filter((item) => item.id !== taskId));
-      alert("Task done successfully");
     } catch (error) {
       console.error("Error finishing the task:", error);
-      alert("Failed to finish task");
+
     }
   };
 
@@ -200,11 +235,9 @@ function Home() {
       });
 
       setItems((items) => items.filter((item) => item.id !== taskId));
-
-      alert("Task removed successfully");
     } catch (error) {
       console.error("Error removing the task:", error);
-      alert("Failed to remove task");
+
     }
   };
 
@@ -293,12 +326,10 @@ function Home() {
       setDueDate("");
       setPriority(1);
       toggleMenu();
-      alert("Task added successfully");
       fetchTopTask();
       fetchTasks();
     } catch (error) {
       console.error("Error submitting data:", error);
-      alert("Failed to add task" + error.message);
     }
   };
 
@@ -311,7 +342,7 @@ function Home() {
       setItems(response.data.content);
     } catch (error) {
       console.error("Error fetching top task:", error);
-      alert("Failed to fetch top task");
+
     }
   };
 
@@ -436,8 +467,10 @@ function Home() {
                           className="shareTaskButton"
                           onClick={() => removeTask(item.id)}
                         >
+
                           Share <SVGdone />
                         </button>
+
                         <button
                           className="archiveButton"
                           onClick={() => removeTask(item.id)}
@@ -499,6 +532,9 @@ function Home() {
                     >
                       Share <SVGdone />
                     </button>
+                    <button className="skipButton" onClick={() => skipTask(item.id)}>
+        Skip to Next Day <SVGflag />
+    </button>
                     <button
                       className="archiveButton"
                       onClick={() => removeTask(item.id)}
@@ -530,7 +566,7 @@ function Home() {
         <button className="shareButton" onClick={toggleMenu}>
           <SVGshare />
         </button>
-        <p htmlFor="shareButton">New</p>
+        <p htmlFor="addButton">New</p>
         <button className="addButton" onClick={toggleMenu}>
           <SVGAdd />
         </button>

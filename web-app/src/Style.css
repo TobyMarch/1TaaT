@@ -223,7 +223,6 @@ input[type="range"]::-webkit-slider-thumb {
   animation: popin 1s ease forwards;
 
 }
-
 .item {
   width: 60vw;
   height: 100%;
@@ -235,8 +234,21 @@ input[type="range"]::-webkit-slider-thumb {
   animation: popin 1s ease forwards;
 }
 .item:first-child {
-  margin-top: 59px;
+  margin-top: 69px;
+  height: 70vh;
+  animation: shrink 1s ease forwards;
 }
+@keyframes shrink {
+  from {
+    margin-top: 49px;
+    height: 65vh;
+  }
+  to {
+    margin-top: 69px;
+    height: 70vh;
+  }
+}
+
 
 .title {
   text-align: left;
@@ -256,6 +268,7 @@ input[type="range"]::-webkit-slider-thumb {
   margin: 0;
   font-size:14px;
 }
+
 .description {
   font-size: 20px;
   text-align:left;
@@ -266,12 +279,14 @@ input[type="range"]::-webkit-slider-thumb {
   white-space: normal;
   padding:3%;
 }
+
 .taskInfo{
 }
 
 .buttonGroup {
     display: flex;
     justify-content: space-around;
+    bottom: 0;
 }
 
 .buttonGroup button {
@@ -295,7 +310,9 @@ input[type="range"]::-webkit-slider-thumb {
     background-color: #d32f2f;
 
 }
-
+.skipButton{
+   background-color: #fc7775;
+}
 .doneButton {
     background-color: #67906d;
 }
