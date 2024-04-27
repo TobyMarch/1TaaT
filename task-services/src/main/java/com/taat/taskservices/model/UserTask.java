@@ -26,7 +26,7 @@ public class UserTask {
 
     private String taskId;
 
-    private Double sortValue;
+    private Integer sortValue;
 
     private Instant skipUntil;
 
