@@ -1,94 +1,120 @@
 import React, { useState, useEffect } from 'react';
-import { ADD_USER_API_URL, GOOGLE_CLIENT_URL, USER_CALENDAR_API_URL, USER_CALENDAR_SAVED_API_URL, USER_TOKEN_REFRESH_API_URL } from '../URLConstants';
-
-const CLIENT_ID = "";
-const SCOPES = "";
-const USER_ID = "";
+import {
+    LOGOUT_ROUTE,
+    ACCESS_TOKEN,
+    REFRESH_ACCESS_TOKEN,
+    GOOGLE_API_KEY,
+    CALENDAR_DISCOVERY_DOC,
+    TASK_API_URL
+ } from '../URLConstants';
+import { useCookies } from 'react-cookie';
+import { calendarRequest, setGapiToken, callGapi } from './gapi-utils';
+import { CalendarEvent } from './CalendarEvent';
 
 function Calendar() {
-    const[tasks, setTasks] = useState([]);
+    const [events, setEvents] = useState([]);
+    const [nextPageToken, setNextPageToken] = useState(undefined);
+    const [cookies] = useCookies(["XSRF-TOKEN"]);
 
     useEffect(() => {
-        const script = document.createElement("script");
-        script.async = true;
-        script.defer = true;
-        script.src = GOOGLE_CLIENT_URL;
-        document.body.appendChild(script);
-      }, []);
+        const gapiLoaded = () => {
+            window.gapi.load('client', initGapiClient)
+        }
 
-    const handleSyncCalendar = async () => {
-        try {
-            fetch(`${USER_TOKEN_REFRESH_API_URL}?userId=${USER_ID}`, { 
-                method: 'get'
+        const initGapiClient = async () => {
+            await window.gapi.client.init({
+                apiKey: GOOGLE_API_KEY,
+                discoveryDocs: [CALENDAR_DISCOVERY_DOC]
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data === true) {
-                    fetch(`${USER_CALENDAR_API_URL}?userId=${USER_ID}`, { 
-                        method: 'get'
-                    })
-                    .then(response => response.json())
-                    // .then(data => console.log(data));
-                    .then(data => {
-                        console.log(data)
-                        setTasks(data)
-                    });
-                } else {
-                    const client = window.google.accounts.oauth2.initCodeClient({
-                    client_id: CLIENT_ID,
-                    scope: SCOPES,
-                    ux_mode: 'popup',
-                    callback: async (response) => {
-                        try {
-                            if (!response.code) {
-                                return;
-                            }
-                            fetch(`${USER_CALENDAR_SAVED_API_URL}?code=${response.code}&userId=${USER_ID}`, { 
-                                method: 'get'
-                            })
-                            .then(response => response.json())
-                            // .then(data => console.log(data));
-                            .then(data => setTasks(data));
-                        } catch (error) {
-                            console.log(error);
-                        }
-                    }
-                });
-                client.requestCode();
-                }
-            });
-        } catch (error) {
-            console.log(error);
+
+            await setGapiToken(ACCESS_TOKEN, cookies["XSRF-TOKEN"]);
+            const response = await callGapi(calendarRequest, REFRESH_ACCESS_TOKEN, cookies["XSRF-TOKEN"]);
+            setEvents(response.result.items);
+            setNextPageToken(response.result.nextPageToken);
+        }
+
+        const client = document.createElement("script");
+        client.async = true;
+        client.defer = true;
+        client.onload = gapiLoaded;
+        client.src = "https://apis.google.com/js/api.js";
+
+        document.body.appendChild(client);
+    }, []);
+
+    const handleFetchEvents = async () => {
+        const request = calendarRequest;
+        if(nextPageToken != undefined) {
+            request.pageToken = nextPageToken;
+        }
+
+        const response = await callGapi(request, REFRESH_ACCESS_TOKEN, cookies["XSRF-TOKEN"]);
+        setEvents(response.result.items);
+        setNextPageToken(response.result.nextPageToken);
+
+        const events = response.result.items;
+        if (!events || events.length === 0) {
+          console.log('No events found.');
+          return;
         }
     }
 
-    const handleAddUser = async () => {
-        localStorage.setItem("currentUser", USER_ID);
-        try {
-            const data = {
-                userId: USER_ID
+    const handleClearEvents = () => {
+        setEvents([]);
+    }
+
+    const handleTestButton = () => {
+        console.log(events);
+        console.log(nextPageToken);
+    }
+
+    const handleLogout = () => {
+        fetch(LOGOUT_ROUTE, {
+            method:'post',
+            credentials: 'include',
+            headers: {
+                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"]
             }
-            fetch(ADD_USER_API_URL, {
-                method: 'post',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(data => console.log(data));
-        } catch (e) {
-            console.error(e);
-        }
+        })
+        .then(res => {
+            if (res.status === 200) {window.location.href = window.location.origin;}
+        });
     }
 
-    const tasksList = tasks.map((task, index) => {
-        return <li key={index}>{task.summary}</li>
-    })
+    const handleSubmit = (task) => {
+        fetch(TASK_API_URL, {
+            body: JSON.stringify([task]),
+            method:'post',
+            credentials: 'include',
+            headers: {
+                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => console.log(data));
+    }
+
+    const eventsList = events.map((event, index) =>
+        <CalendarEvent
+            key={index}
+            event={event}
+            handleSubmit={handleSubmit}
+        />
+)
 
     return (
         <div>
-            <button onClick={handleSyncCalendar}>Sync Calendar</button>
-            <button onClick={handleAddUser}>Add User</button>
-            <ul>{tasksList}</ul>
+            <button onClick={handleFetchEvents}>Fetch Events</button>
+            <button onClick={handleClearEvents}>Clear Events</button>
+            <button onClick={handleTestButton}>Test Button</button>
+            <button onClick={handleLogout}>Logout</button>
+            <ul>{eventsList}</ul>
+            <div>
+                {nextPageToken &&
+                    <button>Next Page</button>
+                }
+            </div>
         </div>
     )
 }
