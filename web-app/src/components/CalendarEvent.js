@@ -27,6 +27,14 @@ export function CalendarEvent({event, handleSubmit}) {
                 Due: {String(dueDate).split("T")[0]}<br/>
                 Priority: {priority}
             </p>
+            <input
+                type="range"
+                id="priority"
+                value={priority}
+                min="1"
+                max="5"
+                onChange={(e) => setPriority(parseInt(e.target.value, 10))}
+              />
             <button onClick={(e) => submitClicked(e)}>Add Task</button>
         </div>
     )
