@@ -9,12 +9,12 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/calendar")
 public class CalendarController {
   @Autowired
   CalendarService calendarService;
 
-  @GetMapping("/calendar/getAccessToken")
+  @GetMapping("/getAccessToken")
   public ResponseEntity<String> getAccessToken(@AuthenticationPrincipal OAuth2User principal) {
     if (principal == null) {
       return new ResponseEntity<>("", HttpStatus.OK);
@@ -23,7 +23,7 @@ public class CalendarController {
     return new ResponseEntity<>(token, HttpStatus.OK);
   }
 
-  @GetMapping("/calendar/refreshAccessToken")
+  @GetMapping("/refreshAccessToken")
   public ResponseEntity<String> refreshAccessToken(@AuthenticationPrincipal OAuth2User principal) {
     if (principal == null) {
       return new ResponseEntity<>("", HttpStatus.OK);
