@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
     LOGOUT_ROUTE,
     ACCESS_TOKEN,
     REFRESH_ACCESS_TOKEN,
@@ -18,7 +18,7 @@ function Calendar() {
         const gapiLoaded = () => {
             window.gapi.load('client', initGapiClient)
         }
-    
+
         const initGapiClient = async () => {
             await window.gapi.client.init({
                 apiKey: GOOGLE_API_KEY,
@@ -78,7 +78,6 @@ function Calendar() {
             if (res.status === 200) {window.location.href = window.location.origin;}
         });
     }
-    
 
     const tasksList = tasks.map((task, index) => {
         return <li key={index}>{task.summary}</li>
