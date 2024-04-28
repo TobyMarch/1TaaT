@@ -95,8 +95,8 @@ function Calendar() {
         .then(data => console.log(data));
     }
 
-    const eventsList = events.map((event, index) => 
-        <CalendarEvent 
+    const eventsList = events.map((event, index) =>
+        <CalendarEvent
             key={index}
             event={event}
             handleSubmit={handleSubmit}
@@ -111,7 +111,7 @@ function Calendar() {
             <button onClick={handleLogout}>Logout</button>
             <ul>{eventsList}</ul>
             <div>
-                {nextPageToken && 
+                {nextPageToken &&
                     <button>Next Page</button>
                 }
             </div>
