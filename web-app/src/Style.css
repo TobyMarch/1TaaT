@@ -1,5 +1,5 @@
-/* Base Styles */
-body, html {
+/* Base styles and font configurations */
+html, body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -7,22 +7,21 @@ body, html {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(11deg, rgba(175,233,175,.8) 10%, rgba(145,203,184,.8) 100%);
+  background: linear-gradient(11deg, #6a9 10%, #9d9 100%);
 
-}
-
-/* Custom Font */
-@font-face {
-  font-family: BrownBagLunch;
-  src: url(./fonts/BrownBagLunch.ttf);
 }
 
 @font-face {
-  font-family: cool;
-  src: url(./fonts/coolvetica\ rg.otf);
+  font-family: 'BrownBagLunch';
+  src: url('./fonts/BrownBagLunch.ttf');
 }
 
-/* App Layout */
+@font-face {
+  font-family: 'cool';
+  src: url('./fonts/coolvetica rg.otf');
+}
+
+/* Application layout */
 .App {
   text-align: center;
   height: 100vh;
@@ -34,48 +33,66 @@ body, html {
   background: inherit;
 
 }
+
 .topBar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 95vw;
-  margin-top: 3vw;
- background: #fff4;
-border-radius: 20px;
-opacity:.8;
+  width: 70vw;
+  margin-top: 20px;
+  background: #0001;
+  border-radius: 10px;
+  min-width: 550px;
+  box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
 }
-/* Components and Elements */
+
+.sideBar {
+  padding: 13px;
+  margin: 2vw;
+
+
+  position: absolute;
+  bottom: 0;
+  left: 0;
+
+  border-radius: 10px;
+  background: linear-gradient(0deg, hsla(243, 26%, 56%, .2) 9%,  hsla(0, 56%, 62%, .2) 97%);
+  font-family: 'cool';
+  color: #64405c;
+  box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
+}
+
+/* Components and elements */
 .logo, .leftItems, .filterDropdown, .toggle {
   display: flex;
   align-items: center;
-    border-radius: 20px;
-box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
- padding: 10px;
-
+  border-radius: 15px;
+  height: 40px;
+  padding: 12px;
 }
+
 .toggle p {
-  margin: 3px;
+  margin-right: 15px;
   font-size: 15px;
-  font-family: cool;
+  font-family: 'cool';
   color: #6059;
-
+  padding: -10px;
 }
+
 .filterDropdown {
   flex-grow: 1;
-  justify-content: center;
-
+  justify-content: right;
 }
 
 .filterDropdown select {
   font-size: x-large;
-  padding: 5px 20px;
-  border-radius: 15px;
+  padding: 0px 50px;
   border: none;
-  width: 250px;
-  height: 60px;
- background-color: #eee9;
-  box-shadow: 3px -3px 10px #fff6, -5px 5px 11px #0022;
-  font-family: cool;
+  width: 230px;
+  background-color: #0000;
+  border-bottom: 3px solid #66aa99;
+  border-radius: 4px;
+  font-family: 'cool';
   color: #6059;
 }
 
@@ -86,14 +103,10 @@ button {
   margin: 0;
   outline: none;
   cursor: pointer;
+}
 
-  }
-
-.addButton {
-  position: absolute;
-  bottom: 30px;
-  left: 20px;
-  border-radius: 50%;
+.addButton, .shareButton, .historyButton, .importButton{
+  border-radius: 10px;
   width: 50px;
   height: 50px;
   color: white;
@@ -103,56 +116,26 @@ button {
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
-  background-color: #60725b;
-  z-index:10px;
-   opacity: .8;
+   box-shadow: 3px -3px 8px #fff4, -4px 4px 6px #1114;
+  z-index: 10;
+  opacity: 0.8;
+  margin-top: -14px;
 }
-.shareButton {
-  position: absolute;
-  bottom: 130px;
-  left: 20px;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  color: white;
-  border: none;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  z-index:10px;
-  background-color: #60725b;
-   opacity: .8
+.importButton{
+  background-color:#4579;
 }
-.trashButton {
-  position: absolute;
-  bottom: 230px;
-  left: 20px;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  color: white;
-  border: none;
-  padding: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  z-index:10px;
-  background-color: #60725b;
-  opacity: .8
+.addButton{
+  background-color:#6759;
 }
+.historyButton{
+  background-color:#8449;
+}
+.shareButton{
+  background-color: #7579;
 
-.shareButton:hover {
-  background-color: #0356b3;
 }
-.trashButton:hover {
-  background-color: #0356b3;
-}
-.addButton:hover {
-  background-color: #0356b3;
+.addButton:hover, .shareButton:hover, .historyButton:hover, .importButton:hover {
+  background-color: #6059;
 }
 
 .add-task-form {
@@ -163,241 +146,206 @@ button {
   left: 0;
   padding: 25px;
   z-index: 0;
-    background: linear-gradient(11deg, rgba(175,233,175,1) 10%, rgba(145,203,184,1) 100%);
+  background: linear-gradient(11deg, rgba(175,233,175,1) 10%, rgba(145,203,184,1) 100%);
   box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-  border-radius: 15px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  font-size: 17px;
 }
-label{
-  font-family: cool;
-  font-weight: 10;
-  font-size: 45px;
+.add-task-form p {
+  align-self: flex-start; /* Align paragraphs to the left */
+}
+.task-input{
+  width: 80vw;
+  display: flex;
+  align-items: center;
+
+  padding: 5px;
+}
+label {
+  margin-right: 30px;
+  font-family: 'cool';
+  font-size: 30px;
   color: #6059;
-  margin-bottom: -10px;
-  padding: 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Align labels to the left */
 }
-/* Base styles for text inputs to align with the design */
-input[type="text"], input[type="datetime-local"] {
-  width: 100%; /* Full width to align with form */
+textarea {
+  width: 70%;
+  height: 150px;
   padding: 10px;
-  margin: 5px 0 20px; /* Add some space between inputs */
+  margin: 5px 0 20px;
   border-radius: 5px;
-  border: 1px solid #ccc; /* Subtle border */
+  border: 1px solid #ccc;
+  resize: none;
+  word-wrap: break-word;
+}
+input[type="text"], textarea {
+  width: 70%;
+  padding: 10px;
+  border-radius: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  resize: vertical;
+}
+input[type="datetime-local"]{
+
 }
 
-/* Refining range slider styles to fit the new design */
 input[type="range"] {
   -webkit-appearance: none;
-  width: 100%;
+  width: calc(50% - 40px);
+  height: 8px;
+  border-radius: 5px;
+
+background: linear-gradient(100deg, hsla(243, 26%, 56%, 1) 9%, hsla(160, 52%, 66%, 1) 32%, hsla(46, 63%, 68%, 1) 56%, hsla(33, 66%, 63%, 1) 78%, hsla(0, 56%, 62%, 1) 97%);
+
+
+filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#7673AC", endColorstr="#7BD5B7", GradientType=1 );
+  margin: 0 20px;
 }
 
-/* Base styles for the slider */
-input[type="range"] {
-  -webkit-appearance: none; /* Removes default styling for WebKit browsers */
-  width: 100%; /* Slider width */
-  height: 8px; /* Slider track height */
-  border-radius: 5px; /* Rounds the corners of the slider track */
-  background: linear-gradient(to right,
-    #afe9af 0%,
-    #b7cca3 12.5%,
-    #c0b097 25%,
-    #c8948c 37.5%,
-    #d17880 50%,
-    #da5b74 62.5%,
-    #e23f69 75%,
-    #eb235d 87.5%,
-    #f40752 100%); /* Gradient background for the slider track */
-  outline: none; /* Removes the outline */
-  padding: 0; /* Removes default padding */
-  margin: 0; /* Adjust as needed */
-}
-
-/* Styles for the slider thumb */
 input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Removes default styling for WebKit browsers */
+  -webkit-appearance: none;
   appearance: none;
-  width: 20px; /* Width of the thumb */
-  height: 20px; /* Height of the thumb */
-  background: #FFF; /* Thumb background color */
-  cursor: pointer; /* Changes cursor type on hover */
-  border: 2px solid #F40752; /* Adds a border to the thumb */
-  border-radius: 50%; /* Makes the thumb circular */
+  width: 20px;
+  height: 20px;
+  background: #FFF;
+  cursor: pointer;
+  border: 2px solid #F40752;
+  border-radius: 50%;
 }
-.range-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%; /* Ensure container uses full width */
-}
-
-.slider-container {
-  display: flex;
-  align-items: center;
-  width: 100%; /* Ensure the slider container uses full width */
-  position: relative; /* Allows absolute positioning within */
-}
-
-.range-label {
-  font-size: 18px;
-  font-family: cool;
-
-}
-
-.low {
-  position: absolute;
-  left: 0; /* Align to the far left */
-}
-
-.high {
-  position: absolute;
-  right: 0; /* Align to the far right */
-}
-
-input[type="range"] {
-  width: calc(100% - 40px); /* Adjust based on label sizes to prevent overflow */
-  margin: 0 20px; /* Ensure some space around the slider */
-  padding:20px;
-}
-
-input[type="range"]::-moz-range-thumb {
-  width: 20px; /* Width of the thumb */
-  height: 20px; /* Height of the thumb */
-  background: #FFF; /* Thumb background color */
-  cursor: pointer; /* Changes cursor type on hover */
-  border: 2px solid #F40752; /* Adds a border to the thumb */
-  border-radius: 50%; /* Makes the thumb circular */
-}
-
-/* Styles for the slider thumb for IE */
-input[type="range"]::-ms-thumb {
-  width: 20px; /* Width of the thumb */
-  height: 20px; /* Height of the thumb */
-  background: #FFF; /* Thumb background color */
-  cursor: pointer; /* Changes cursor type on hover */
-  border: 2px solid #F40752; /* Adds a border to the thumb */
-  border-radius: 50%; /* Makes the thumb circular */
-}
-
-/* Additional styles for compatibility */
-input[type="range"]:focus::-webkit-slider-thumb {
-  background: #f40752; /* Change thumb color upon focus */
-}
-.button-container {
-  display: flex;
-  justify-content: space-between; /* Pushes children to opposite ends */
-  align-items: center; /* Centers buttons vertically, if needed */
-  padding: 10px; /* Adds some padding around the container */
-}
-
-/* Back button specific styling */
-.back {
-  background-color: #32CD9A; /* Lighter green, adjust as needed */
-  padding: 50px;
-}
-
-.back:hover {
-  background-color: #28B485; /* Slightly darker green on hover */
-}
-
-/* Submit button specific styling */
-.submit {
-  background-color: #F40752; /* Vibrant pinkish-red */
-  color: #FFF; /* White text color for better contrast */
-  border: 2px solid transparent; /* Prepares for hover effect */
-   padding: 50px;
-}
-
-.submit:hover {
-  background-color: #C10542; /* Darker shade of pinkish-red on hover */
-  border-color: #FFF; /* Adds a white border on hover */
-}
-
 
 /* List and Items */
-.List {
-  text-align: center;
+.List{
   overflow-y: auto;
-  height: auto;
+}
+.List, .item {
+  text-align: center;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: flex-start;
   width: 100%;
   margin: 0 auto;
-
+  animation: popin 1s ease forwards;
 
 }
-
-.item h2 {
-  text-align: left;
-  margin-left: 5px;
-  color: #fff;
-  font-family: BrownBagLunch;
-  font-weight: 1;
-  font-size: 70px;
-  margin:0;
+.item {
+  width: 60vw;
+  height: 100%;
+  padding: 25px;
+  margin: 15px auto;
+  border-radius: 10px;
+  box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
+  animation: popin 1s ease forwards;
+}
+.item:first-child {
+  margin-top: 65px;
+  width: 65vw;
+  height: 70vh;
+  animation: shrink 1s ease forwards;
+  box-shadow: 3px -3px 17px #fff7, -4px 4px 15px #1116;
+}
+@keyframes shrink {
+  from {
+    margin-top: 49px;
+    height: 65vh;
+  }
+  to {
+    margin-top: 69px;
+    height: 70vh;
+  }
 }
 
-.item p {
+
+.title {
   text-align: left;
+  color: #345;
+  font-family: 'BrownBagLunch';
+  font-size: 50px;
+  margin: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.dueDate {
+  text-align:right;
+  color: #000;
+  padding: 0;
+  margin: 0;
+  font-size:14px;
+}
+
+.description {
+  font-size: 20px;
+  text-align:left;
   margin-left: 30px;
   color: #000;
-font-weight: 10px;
+   word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  padding:3%;
+}
+.subtasks-list{
+  height: 40px;
+  width: 40px;
+  background-color: #fff;
+}
+.taskInfo{
 }
 
-.item {
-  margin-top: 30px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: flex-start;
-animation: popin 1s ease forwards;
+.buttonGroup {
+    display: flex;
+    justify-content: space-around;
+    bottom: 0;
+}
 
+.buttonGroup button {
+  height:30px;
+    padding: 5px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
+    color: white;
+    font-family: 'Arial', sans-serif;
+}
 
+.archiveButton {
+    background-color: #c57979;
+}
 
+.archiveButton:hover {
+    background-color: #d32f2f;
 
+}
+.skipButton{
+   background-color: #fc7775;
+}
+.doneButton {
+    background-color: #67906d;
+}
+
+.doneButton:hover {
+    background-color: #388e3c;
 
 }
 
-.threeColumns div {
-  width: 80vw;
-  min-height: 200px;
-  margin-bottom: 20px;
-  padding: 1%;
-  border-radius: 100px;
-
-
-}
-.List div {
-  width: 80vw;
-  min-height: 350px;
-  margin-bottom: 50px;
-  padding: 20px;
-  border-radius: 10px;
-box-shadow: 3px -3px 15px #fff3, -5px 5px 11px #0023;
-  border: 2px #fff solid;
-
-
+.shareTaskButton {
+    background-color: #62a2be;
 }
 
-.archiveButton, .doneButton {
-  /* Adjust padding to better fit the layout */
-  padding: 10px 20px;
-  margin: 0; /* Remove any default margin */
-  font-weight: bold;
-}
+.shareTaskButton:hover {
+    background-color: #1976d2;
 
-/* Optionally, style the SVG within buttons for consistency */
-.archiveButton svg, .doneButton svg {
-  width: 24px; /* Adjust based on your preference */
-  height: auto;
-  color: #0003;
 }
-
 
 /* Login Styles */
 .login-container {
@@ -413,45 +361,25 @@ box-shadow: 3px -3px 15px #fff3, -5px 5px 11px #0023;
   flex-direction: column;
   align-items: center;
   padding: 30px;
-  border-radius: 30px;
-box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
- background: linear-gradient(11deg, rgba(175,233,175,.9) 10%, rgba(145,203,184,.9) 100%);
-  width: 300px;
-  height: 350px;
-  border-bottom: 3px #6069 ridge;
-}
-
-.login-form .logo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   border-radius: 20px;
-box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
- padding: 10px;
-  width: 100px;
-  animation: popin 2s ease forwards;
+  box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
+  background: linear-gradient(11deg, rgba(175,233,175,.9) 10%, rgba(145,203,184,.9) 100%);
+  width: 300px;
+  height: 500px;
+}
+.login-form .logo{
+height:100px;
 
 }
-.login-form h2 {
-
-  font-family: cool;
-  font-weight: 10;
-  font-size: 45px;
+.login-form h2, .login-form p {
+  font-family: 'cool';
+  font-size: 50px;
   color: #6059;
-  margin-bottom: -10px;
-  padding: 0px;
-}
-.login-form p {
-
-  font-family: BrownBagLunch;
-  font-weight: 0;
-  font-size: 30px;
-  color:  #6259;
-  margin-top: 0px;
-  padding: 0px;
-
+  margin-bottom: 0;
+  padding:0;
 }
 
+/* Material button styles for Google Sign-In etc. */
 .gsi-material-button {
   -moz-user-select: none;
   -webkit-user-select: none;
@@ -482,6 +410,7 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
   width: auto;
   max-width: 400px;
   min-width: min-content;
+  margin-top:60px;
 }
 
 .gsi-material-button .gsi-material-button-icon {
@@ -556,28 +485,13 @@ box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
   opacity: 8%;
 }
 
-.input {
-  width: 90%;
-}
-
-@keyframes jump {
-  0% {
-    opacity: 0;
-    transform: scale(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(0);
-  }
-}
-
-
+/* Keyframes for animations */
 @keyframes popin {
-  0% {
+  from {
     opacity: 0;
     transform: translateY(10px);
   }
-  100% {
+  to {
     opacity: 1;
     transform: translateY(0);
   }
