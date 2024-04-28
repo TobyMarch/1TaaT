@@ -4,13 +4,15 @@ import {
     ACCESS_TOKEN,
     REFRESH_ACCESS_TOKEN,
     GOOGLE_API_KEY,
-    CALENDAR_DISCOVERY_DOC
+    CALENDAR_DISCOVERY_DOC,
+    TASK_API_URL
  } from '../URLConstants';
 import { useCookies } from 'react-cookie';
 import { calendarRequest, setGapiToken, callGapi } from './gapi-utils';
+import { CalendarEvent } from './CalendarEvent';
 
 function Calendar() {
-    const [tasks, setTasks] = useState([]);
+    const [events, setEvents] = useState([]);
     const [nextPageToken, setNextPageToken] = useState(undefined);
     const [cookies] = useCookies(["XSRF-TOKEN"]);
 
@@ -26,8 +28,8 @@ function Calendar() {
             })
 
             await setGapiToken(ACCESS_TOKEN, cookies["XSRF-TOKEN"]);
-            const response = await callGapi(calendarRequest(), REFRESH_ACCESS_TOKEN, cookies["XSRF-TOKEN"]);
-            setTasks(response.result.items);
+            const response = await callGapi(calendarRequest, REFRESH_ACCESS_TOKEN, cookies["XSRF-TOKEN"]);
+            setEvents(response.result.items);
             setNextPageToken(response.result.nextPageToken);
         }
 
@@ -41,13 +43,13 @@ function Calendar() {
     }, []);
 
     const handleFetchEvents = async () => {
-        const request = calendarRequest();
+        const request = calendarRequest;
         if(nextPageToken != undefined) {
             request.pageToken = nextPageToken;
         }
 
         const response = await callGapi(request, REFRESH_ACCESS_TOKEN, cookies["XSRF-TOKEN"]);
-        setTasks(response.result.items);
+        setEvents(response.result.items);
         setNextPageToken(response.result.nextPageToken);
 
         const events = response.result.items;
@@ -58,11 +60,11 @@ function Calendar() {
     }
 
     const handleClearEvents = () => {
-        setTasks([]);
+        setEvents([]);
     }
 
-    const handleTestButton = async () => {
-        console.log(tasks);
+    const handleTestButton = () => {
+        console.log(events);
         console.log(nextPageToken);
     }
 
@@ -79,9 +81,27 @@ function Calendar() {
         });
     }
 
-    const tasksList = tasks.map((task, index) => {
-        return <li key={index}>{task.summary}</li>
-    })
+    const handleSubmit = (task) => {
+        fetch(TASK_API_URL, {
+            body: JSON.stringify([task]),
+            method:'post',
+            credentials: 'include',
+            headers: {
+                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => console.log(data));
+    }
+
+    const eventsList = events.map((event, index) => 
+        <CalendarEvent 
+            key={index}
+            event={event}
+            handleSubmit={handleSubmit}
+        />
+)
 
     return (
         <div>
@@ -89,7 +109,12 @@ function Calendar() {
             <button onClick={handleClearEvents}>Clear Events</button>
             <button onClick={handleTestButton}>Test Button</button>
             <button onClick={handleLogout}>Logout</button>
-            <ul>{tasksList}</ul>
+            <ul>{eventsList}</ul>
+            <div>
+                {nextPageToken && 
+                    <button>Next Page</button>
+                }
+            </div>
         </div>
     )
 }
