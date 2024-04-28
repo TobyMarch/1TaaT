@@ -10,7 +10,9 @@ import { ReactComponent as SVGshare } from "./img/share.svg";
 import { ReactComponent as SVGremove } from "./img/remove.svg";
 import { ReactComponent as SVGdone } from "./img/done.svg";
 import { ReactComponent as SVGflag } from "./img/flag.svg";
+import { ReactComponent as SVGimport } from "./img/Google_Calendar_icon_(2020).svg";
 import { useCookies } from "react-cookie";
+import { useNavigate } from 'react-router-dom';
 
 import {
   TASK_API_URL,
@@ -44,7 +46,11 @@ function Home() {
   const [showArchived, setShowArchived] = useState(false);
   const [subtasks, setSubtasks] = useState([{ title: "", completed: false }]);
   const [isRecurring, setIsRecurring] = useState(false);
+const navigate = useNavigate(); // Hook for navigating
 
+  const redirectToCalendar = () => {
+    navigate('/calendar');
+  };
 
   const handleRecurringChange = (event) => {
   setIsRecurring(event.target.checked);
@@ -630,9 +636,9 @@ const resetForm = () => {
         <button className="historyButton" onClick={handleArchiveClick}>
           <SVGarchive />
         </button>
-        <p htmlFor="ImportButton">Import</p>
-        <button className="importButton" onClick={toggleMenu}>
-          <SVGshare />
+     <p htmlFor="ImportButton">Google <br />Import</p>
+        <button className="importButton" onClick={redirectToCalendar}>
+          <SVGimport />
         </button>
         <p htmlFor="shareButton">Share</p>
         <button className="shareButton" onClick={toggleMenu}>
