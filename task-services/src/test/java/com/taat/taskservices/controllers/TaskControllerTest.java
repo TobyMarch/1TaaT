@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.User;
 import com.taat.taskservices.model.UserTask;
-import com.taat.taskservices.services.ImperativeTaskService;
+import com.taat.taskservices.services.TaskService;
 import com.taat.taskservices.services.UserService;
 import com.taat.taskservices.utils.Duration;
 
@@ -38,7 +38,7 @@ import com.taat.taskservices.utils.Duration;
 public class TaskControllerTest {
 
     @Mock
-    ImperativeTaskService taskService;
+    TaskService taskService;
 
     @Mock
     UserService userService;

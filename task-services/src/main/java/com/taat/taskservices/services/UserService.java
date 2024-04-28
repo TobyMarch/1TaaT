@@ -1,7 +1,8 @@
 package com.taat.taskservices.services;
 
 import com.taat.taskservices.model.User;
-import com.taat.taskservices.repository.imperative.ImperativeUserRepository;
+import com.taat.taskservices.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import java.util.Optional;
 public class UserService {
 
   @Autowired
-  ImperativeUserRepository userRepository;
+  UserRepository userRepository;
 
   public User getOrAddUser(Map<String, Object> userDetails) {
     String userId = userDetails.get("sub").toString();
