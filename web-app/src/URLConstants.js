@@ -33,3 +33,13 @@ export const ADD_USER_API_URL = TASK_SVC_URL + "/api/users/addUser";
 export const GOOGLE_CLIENT_URL = "https://accounts.google.com/gsi/client";
 
 export const AUTH_ROUTE = TASK_SVC_URL + "/private";
+
+export const LOGOUT_ROUTE = TASK_SVC_URL + "/logout";
+
+export const ACCESS_TOKEN = USER_CALENDAR_API_URL + "/getAccessToken";
+
+export const REFRESH_ACCESS_TOKEN = USER_CALENDAR_API_URL + "/refreshAccessToken";
+
+export const GOOGLE_API_KEY = "AIzaSyCcGZDO8xpVmFoYVoSWhxkJ6PuGZLgjkOY";
+
+export const CALENDAR_DISCOVERY_DOC = "https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest";
