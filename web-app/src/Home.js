@@ -24,7 +24,7 @@ function Home() {
   const [username, setUsername] = useState("");
   const [owner, setOwner] = useState("");
   const [createdDate, setCreatedDate] = useState("");
-  const [isThreeColumns, setIsThreeColumns] = useState(false);
+  const [isListView, setIsListView] = useState(false);
   const [items, setItems] = useState([]);
   const [editItemId, setEditItemId] = useState(null);
   const [editableTitle, setEditableTitle] = useState("");
@@ -36,13 +36,13 @@ function Home() {
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState(1);
   const [duration, setDuration] = useState("S");
-  const [selectedOption, setSelectedOption] = useState("option");
+  const [selectedOption, setSelectedOption] = useState("Highest");
   const [cookies] = useCookies(["XSRF-TOKEN"]);
   const [charTitleCount, setTitleCharCount] = useState(0);
   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
   const [archivedItems, setArchivedItems] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
-
+const [subtasks, setSubtasks] = useState([{ title: '', completed: false }]);
 
 const skipTask = async (taskId) => {
     const tomorrow = new Date();
@@ -68,6 +68,24 @@ const skipTask = async (taskId) => {
     }
 };
 
+const handleSubtaskTitleChange = (index, value) => {
+  const updatedSubtasks = subtasks.map((subtask, i) => {
+    if (i === index) {
+      return { ...subtask, title: value };
+    }
+    return subtask;
+  });
+  setSubtasks(updatedSubtasks);
+};
+
+const addSubtask = () => {
+  setSubtasks([...subtasks, { title: '', completed: false }]);
+};
+
+const removeSubtask = (index) => {
+  const filteredSubtasks = subtasks.filter((_, i) => i !== index);
+  setSubtasks(filteredSubtasks);
+};
 
   const handleSubtaskChange = (event, taskId, subtaskId) => {
     const updatedItems = items.map((item) => {
@@ -176,10 +194,10 @@ const handleArchiveClick = async () => {
     setDescriptionCharCount(newDescription.length);
   };
 
-  const handleOptionChange = (event) => {
-    setSelectedOption(event.target.value);
-    sortItems(event.target.value);
-  };
+const handleOptionChange = (event) => {
+  setSelectedOption(event.target.value);
+  fetchTasks(event.target.value);
+};
 
   const sortItems = (filter) => {
     let sortedItems = [...items];
@@ -255,19 +273,19 @@ const handleArchiveClick = async () => {
 
   const priorityGradientStyles = [
     {
-      background: "linear-gradient(11deg, #b8b8b8 0%, #ffffff 100%)", // Low
+      background: "linear-gradient(11deg, #7673AC 0%, #b3d4ff 100%)", // Low
     },
     {
-      background: "linear-gradient(11deg, #80ee8d 0%, #81fffb 100%)", // Slightly higher priority
+      background: "linear-gradient(11deg, #7bd5b7 0%, #7ccf9f 100%)", // Slightly higher priority
     },
     {
-      background: "linear-gradient(11deg, #d1ee80 0%, #e0ff97 100%)", // Medium priority
+      background: "linear-gradient(11deg, #e1c97a 0%, #ffea9e 100%)", // Medium priority
     },
     {
-      background: "linear-gradient(11deg, #eeaf71 0%, #ffd979 100%)", // Higher priority
+      background: "linear-gradient(11deg, #dfa661 0%, #ffc18b 100%)", // Higher priority
     },
     {
-      background: "linear-gradient(11deg, #ee5c5c 0%, #ff6996 100%)", // High priority
+      background: "linear-gradient(11deg, #d46666 0%, #f37d8f 100%)", // High priority
     },
   ];
 
@@ -279,22 +297,24 @@ const handleArchiveClick = async () => {
     return newTaskFail;
   };
 
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-      setUsername(storedUsername);
-    }
-  }, []);
+ useEffect(() => {
+  const storedUsername = localStorage.getItem("username");
+  if (storedUsername) {
+    setUsername(storedUsername);
+  } else {
+    console.log("No username found in localStorage.");
+  }
+}, []);
 
   useEffect(() => {
     fetchTasks();
     const currentDate = new Date().toISOString().split("T")[0];
     setStartDate(`${currentDate}T12:00`);
     setDueDate(`${currentDate}T12:00`);
-  }, [isThreeColumns]);
+  }, [isListView]);
 
   const toggleColumns = () => {
-    setIsThreeColumns(!isThreeColumns);
+    setIsListView(!isListView);
   };
 
   const handleSubmit = async (e) => {
@@ -346,28 +366,30 @@ const handleArchiveClick = async () => {
     }
   };
 
-  const fetchTasks = async () => {
-    try {
-      const response = await axios.get(
-        isThreeColumns ? PAGINATED_TASKS_API_URL : TOP_TASK_API_URL,
-        { withCredentials: true }
-      );
-      if (Array.isArray(response.data.content)) {
-        setItems(response.data.content);
-      } else if (response.data && !Array.isArray(response.data.content)) {
-        setItems([response.data]);
-      } else {
-        console.error(
-          "Expected an array or an object for content, received:",
-          response.data
-        );
-        setItems([]);
+const fetchTasks = async (sortOrder = 'Newest') => {
+  try {
+    const url = isListView ? PAGINATED_TASKS_API_URL : TOP_TASK_API_URL;
+    const response = await axios.get(url, {
+      params: { sortOrder },
+      withCredentials: true,
+      headers: {
+        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
       }
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
+    });
+    if (Array.isArray(response.data.content)) {
+      setItems(response.data.content);
+    } else if (response.data && !Array.isArray(response.data.content)) {
+      setItems([response.data]);
+    } else {
+      console.error("Expected an array or an object for content, received:", response.data);
       setItems([]);
     }
-  };
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    setItems([]);
+  }
+};
+
 
   return (
     <div className="App">
@@ -375,23 +397,28 @@ const handleArchiveClick = async () => {
       <div className="topBar">
         <div className="leftItems">
           <img src={logo} alt="Logo" className="logo" />
+          <button onClick={handleLogout}>
           <p>
-            {username}
-            <br /> <button onClick={handleLogout}>Logout</button>
-          </p>
+username
+  {username}
+            <br /> Logout
+          </p></button>
         </div>
 
         <div className="filterDropdown">
-          <select onChange={handleOptionChange} value={selectedOption}>
-            <option value="Highest">Highest Priority</option>
-            <option value="Lowest">Lowest Priority</option>
-            <option value="Newest">Newest</option>
-            <option value="Oldest">Oldest</option>
-          </select>
-        </div>
+  <select onChange={handleOptionChange} value={selectedOption}>
+    <option value="Highest">Highest Priority</option>
+    <option value="Lowest">Lowest Priority</option>
+    <option value="Newest">Newest</option>
+    <option value="Oldest">Oldest</option>
+    <option value="createdDate">Created Date</option>
+    <option value="startDate">Start Date</option>
+    <option value="dueDate">Due Date</option>
+  </select>
+</div>
 
         <button className="toggle" onClick={toggleColumns}>
-          {isThreeColumns ? (
+          {isListView ? (
             <>
               <p>
                 Task <br />
@@ -417,7 +444,7 @@ const handleArchiveClick = async () => {
 
       {/* Task List */}
       {!menuVisible && (
-        <div className={`List ${isThreeColumns ? "threeColumns" : ""}`}>
+        <div className={`List ${isListView ? "listView" : ""}`}>
           {showArchived
             ? archivedItems.map((item, index) => (
                 <div
@@ -558,13 +585,18 @@ const handleArchiveClick = async () => {
 
       {/* Settings button to toggle new task form */}
       <div className="sideBar">
-        <p htmlFor="archiveButton">History</p>
-        <button className="archiveButton" onClick={handleArchiveClick}>
+        <p htmlFor="historyButton">History</p>
+        <button className="historyButton" onClick={handleArchiveClick}>
           <SVGarchive />
         </button>
-        <p htmlFor="shareButton">Share</p>
+        <p htmlFor="ImportButton">Import</p>
+        <button className="importButton" onClick={toggleMenu}>
+          <SVGshare />
+        </button>
+          <p htmlFor="shareButton">Share</p>
         <button className="shareButton" onClick={toggleMenu}>
           <SVGshare />
+
         </button>
         <p htmlFor="addButton">New</p>
         <button className="addButton" onClick={toggleMenu}>
@@ -602,6 +634,23 @@ const handleArchiveClick = async () => {
                 required
               />
             </div>
+              {/* Subtasks input */}
+    <div className="subtasks-section">
+      <label>Subtasks:</label>
+      {subtasks.map((subtask, index) => (
+        <div key={index} className="subtask-input">
+          <input
+            type="text"
+            value={subtask.title}
+            onChange={(e) => handleSubtaskTitleChange(index, e.target.value)}
+            placeholder="Subtask title"
+          />
+          <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
+        </div>
+      ))}
+      <button type="button" onClick={addSubtask}>Add Subtask</button>
+    </div>
+
             <div className="task-input">
               <label htmlFor="startDate">Start Date:</label>
               <input
