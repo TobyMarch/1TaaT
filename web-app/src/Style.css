@@ -7,7 +7,7 @@ html, body {
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(11deg, rgba(140,230,160) 10%, rgba(140,230,210) 100%);
+  background: linear-gradient(11deg, #6a9 10%, #9d9 100%);
 
 }
 
@@ -38,23 +38,28 @@ html, body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 80vw;
-  margin-top: 0.5vw;
+  width: 70vw;
+  margin-top: 20px;
   background: #0001;
   border-radius: 10px;
-  min-width: 600px;
-  box-shadow: 3px -3px 10px #eee3, -5px 5px 11px #0223;
+  min-width: 550px;
+  box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
 }
 
 .sideBar {
-  padding: 10px;
-  margin: 1vw;
-  background: #0001;
-  border-radius: 10px;
+  padding: 13px;
+  margin: 2vw;
+
+
   position: absolute;
   bottom: 0;
   left: 0;
-  box-shadow: 3px -3px 10px #eee3, -5px 5px 11px #0223;
+
+  border-radius: 10px;
+  background: linear-gradient(0deg, hsla(243, 26%, 56%, .2) 9%,  hsla(0, 56%, 62%, .2) 97%);
+  font-family: 'cool';
+  color: #64405c;
+  box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
 }
 
 /* Components and elements */
@@ -62,30 +67,31 @@ html, body {
   display: flex;
   align-items: center;
   border-radius: 15px;
-  height: 50px;
+  height: 40px;
   padding: 12px;
-
 }
 
 .toggle p {
-  margin: 3px;
+  margin-right: 15px;
   font-size: 15px;
   font-family: 'cool';
   color: #6059;
+  padding: -10px;
 }
 
 .filterDropdown {
   flex-grow: 1;
-  justify-content: center;
+  justify-content: right;
 }
 
 .filterDropdown select {
   font-size: x-large;
-  padding: 5px 20px;
+  padding: 0px 50px;
   border: none;
-  width: 250px;
+  width: 230px;
   background-color: #0000;
-  border-bottom: 3px solid #afe9af;
+  border-bottom: 3px solid #66aa99;
+  border-radius: 4px;
   font-family: 'cool';
   color: #6059;
 }
@@ -99,7 +105,7 @@ button {
   cursor: pointer;
 }
 
-.addButton, .shareButton, .archiveButton{
+.addButton, .shareButton, .historyButton, .importButton{
   border-radius: 10px;
   width: 50px;
   height: 50px;
@@ -107,28 +113,29 @@ button {
   border: none;
   padding: 0;
   display: flex;
-
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  box-shadow: 3px -3px 10px #fff4, -5px 5px 11px #0021;
-
+   box-shadow: 3px -3px 8px #fff4, -4px 4px 6px #1114;
   z-index: 10;
   opacity: 0.8;
   margin-top: -14px;
 }
-.addButton{
-  background-color:#60725b;
+.importButton{
+  background-color:#4579;
 }
-.archiveButton{
-  background-color:#60725b;
+.addButton{
+  background-color:#6759;
+}
+.historyButton{
+  background-color:#8449;
 }
 .shareButton{
-  background-color: #62a2be;
+  background-color: #7579;
 
 }
-.addButton:hover, .shareButton:hover, .trashButton:hover {
-  background-color: #0356b3;
+.addButton:hover, .shareButton:hover, .historyButton:hover, .importButton:hover {
+  background-color: #6059;
 }
 
 .add-task-form {
@@ -169,7 +176,7 @@ label {
 }
 textarea {
   width: 70%;
-  height: 150px; 
+  height: 150px;
   padding: 10px;
   margin: 5px 0 20px;
   border-radius: 5px;
@@ -194,7 +201,11 @@ input[type="range"] {
   width: calc(50% - 40px);
   height: 8px;
   border-radius: 5px;
-  background: linear-gradient(to right, #b8b8b8 0%, #b8b8b8 20%, #80ee8d 20%, #80ee8d 35%, #d1ee80 35%, #d1ee80 80%, #eeaf71 80%, #eeaf71 90%, #ee5c5c 90%);  padding: 20px;
+
+background: linear-gradient(100deg, hsla(243, 26%, 56%, 1) 9%, hsla(160, 52%, 66%, 1) 32%, hsla(46, 63%, 68%, 1) 56%, hsla(33, 66%, 63%, 1) 78%, hsla(0, 56%, 62%, 1) 97%);
+
+
+filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#7673AC", endColorstr="#7BD5B7", GradientType=1 );
   margin: 0 20px;
 }
 
@@ -229,14 +240,15 @@ input[type="range"]::-webkit-slider-thumb {
   padding: 25px;
   margin: 15px auto;
   border-radius: 10px;
-  background: #FFF;
-  box-shadow: 3px -3px 10px #eee2, -5px 5px 11px #0223;
+  box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
   animation: popin 1s ease forwards;
 }
 .item:first-child {
-  margin-top: 69px;
+  margin-top: 65px;
+  width: 65vw;
   height: 70vh;
   animation: shrink 1s ease forwards;
+  box-shadow: 3px -3px 17px #fff7, -4px 4px 15px #1116;
 }
 @keyframes shrink {
   from {
@@ -279,7 +291,11 @@ input[type="range"]::-webkit-slider-thumb {
   white-space: normal;
   padding:3%;
 }
-
+.subtasks-list{
+  height: 40px;
+  width: 40px;
+  background-color: #fff;
+}
 .taskInfo{
 }
 
@@ -336,7 +352,7 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 90vh;
   animation: popin 1s ease forwards;
 }
 
@@ -346,7 +362,7 @@ input[type="range"]::-webkit-slider-thumb {
   align-items: center;
   padding: 30px;
   border-radius: 20px;
-  box-shadow: 3px -3px 10px #eee3, -5px 5px 11px #0223;
+  box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
   background: linear-gradient(11deg, rgba(175,233,175,.9) 10%, rgba(145,203,184,.9) 100%);
   width: 300px;
   height: 500px;
