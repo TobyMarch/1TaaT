@@ -176,7 +176,7 @@ label {
 }
 textarea {
   width: 70%;
-  height: 150px; 
+  height: 150px;
   padding: 10px;
   margin: 5px 0 20px;
   border-radius: 5px;
@@ -202,11 +202,8 @@ input[type="range"] {
   height: 8px;
   border-radius: 5px;
 
-background: linear-gradient(90deg, hsla(243, 26%, 56%, 1) 9%, hsla(160, 52%, 66%, 1) 32%, hsla(46, 63%, 68%, 1) 56%, hsla(33, 66%, 63%, 1) 78%, hsla(0, 56%, 62%, 1) 97%);
+background: linear-gradient(100deg, hsla(243, 26%, 56%, 1) 9%, hsla(160, 52%, 66%, 1) 32%, hsla(46, 63%, 68%, 1) 56%, hsla(33, 66%, 63%, 1) 78%, hsla(0, 56%, 62%, 1) 97%);
 
-background: -moz-linear-gradient(90deg, hsla(243, 26%, 56%, 1) 9%, hsla(160, 52%, 66%, 1) 32%, hsla(46, 63%, 68%, 1) 56%, hsla(33, 66%, 63%, 1) 78%, hsla(0, 56%, 62%, 1) 97%);
-
-background: -webkit-linear-gradient(90deg, hsla(243, 26%, 56%, 1) 9%, hsla(160, 52%, 66%, 1) 32%, hsla(46, 63%, 68%, 1) 56%, hsla(33, 66%, 63%, 1) 78%, hsla(0, 56%, 62%, 1) 97%);
 
 filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#7673AC", endColorstr="#7BD5B7", GradientType=1 );
   margin: 0 20px;
@@ -294,7 +291,11 @@ input[type="range"]::-webkit-slider-thumb {
   white-space: normal;
   padding:3%;
 }
-
+.subtasks-list{
+  height: 40px;
+  width: 40px;
+  background-color: #fff;
+}
 .taskInfo{
 }
 
@@ -351,7 +352,7 @@ input[type="range"]::-webkit-slider-thumb {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  height: 90vh;
   animation: popin 1s ease forwards;
 }
 
@@ -361,7 +362,7 @@ input[type="range"]::-webkit-slider-thumb {
   align-items: center;
   padding: 30px;
   border-radius: 20px;
-  box-shadow: 3px -3px 10px #eee3, -5px 5px 11px #0223;
+  box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
   background: linear-gradient(11deg, rgba(175,233,175,.9) 10%, rgba(145,203,184,.9) 100%);
   width: 300px;
   height: 500px;
