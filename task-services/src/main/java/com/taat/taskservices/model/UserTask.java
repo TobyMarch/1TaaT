@@ -1,9 +1,9 @@
 package com.taat.taskservices.model;
 
+import java.time.Instant;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-
-import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,11 +26,11 @@ public class UserTask {
 
     private String taskId;
 
-    private Double sortValue;
+    private Integer sortValue;
 
-    private LocalDateTime skipUntil;
+    private Instant skipUntil;
 
-    private LocalDateTime lastSorted;
+    private Instant lastSorted;
 
     private boolean archived;
 }

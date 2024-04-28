@@ -1,1 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="60.472" height="60.472" viewBox="0 0 16 16"><g transform="translate(-13.104 -6.85)"><rect width="16" height="12.253" x="13.104" y="8.668" ry="1.909" style="fill:#60725b;fill-opacity:1;stroke-width:.231541"/></g></svg>
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="50" height="60" viewBox="0 0 16 16">
+    <g transform="translate(-13.104 -6.85)">
+        <rect width="16" height="12.253" x="13.104" y="8.668" ry="1.909" style="fill:#60725b;fill-opacity:1;stroke-width:.231541"/>
+    </g>
+</svg>
