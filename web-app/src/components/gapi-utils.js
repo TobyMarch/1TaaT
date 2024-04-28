@@ -1,13 +1,10 @@
-export function calendarRequest() {
-    const request = {
-        calendarId: 'primary',
-        timeMin: (new Date()).toISOString(),
-        showDeleted: false,
-        singleEvents: true,
-        maxResults: 10,
-        orderBy: 'startTime',
-    }
-    return request;
+export const calendarRequest = {
+    calendarId: 'primary',
+    timeMin: (new Date()).toISOString(),
+    showDeleted: false,
+    singleEvents: true,
+    maxResults: 10,
+    orderBy: 'startTime',
 }
 
 export function setGapiToken(accessTokenUrl, xsrfToken) {
