@@ -5,18 +5,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
-import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequestEntityConverter;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
@@ -29,8 +21,6 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SimpleSavedRequest;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 import java.util.function.Consumer;
 
@@ -46,7 +36,11 @@ public class WebSecurityConfig {
         http
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/api/users/user", "/logout").permitAll()
+                        .requestMatchers(
+                                "/api/users/user",
+                                "/api/calendar/getAccessToken",
+                                "/api/calendar/refreshAccessToken"
+                                ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf((csrf) -> csrf
@@ -58,7 +52,6 @@ public class WebSecurityConfig {
                         .loginPage("/oauth2/authorization/google")
                         .authorizationEndpoint(auth -> auth
                                 .authorizationRequestResolver(authorizationRequestResolver(this.clientRegistrationRepository)))
-
                 )
                 .oauth2Client(Customizer.withDefaults())
                 .logout(logout -> logout
@@ -78,7 +71,6 @@ public class WebSecurityConfig {
                 }
                 request.getSession().setAttribute("SPRING_SECURITY_SAVED_REQUEST",
                         new SimpleSavedRequest(referrer));
-
             }
         };
     }
