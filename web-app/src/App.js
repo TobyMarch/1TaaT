@@ -5,6 +5,7 @@ import { ProtectedRoute } from './ProtectedRoute.js';
 import Login from './Login.js';
 import Home from './Home.js'
 import Calendar from './components/calendar';
+import Invite from './components/invite';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route element={<ProtectedRoute/>}>
           <Route path="/" element={<Home />} />
           <Route path="/calendar" element={<Calendar />} />
+          <Route path="/invite" element={<Invite />} />
         </Route>
         <Route element={<ProtectedRoute loginPage={true} redirectPath="/"/>}>
           <Route path="/login" element={<Login />} />
