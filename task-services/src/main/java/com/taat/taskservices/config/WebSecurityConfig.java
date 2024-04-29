@@ -1,5 +1,6 @@
 package com.taat.taskservices.config;
 
+import com.taat.taskservices.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ public class WebSecurityConfig {
     @Autowired
     private ClientRegistrationRepository clientRegistrationRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -52,6 +56,8 @@ public class WebSecurityConfig {
                         .loginPage("/oauth2/authorization/google")
                         .authorizationEndpoint(auth -> auth
                                 .authorizationRequestResolver(authorizationRequestResolver(this.clientRegistrationRepository)))
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .oidcUserService(userService))
                 )
                 .oauth2Client(Customizer.withDefaults())
                 .logout(logout -> logout
