@@ -18,6 +18,8 @@ public interface TaskRepository extends MongoRepository<Task, String> {
 
     Boolean existsByOwnerAndId(String owner, String id);
 
+    Boolean existsByExternalId(String externalId);
+
     @Aggregation(pipeline = { "{$match: {_id: ObjectId('?0')}}",
             "{$unwind: {path: \"$subTasks\", preserveNullAndEmptyArrays: true}}",
             "{$addFields: {subTasks: {$toObjectId: \"$subTasks\"}}}",
