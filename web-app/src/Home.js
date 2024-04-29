@@ -331,84 +331,74 @@ const navigate = useNavigate(); // Hook for navigating
     setIsListView(!isListView);
   };
 
+
+const fetchTopTask = async () => {
+  try {
+    const response = await axios.get(TOP_TASK_API_URL, { withCredentials: true });
+    console.log(response.data);
+    setItems(response.data.content);
+  } catch (error) {
+    console.error("Error fetching top task:", error);
+    alert("Failed to fetch top task");
+  }
+};
+
+const fetchTasks = async () => {
+  try {
+    const response = await axios.get(isListView ? PAGINATED_TASKS_API_URL : TOP_TASK_API_URL, { withCredentials: true });
+    if (Array.isArray(response.data.content)) {
+      setItems(response.data.content);
+    } else if (response.data && !Array.isArray(response.data.content)) {
+      setItems([response.data]);
+    } else {
+      console.error('Expected an array or an object for content, received:', response.data);
+      setItems([]);
+    }
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    setItems([]);
+  }
+};
+
 const handleSubmit = async (e) => {
   e.preventDefault();
-  const data = {
-    owner,
-    title,
-    description,
-    startDate: new Date(startDate).toISOString(),
-    dueDate: new Date(dueDate).toISOString(),
-    priority,
-    duration,
-    isRecurring,
-    subTasks,
-  };
-
   try {
-    await axios.post(TASK_API_URL,[data], {
+    const data = {
+      owner,
+      title,
+      description,
+      startDate: new Date(startDate).toISOString(),
+      dueDate: new Date(dueDate).toISOString(),
+      priority,
+       duration,
+       isRecurring,
+       subTasks,
+      color: priorityGradientStyles[priority - 1],
+    };
+
+    await axios.post(TASK_API_URL, [data], {
       withCredentials: true,
       headers: {
         "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
       },
     });
-    resetForm();
-    fetchTasks();
+
+    setOwner("");
+    setTitle("");
+    setDescription("");
+    setStartDate("");
+    setDueDate("");
+    setPriority(1);
+    setIsRecurring(false);
+    setSubtasks([{ title: '', completed: false }]);
+    toggleMenu();
+    alert("Task added successfully");
+    fetchTopTask();
+      fetchTasks();
   } catch (error) {
-    console.error("Error submitting task data:", error);
+    console.error("Error submitting data:", error);
+    alert("Failed to add task" + error.message);
   }
-};
-
-
-const resetForm = () => {
-  setOwner("");
-  setTitle("");
-  setDescription("");
-  setStartDate("");
-  setDueDate("");
-  setPriority(1);
-  setIsRecurring(false);
-  setSubtasks([{ title: '', completed: false }]);
-  toggleMenu();
-};
-
-
-  const fetchTopTask = async () => {
-    try {
-      const response = await axios.get(TOP_TASK_API_URL, {
-        withCredentials: true,
-      });
-      console.log(response.data);
-      setItems(response.data.content);
-    } catch (error) {
-      console.error("Error fetching top task:", error);
-    }
-  };
-
-
-const fetchTasks = async (sortOrder = "Newest") => {
-    try {
-      const baseUrl = isListView ? PAGINATED_TASKS_API_URL : TOP_TASK_API_URL;
-      const url = `${baseUrl}${isListView ? `?sortOrder=${sortOrder}` : ''}`;
-
-      const response = await axios.get(url, {
-        withCredentials: true,
-        headers: {
-          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-        },
-      });
-
-      if (Array.isArray(response.data.content)) {
-        setItems(response.data.content);
-
-      } else {
-        console.error("Expected an array for content, received:", response.data);
-        setItems([]);
-      }
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-      setItems([]);
-    }
 };
 
   return (
