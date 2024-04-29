@@ -24,6 +24,8 @@ public class Task {
   @Id
   private String id;
 
+  private String externalId;
+
   private String owner;
 
   private String title;

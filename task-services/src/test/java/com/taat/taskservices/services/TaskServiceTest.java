@@ -152,7 +152,7 @@ public class TaskServiceTest {
     @Test
     public void testDeleteById() {
         String taskId = "1";
-        Task testTask = new Task(taskId, "testUser", "Test Task 1", "A task for testing", null, null,
+        Task testTask = new Task(taskId, "ext-" + taskId, "testUser", "Test Task 1", "A task for testing", null, null,
                 null, 5, Duration.M.toString(), Collections.emptyList(), false, false, null);
 
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
@@ -168,7 +168,7 @@ public class TaskServiceTest {
     @Test
     public void testDeleteById_SubTasks() {
         String taskId = "1";
-        Task testTask = new Task(taskId, "testUser", "Test Task 1", "A task for testing", null, null,
+        Task testTask = new Task(taskId, "ext-" + taskId, "testUser", "Test Task 1", "A task for testing", null, null,
                 null, 5, Duration.M.toString(), Collections.emptyList(), false, false, List.of("2", "3"));
 
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
@@ -199,10 +199,11 @@ public class TaskServiceTest {
         Instant startDate = Instant.now().minus(2, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
         Instant dueDate = Instant.now().minus(30, ChronoUnit.MINUTES).truncatedTo(ChronoUnit.HOURS);
         List<String> recurrence = new ArrayList<>(List.of("RRULE:FREQ=WEEKLY;INTERVAL=1;BYDAY=SU,TH"));
-        Task testTask = new Task(taskId, "testUser", "Test Task", "A task for testing", null, startDate, dueDate, 5,
+        Task testTask = new Task(taskId, "ext-" + taskId, "testUser", "Test Task", "A task for testing", null,
+                startDate, dueDate, 5,
                 Duration.S.toString(), recurrence, false, false, null);
         Task spyTestTask = Mockito.spy(testTask);
-        Task nextTask = new Task(String.valueOf(Integer.parseInt(taskId) + 1), "testUser", "Test Task",
+        Task nextTask = new Task(String.valueOf(Integer.parseInt(taskId) + 1), "ext-" + taskId, "testUser", "Test Task",
                 "A task for testing", null, null, null, 5, Duration.S.toString(), recurrence, false, false, null);
 
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
@@ -272,35 +273,35 @@ public class TaskServiceTest {
         Instant previousDateMidnight = currentDateMidnight.minus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
         Instant futureDateMidnight = currentDateMidnight.plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
         taskList.add(
-                new Task("6", "testUser", "Test Task 6", "A sub-task of Task 1", null, null,
+                new Task("6", "ext-6", "testUser", "Test Task 6", "A sub-task of Task 1", null, null,
                         currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new Task("1", "testUser", "Test Task 1", "A task for testing", null, null,
+                new Task("1", "ext-1", "testUser", "Test Task 1", "A task for testing", null, null,
                         currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(45, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.singletonList("6")));
         taskList.add(
-                new Task("2", "testUser", "Test Task 2", "A task for testing", null, null,
+                new Task("2", "ext-2", "testUser", "Test Task 2", "A task for testing", null, null,
                         currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new Task("7", "testUser", "Test Task 7", "A sub-task of Task 3", null, null,
+                new Task("7", "ext-7", "testUser", "Test Task 7", "A sub-task of Task 3", null, null,
                         null, 4, Duration.M.toString(), Collections.emptyList(), false, false,
                         Collections.emptyList()));
         taskList.add(
-                new Task("8", "testUser", "Test Task 7", "A sub-task of Task 3", null, null,
+                new Task("8", "ext-8", "testUser", "Test Task 7", "A sub-task of Task 3", null, null,
                         null, 3, Duration.S.toString(), Collections.emptyList(), false, false,
                         Collections.emptyList()));
         taskList.add(
-                new Task("3", "testUser", "Test Task 3", "A task with a null due date", null, null,
+                new Task("3", "ext-3", "testUser", "Test Task 3", "A task with a null due date", null, null,
                         null, 5, Duration.L.toString(), Collections.emptyList(), false, false,
                         Collections.emptyList()));
         taskList.add(
-                new Task("4", "testUser", "Test Task 4", "A task that was due yesterday", null, null,
+                new Task("4", "ext-4", "testUser", "Test Task 4", "A task that was due yesterday", null, null,
                         previousDateMidnight.plus(9, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new Task("5", "testUser", "Test Task 5", "A task that is due tomorrow", null, null,
+                new Task("5", "ext-5", "testUser", "Test Task 5", "A task that is due tomorrow", null, null,
                         futureDateMidnight.plus(14, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
 
@@ -314,32 +315,32 @@ public class TaskServiceTest {
         Instant futureDateMidnight = currentDateMidnight.plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
 
         List<TaskDTO> task1SubTasks = new ArrayList<>(
-                List.of(new TaskDTO("6", "testUser", "Test Task 6", "A sub-task", null, null,
+                List.of(new TaskDTO("6", "ext-6", "testUser", "Test Task 6", "A sub-task", null, null,
                         currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList())));
         taskList.add(
-                new TaskDTO("1", "testUser", "Test Task 1", "A task for testing", null, null,
+                new TaskDTO("1", "ext-1", "testUser", "Test Task 1", "A task for testing", null, null,
                         currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(45, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, task1SubTasks));
         taskList.add(
-                new TaskDTO("2", "testUser", "Test Task 2", "A task for testing", null, null,
+                new TaskDTO("2", "ext-2", "testUser", "Test Task 2", "A task for testing", null, null,
                         currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         List<TaskDTO> task3SubTasks = new ArrayList<>(
-                List.of(new TaskDTO("7", "testUser", "Test Task 7", "A sub-task of Task 3", null, null,
+                List.of(new TaskDTO("7", "ext-7", "testUser", "Test Task 7", "A sub-task of Task 3", null, null,
                         null, 4, Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()),
-                        new TaskDTO("8", "testUser", "Test Task 7", "A sub-task of Task 3", null, null,
+                        new TaskDTO("8", "ext-8", "testUser", "Test Task 7", "A sub-task of Task 3", null, null,
                                 null, 3, Duration.S.toString(), Collections.emptyList(), false, false,
                                 Collections.emptyList())));
         taskList.add(
-                new TaskDTO("3", "testUser", "Test Task 3", "A task with a null due date", null, null,
+                new TaskDTO("3", "ext-3", "testUser", "Test Task 3", "A task with a null due date", null, null,
                         null, 5, Duration.L.toString(), Collections.emptyList(), false, false, task3SubTasks));
         taskList.add(
-                new TaskDTO("4", "testUser", "Test Task 4", "A task that was due yesterday", null, null,
+                new TaskDTO("4", "ext-4", "testUser", "Test Task 4", "A task that was due yesterday", null, null,
                         previousDateMidnight.plus(9, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new TaskDTO("5", "testUser", "Test Task 5", "A task that is due tomorrow", null, null,
+                new TaskDTO("5", "ext-5", "testUser", "Test Task 5", "A task that is due tomorrow", null, null,
                         futureDateMidnight.plus(14, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
 

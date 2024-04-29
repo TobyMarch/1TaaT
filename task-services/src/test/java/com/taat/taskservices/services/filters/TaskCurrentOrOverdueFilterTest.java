@@ -24,26 +24,26 @@ public class TaskCurrentOrOverdueFilterTest {
         Instant currentDateInstant = Instant.now().truncatedTo(ChronoUnit.DAYS);
 
         taskList.add(
-                new Task("1", "testOwner", "Test Task 1", "A task due in the recent past", null, null,
+                new Task("1", "ext-1", "testOwner", "Test Task 1", "A task due in the recent past", null, null,
                         currentDateInstant.minus(5, ChronoUnit.DAYS), 5, Duration.M.toString(),
                         Collections.emptyList(), true, false, Collections.emptyList()));
         taskList.add(
-                new Task("2", "testOwner", "Test Task 2", "A task due in the distant(ish) past", null, null,
+                new Task("2", "ext-2", "testOwner", "Test Task 2", "A task due in the distant(ish) past", null, null,
                         currentDateInstant.minus(100, ChronoUnit.DAYS), 5, Duration.M.toString(),
                         Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new Task("3", "testOwner", "Test Task 3", "A task with a null due date", null, null, null, 5,
+                new Task("3", "ext-3", "testOwner", "Test Task 3", "A task with a null due date", null, null, null, 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new Task("4", "testOwner", "Test Task 4", "A task due today", null, null,
+                new Task("4", "ext-4", "testOwner", "Test Task 4", "A task due today", null, null,
                         currentDateInstant.plus(5, ChronoUnit.MINUTES), 5, Duration.M.toString(),
                         Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new Task("5", "testOwner", "Test Task 5", "A task due tomorrow", null, null,
+                new Task("5", "ext-5", "testOwner", "Test Task 5", "A task due tomorrow", null, null,
                         currentDateInstant.plus(1, ChronoUnit.DAYS), 5, Duration.M.toString(),
                         Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new Task("6", "testOwner", "Test Task 6", "A task next week", null, null,
+                new Task("6", "ext-6", "testOwner", "Test Task 6", "A task next week", null, null,
                         currentDateInstant.plus(8, ChronoUnit.DAYS), 5, Duration.M.toString(),
                         Collections.emptyList(), false, false, Collections.emptyList()));
 
