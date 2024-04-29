@@ -23,7 +23,7 @@ const handleLogin = () => {
 
 
   const handleGoogleLogin = () => {
-    window.location.href = AUTH_ROUTE;
+      window.location.href = 'https://task-services.onrender.com/oauth2/authorization/google';
   };
 
   const handleLogout = () => {
