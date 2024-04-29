@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 public class TaskDTO {
     private String id;
 
+    private String externalId;
+
     private String owner;
 
     private String title;
@@ -43,6 +45,7 @@ public class TaskDTO {
     public Task dtoToEntity() {
         Task taskEntity = new Task();
         taskEntity.setId(id);
+        taskEntity.setExternalId(externalId);
         taskEntity.setOwner(owner);
         taskEntity.setTitle(title);
         taskEntity.setDescription(description);
@@ -64,6 +67,7 @@ public class TaskDTO {
     public static TaskDTO entityToDTO(Task taskEntity, List<TaskDTO> subTasks) {
         TaskDTO taskDTO = new TaskDTO();
         taskDTO.setId(taskEntity.getId());
+        taskDTO.setExternalId(taskEntity.getExternalId());
         taskDTO.setOwner(taskEntity.getOwner());
         taskDTO.setTitle(taskEntity.getTitle());
         taskDTO.setDescription(taskEntity.getDescription());

@@ -18,16 +18,16 @@ public class TaskDurationComparatorTest {
     @Test
     public void testCompare() {
         List<Task> taskList = new ArrayList<>();
-        taskList.add(new Task("1", "testOwner", "Task Short", "A short task", null, null, null, 5,
+        taskList.add(new Task("1", "ext-1", "testOwner", "Task Short", "A short task", null, null, null, 5,
                 Duration.S.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
-        taskList.add(new Task("2", "testOwner", "Task Medium", "A medium task", null, null, null, 5,
+        taskList.add(new Task("2", "ext-2", "testOwner", "Task Medium", "A medium task", null, null, null, 5,
                 Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
-        taskList.add(new Task("3", "testOwner", "Task Long", "A long task", null, null, null, 5, Duration.L.toString(),
-                Collections.emptyList(), false, false, Collections.emptyList()));
-        taskList.add(new Task("4", "testOwner", "Task Extra Long", "An extra-long task", null, null, null, 5,
+        taskList.add(new Task("3", "ext-3", "testOwner", "Task Long", "A long task", null, null, null, 5,
+                Duration.L.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
+        taskList.add(new Task("4", "ext-4", "testOwner", "Task Extra Long", "An extra-long task", null, null, null, 5,
                 Duration.XL.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
-        taskList.add(new Task("5", "testOwner", "Task Null Duration", "A task with null duration", null, null, null, 5,
-                null, Collections.emptyList(), false, false, Collections.emptyList()));
+        taskList.add(new Task("5", "ext-5", "testOwner", "Task Null Duration", "A task with null duration", null, null,
+                null, 5, null, Collections.emptyList(), false, false, Collections.emptyList()));
 
         Collections.shuffle(taskList);
         TaskDurationComparator comparator = new TaskDurationComparator();
@@ -45,16 +45,16 @@ public class TaskDurationComparatorTest {
     @Test
     public void testCompareWithReverseOrder() {
         List<Task> taskList = new ArrayList<>();
-        taskList.add(new Task("4", "testOwner", "Task Extra Long", "An extra-long task", null, null, null, 5,
+        taskList.add(new Task("4", "ext-4", "testOwner", "Task Extra Long", "An extra-long task", null, null, null, 5,
                 Duration.XL.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
-        taskList.add(new Task("3", "testOwner", "Task Long", "A long task", null, null, null, 5, Duration.L.toString(),
-                Collections.emptyList(), false, false, Collections.emptyList()));
-        taskList.add(new Task("2", "testOwner", "Task Medium", "A medium task", null, null, null, 5,
+        taskList.add(new Task("3", "ext-3", "testOwner", "Task Long", "A long task", null, null, null, 5,
+                Duration.L.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
+        taskList.add(new Task("2", "ext-2", "testOwner", "Task Medium", "A medium task", null, null, null, 5,
                 Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
-        taskList.add(new Task("1", "testOwner", "Task Short", "A short task", null, null, null, 5,
+        taskList.add(new Task("1", "ext-1", "testOwner", "Task Short", "A short task", null, null, null, 5,
                 Duration.S.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
-        taskList.add(new Task("5", "testOwner", "Task Null Duration", "A task with null duration", null, null, null, 5,
-                null, Collections.emptyList(), false, false, Collections.emptyList()));
+        taskList.add(new Task("5", "ext-5", "testOwner", "Task Null Duration", "A task with null duration", null, null,
+                null, 5, null, Collections.emptyList(), false, false, Collections.emptyList()));
 
         TaskDurationComparator comparator = new TaskDurationComparator();
         Collections.sort(taskList, comparator);

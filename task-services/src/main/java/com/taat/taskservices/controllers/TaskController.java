@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.taat.taskservices.dto.TaskDTO;
-import com.taat.taskservices.model.Task;
 import com.taat.taskservices.model.User;
 import com.taat.taskservices.model.UserTask;
 import com.taat.taskservices.services.TaskService;
