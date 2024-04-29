@@ -4,7 +4,8 @@ export const environment = process.env.REACT_APP_ENVIRONMENT;
 // Function to get the appropriate service URL based on the environment
 export const getTaskServiceUrl = () => {
   return environment === "prod"
-    ? "https://task-services.onrender.com" // Production URL
+    // ? "https://task-services.onrender.com" // Production URL
+    ? ""
     : "http://localhost:8080"; // Development URL
 };
 
