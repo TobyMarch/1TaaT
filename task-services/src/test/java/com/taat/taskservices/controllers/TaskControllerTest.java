@@ -255,7 +255,7 @@ public class TaskControllerTest {
     }
 
     private User getTestUser() {
-        return new User("testuser");
+        return new User("testuser", "testemail");
     }
 
     private List<TaskDTO> getTestTasks() {
