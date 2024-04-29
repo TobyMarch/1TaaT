@@ -404,4 +404,8 @@ public class TaskService {
         return returnList;
     }
 
+    public void saveUserTasks(String taskId, String userId) {
+        Optional<Task> task = taskRepo.findById(taskId);
+        task.ifPresent(value -> saveUserTasks(Collections.singletonList(value), userId));
+    }
 }

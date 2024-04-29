@@ -18,6 +18,6 @@ public class UserService {
   public User getOrAddUser(Map<String, Object> userDetails) {
     String userId = userDetails.get("sub").toString();
     Optional<User> user = userRepository.findById(userId);
-    return user.orElse(userRepository.save(new User(userId)));
+    return user.orElse(userRepository.save(new User(userId, userDetails.get("email").toString())));
   }
 }
