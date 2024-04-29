@@ -52,7 +52,7 @@ public class TaskInvitationController {
   public void acceptInvitation(@AuthenticationPrincipal OAuth2User principal,
                                @RequestBody TaskInvitation invitation) {
     if (principal.getAttribute("email") == invitation.getUserEmail()) {
-      taskService.saveUserTasks(invitation.getTaskId(), principal.getName());
+        taskService.acceptTaskInvitation(invitation.getTaskId(), principal.getName());
     }
   }
 }

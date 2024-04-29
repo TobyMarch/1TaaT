@@ -137,7 +137,7 @@ public class TaskService {
     public List<TaskDTO> createUpdateTasks(final List<TaskDTO> tasks, String owner) {
         try {
             // create/update Tasks with parent-to-subTask relationships preserved
-            List<Task> savedTasks = batchSaveTasks(tasks, owner);
+            List<Task> savedTasks = this.batchSaveTasks(tasks, owner);
             // create/update UserTask join records for all created/updated Tasks
             this.saveUserTasks(savedTasks, owner);
 
@@ -404,8 +404,11 @@ public class TaskService {
         return returnList;
     }
 
-    public void saveUserTasks(String taskId, String userId) {
+    public void acceptTaskInvitation(String taskId, String userId) {
         Optional<Task> task = taskRepo.findById(taskId);
-        task.ifPresent(value -> saveUserTasks(Collections.singletonList(value), userId));
+        task.ifPresent(value -> {
+            this.saveUserTasks(Collections.singletonList(value), userId);
+            this.runPrioritization(userId);
+        });
     }
 }
