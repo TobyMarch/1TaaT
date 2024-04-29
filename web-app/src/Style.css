@@ -245,7 +245,6 @@ input[type="range"]::-webkit-slider-thumb {
 }
 .item:first-child {
   margin-top: 65px;
-  width: 65vw;
   height: 70vh;
   animation: shrink 1s ease forwards;
   box-shadow: 3px -3px 17px #fff7, -4px 4px 15px #1116;

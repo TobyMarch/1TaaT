@@ -47,7 +47,9 @@ function Home() {
   const [subTasks, setSubtasks] = useState([{ title: "", completed: false }]);
   const [isRecurring, setIsRecurring] = useState(false);
 const navigate = useNavigate(); // Hook for navigating
-
+const archivedStyle = {
+  background: 'linear-gradient(11deg, #c0c0c0 0%, #f0f0f0 100%)', // Example gradient for archived items
+};
   const redirectToCalendar = () => {
     navigate('/calendar');
   };
@@ -367,8 +369,8 @@ const handleSubmit = async (e) => {
       owner,
       title,
       description,
-      startDate: new Date(startDate).toISOString(),
-      dueDate: new Date(dueDate).toISOString(),
+      startDate: startDate ? new Date(startDate).toISOString() : null,
+      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
       priority,
        duration,
        isRecurring,
@@ -461,7 +463,7 @@ const handleSubmit = async (e) => {
                 <div
                   className="item"
                   key={index}
-                  style={priorityGradientStyles[item.priority - 1]}
+                  style={showArchived ? archivedStyle : priorityGradientStyles[item.priority - 1]}
                 >
                   {editItemId === item.id ? (
                     <div>
@@ -483,7 +485,7 @@ const handleSubmit = async (e) => {
                   ) : (
                     <div onDoubleClick={() => handleEdit(item)}>
                       <h2 className="title">{item.title}</h2>
-                      <p className="description">{item.description}</p>
+                      <p className="description">{item.description || 'Not set'}</p>
                       <ul className="subTasks-list">
                         {item.subTasks &&
                           item.subTasks.map((subTask, subindex) => (
@@ -495,11 +497,11 @@ const handleSubmit = async (e) => {
                       </ul>
                       <p className="duration">Duration: {item.duration}</p>
                       <p className="dueDate">
-                        Start: {item.startDate.split("T")[0]}
-                      </p>
-                      <p className="dueDate">
-                        Due: {item.dueDate.split("T")[0]}
-                      </p>
+  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+</p>
+<p className="dueDate">
+  Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+</p>
                       <div className="buttonGroup">
                         <button
                           className="shareTaskButton"
@@ -555,7 +557,7 @@ const handleSubmit = async (e) => {
                     <>
                       <div onDoubleClick={() => handleEdit(item)}>
                         <h2 className="title">{item.title}</h2>
-                        <p className="description">{item.description}</p>
+                        <p className="description">{item.description || 'Not set'}</p>
                       </div>
                       <div className="subTasks-section">
                         <label>Subtasks:</label>
@@ -585,9 +587,11 @@ const handleSubmit = async (e) => {
                   )}
                   <p className="duration">Duration: {item.duration}</p>
                   <p className="dueDate">
-                    Start: {item.startDate.split("T")[0]}
-                  </p>
-                  <p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
+  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+</p>
+<p className="dueDate">
+  Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+</p>
                   <div className="buttonGroup">
                     <button
                       className="shareTaskButton"
@@ -669,7 +673,7 @@ const handleSubmit = async (e) => {
                 value={description}
                 onChange={handleDescriptionChange}
                 maxLength={250}
-                required
+                
               />
             </div>
             {/* Subtasks input */}
@@ -698,7 +702,7 @@ const handleSubmit = async (e) => {
                 id="startDate"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                required
+                
               />
             </div>
             <div className="task-input">
@@ -708,7 +712,7 @@ const handleSubmit = async (e) => {
                 id="dueDate"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                required
+                
               />
             </div>
 <div className="task-input">
