@@ -44,7 +44,7 @@ function Home() {
   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
   const [archivedItems, setArchivedItems] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
-  const [subtasks, setSubtasks] = useState([{ title: "", completed: false }]);
+  const [subTasks, setSubtasks] = useState([{ title: "", completed: false }]);
   const [isRecurring, setIsRecurring] = useState(false);
 const navigate = useNavigate(); // Hook for navigating
 
@@ -81,34 +81,34 @@ const navigate = useNavigate(); // Hook for navigating
   };
 
   const handleSubtaskTitleChange = (index, value) => {
-  const updatedSubtasks = subtasks.map((subtask, i) => {
+  const updatedSubtasks = subTasks.map((subTask, i) => {
     if (i === index) {
-      return { ...subtask, title: value };
+      return { ...subTask, title: value };
     }
-    return subtask;
+    return subTask;
   });
   setSubtasks(updatedSubtasks);
 };
 
   const addSubtask = () => {
-    setSubtasks([...subtasks, { title: "", completed: false }]);
+    setSubtasks([...subTasks, { title: "", completed: false }]);
   };
 
   const removeSubtask = (index) => {
-    const filteredSubtasks = subtasks.filter((_, i) => i !== index);
+    const filteredSubtasks = subTasks.filter((_, i) => i !== index);
     setSubtasks(filteredSubtasks);
   };
 
-  const handleSubtaskChange = (event, taskId, subtaskId) => {
+  const handleSubtaskChange = (event, taskId, subTaskId) => {
     const updatedItems = items.map((item) => {
       if (item.id === taskId) {
-        const updatedSubtasks = item.subtasks.map((subtask) => {
-          if (subtask.id === subtaskId) {
-            return { ...subtask, title: event.target.value };
+        const updatedSubtasks = item.subTasks.map((subTask) => {
+          if (subTask.id === subTaskId) {
+            return { ...subTask, title: event.target.value };
           }
-          return subtask;
+          return subTask;
         });
-        return { ...item, subtasks: updatedSubtasks };
+        return { ...item, subTasks: updatedSubtasks };
       }
       return item;
     });
@@ -331,83 +331,75 @@ const navigate = useNavigate(); // Hook for navigating
     setIsListView(!isListView);
   };
 
+
+const fetchTopTask = async () => {
+  try {
+    const response = await axios.get(TOP_TASK_API_URL, { withCredentials: true });
+    console.log(response.data);
+    setItems(response.data.content);
+  } catch (error) {
+    console.error("Error fetching top task:", error);
+    alert("Failed to fetch top task");
+  }
+};
+
+const fetchTasks = async () => {
+  try {
+    const response = await axios.get(isListView ? PAGINATED_TASKS_API_URL : TOP_TASK_API_URL, { withCredentials: true });
+    if (Array.isArray(response.data.content)) {
+      setItems(response.data.content);
+    } else if (response.data && !Array.isArray(response.data.content)) {
+      setItems([response.data]);
+    } else {
+      console.error('Expected an array or an object for content, received:', response.data);
+      setItems([]);
+    }
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    setItems([]);
+  }
+};
+
 const handleSubmit = async (e) => {
   e.preventDefault();
-  const data = {
-    owner,
-    title,
-    description,
-    startDate: new Date(startDate).toISOString(),
-    dueDate: new Date(dueDate).toISOString(),
-    priority,
-    duration,
-    isRecurring,
-    subtasks,
-  };
-
   try {
-    await axios.post(TASK_API_URL, data, {
+    const data = {
+      owner,
+      title,
+      description,
+      startDate: new Date(startDate).toISOString(),
+      dueDate: new Date(dueDate).toISOString(),
+      priority,
+       duration,
+       isRecurring,
+       subTasks,
+      color: priorityGradientStyles[priority - 1],
+    };
+
+    await axios.post(TASK_API_URL, [data], {
       withCredentials: true,
       headers: {
         "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
       },
     });
-    resetForm();
-    fetchTasks();
+
+    setOwner("");
+    setTitle("");
+    setDescription("");
+    setStartDate("");
+    setDueDate("");
+    setPriority(1);
+    setIsRecurring(false);
+    setSubtasks([{ title: '', completed: false }]);
+    toggleMenu();
+    alert("Task added successfully");
+    fetchTopTask();
+      fetchTasks();
   } catch (error) {
-    console.error("Error submitting task data:", error);
+    console.error("Error submitting data:", error);
+    alert("Failed to add task" + error.message);
   }
 };
-
-
-const resetForm = () => {
-  setOwner("");
-  setTitle("");
-  setDescription("");
-  setStartDate("");
-  setDueDate("");
-  setPriority(1);
-  setIsRecurring(false);
-  setSubtasks([{ title: '', completed: false }]);
-  toggleMenu();
-};
-
-
-  const fetchTopTask = async () => {
-    try {
-      const response = await axios.get(TOP_TASK_API_URL, {
-        withCredentials: true,
-      });
-      console.log(response.data);
-      setItems(response.data.content);
-    } catch (error) {
-      console.error("Error fetching top task:", error);
-    }
-  };
-
-  const fetchTasks = async (sortOrder = "Newest") => {
-    try {
-      const url = `${PAGINATED_TASKS_API_URL}?sortOrder=${sortOrder}`;
-      const response = await axios.get(url, {
-        withCredentials: true,
-        headers: {
-          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-        },
-      });
-      if (Array.isArray(response.data.content)) {
-        setItems(response.data.content);
-      } else {
-        console.error(
-          "Expected an array for content, received:",
-          response.data
-        );
-        setItems([]);
-      }
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-      setItems([]);
-    }
-  };
 
   return (
     <div className="App">
@@ -492,12 +484,12 @@ const resetForm = () => {
                     <div onDoubleClick={() => handleEdit(item)}>
                       <h2 className="title">{item.title}</h2>
                       <p className="description">{item.description}</p>
-                      <ul className="subtasks-list">
-                        {item.subtasks &&
-                          item.subtasks.map((subtask, subindex) => (
+                      <ul className="subTasks-list">
+                        {item.subTasks &&
+                          item.subTasks.map((subTask, subindex) => (
                             <li key={subindex}>
-                              {subtask.title} -{" "}
-                              {subtask.completed ? "Done" : "Pending"}
+                              {subTask.title} -{" "}
+                              {subTask.completed ? "Done" : "Pending"}
                             </li>
                           ))}
                       </ul>
@@ -565,13 +557,13 @@ const resetForm = () => {
                         <h2 className="title">{item.title}</h2>
                         <p className="description">{item.description}</p>
                       </div>
-                      <div className="subtasks-section">
+                      <div className="subTasks-section">
                         <label>Subtasks:</label>
-                        {subtasks.map((subtask, index) => (
-                          <div key={index} className="subtask-input">
+                        {subTasks.map((subTask, index) => (
+                          <div key={index} className="subTask-input">
                             <input
                               type="text"
-                              value={subtask.title}
+                              value={subTask.title}
                               onChange={(e) =>
                                 handleSubtaskTitleChange(index, e.target.value)
                               }
@@ -681,20 +673,20 @@ const resetForm = () => {
               />
             </div>
             {/* Subtasks input */}
-            <div className="subtasks-section">
+            <div className="subTasks-section">
               <label>Subtasks:</label>
-              {subtasks.map((subtask, index) => (
-  <div key={index} className="subtask-input">
+              {subTasks.map((subTask, index) => (
+  <div key={index} className="subTask-input">
     <input
       type="text"
-      value={subtask.title}
+      value={subTask.title}
       onChange={(e) => handleSubtaskTitleChange(index, e.target.value)}
       placeholder="Subtask title"
     />
     <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
   </div>
 ))}
-<button type="button" onClick={() => setSubtasks([...subtasks, { title: '', completed: false }])}>
+<button type="button" onClick={() => setSubtasks([...subTasks, { title: '', completed: false }])}>
   Add Subtask
 </button>
             </div>
