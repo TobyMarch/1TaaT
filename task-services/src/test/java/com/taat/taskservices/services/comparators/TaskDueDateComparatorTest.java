@@ -24,15 +24,15 @@ public class TaskDueDateComparatorTest {
         Instant currentDateInstant = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 
         taskList.add(
-                new Task("1", "testOwner", "Test Task 1", "A task for testing", null, null,
+                new Task("1", "ext-1", "testOwner", "Test Task 1", "A task for testing", null, null,
                         currentDateInstant.minus(5, ChronoUnit.DAYS), 5, Duration.M.toString(), Collections.emptyList(),
                         false, false, Collections.emptyList()));
         taskList.add(
-                new Task("2", "testOwner", "Test Task 2", "A task for testing", null, null,
+                new Task("2", "ext-2", "testOwner", "Test Task 2", "A task for testing", null, null,
                         currentDateInstant.plus(100, ChronoUnit.DAYS), 5, Duration.M.toString(),
                         Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new Task("3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
+                new Task("3", "ext-3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
                         null, 5, Duration.M.toString(), Collections.emptyList(), false, false,
                         Collections.emptyList()));
 

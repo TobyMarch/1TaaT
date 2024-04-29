@@ -29,7 +29,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import com.taat.taskservices.dto.TaskDTO;
 import com.taat.taskservices.model.User;
 import com.taat.taskservices.model.UserTask;
-import com.taat.taskservices.services.ImperativeTaskService;
+import com.taat.taskservices.services.TaskService;
 import com.taat.taskservices.services.UserService;
 import com.taat.taskservices.utils.Duration;
 
@@ -38,7 +38,7 @@ import com.taat.taskservices.utils.Duration;
 public class TaskControllerTest {
 
     @Mock
-    ImperativeTaskService taskService;
+    TaskService taskService;
 
     @Mock
     UserService userService;
@@ -264,23 +264,23 @@ public class TaskControllerTest {
         Instant previousDateMidnight = currentDateMidnight.minus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
         Instant futureDateMidnight = currentDateMidnight.plus(1, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
         taskList.add(
-                new TaskDTO("1", "testOwner", "Test Task 1", "A task for testing", null, null,
+                new TaskDTO("1", "ext-1", "testOwner", "Test Task 1", "A task for testing", null, null,
                         currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(45, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new TaskDTO("2", "testOwner", "Test Task 2", "A task for testing", null, null,
+                new TaskDTO("2", "ext-2", "testOwner", "Test Task 2", "A task for testing", null, null,
                         currentDateMidnight.plus(9, ChronoUnit.HOURS).plus(30, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new TaskDTO("3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
+                new TaskDTO("3", "ext-3", "testOwner", "Test Task 3", "A task with a null due date", null, null,
                         null, 5, Duration.M.toString(), Collections.emptyList(), false, false,
                         Collections.emptyList()));
         taskList.add(
-                new TaskDTO("4", "testOwner", "Test Task 4", "A task that was due yesterday", null, null,
+                new TaskDTO("4", "ext-4", "testOwner", "Test Task 4", "A task that was due yesterday", null, null,
                         previousDateMidnight.plus(9, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
         taskList.add(
-                new TaskDTO("5", "testOwner", "Test Task 5", "A task that is due tomorrow", null, null,
+                new TaskDTO("5", "ext-5", "testOwner", "Test Task 5", "A task that is due tomorrow", null, null,
                         futureDateMidnight.plus(14, ChronoUnit.HOURS).plus(15, ChronoUnit.MINUTES), 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
 

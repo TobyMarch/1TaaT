@@ -24,10 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.taat.taskservices.dto.TaskDTO;
-import com.taat.taskservices.model.Task;
 import com.taat.taskservices.model.User;
 import com.taat.taskservices.model.UserTask;
-import com.taat.taskservices.services.ImperativeTaskService;
+import com.taat.taskservices.services.TaskService;
 import com.taat.taskservices.services.UserService;
 
 @RestController
@@ -36,17 +35,10 @@ public class TaskController {
     private final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
     @Autowired
-    ImperativeTaskService taskService;
+    TaskService taskService;
 
     @Autowired
     UserService userService;
-
-    @GetMapping(path = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<Task>> getTasks(@AuthenticationPrincipal OAuth2User principal) {
-        String userId = principal.getAttributes().get("sub").toString();
-        List<Task> tasks = taskService.getPrioritizedTasks(userId);
-        return new ResponseEntity<>(tasks, HttpStatus.OK);
-    }
 
     @GetMapping(path = "/top", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<TaskDTO> getTopTask(@AuthenticationPrincipal OAuth2User principal) {

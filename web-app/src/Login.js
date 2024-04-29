@@ -10,15 +10,17 @@ function Login() {
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = () => {
-    if (username && password) {
+const handleLogin = () => {
+  if (username && password) {
+    localStorage.setItem('username', username);
+    console.log(`Username set in localStorage: ${localStorage.getItem('username')}`); // Debugging output
+    setLoggedIn(true);
+    navigate('/app');
+  } else {
+    alert('Invalid username or password');
+  }
+};
 
-      setLoggedIn(true);
-      navigate('/app');
-    } else {
-      alert('Invalid username or password');
-    }
-  };
 
   const handleGoogleLogin = () => {
     window.location.href = AUTH_ROUTE;
@@ -26,6 +28,7 @@ function Login() {
 
   const handleLogout = () => {
     setLoggedIn(false);
+    localStorage.removeItem('username');
     setUsername('');
     setPassword('');
   };
