@@ -430,6 +430,13 @@ height:100px;
 }
 /* calendar.sj */
 
+.google-calendar-container{
+ background: #0003;
+ padding:100px;
+}
+.google-calendar-container p {
+font-size: 20px;
+}
 
 /* Material button styles for Google Sign-In etc. */
 .gsi-material-button {
