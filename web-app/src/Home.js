@@ -80,18 +80,6 @@ function Home() {
     },
   ];
 
-function getDurationColor(duration) {
-  const firstChar = duration.charAt(0); // We use the first character for this example
-  switch (firstChar) {
-    case 'S': return '#000'; // Darker teal
-    case 'M': return '#000'; // Darker gold
-    case 'L': return '#000'; // Darker orange
-    case 'XL': return '#000'; // Darker red
-    default: return 'grey'; // A default color if no cases match
-  }
-}
-
-
   const redirectToCalendar = () => {
     navigate('/calendar');
   };
@@ -556,7 +544,7 @@ function getRandomStyle() {
                             </li>
                           ))}
                       </ul>
-                      <p className="duration">Duration: {item.duration}</p>
+                      <p className="duration">Duration: {item.duration || 'Not set'}</p>
                       <p className="dueDate">
   Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
 </p>
@@ -584,9 +572,7 @@ function getRandomStyle() {
                           Done <SVGdone />
                         </button>
                       </div>
-                      <div className="taskInfo">
-                        Owner ID: {item.owner}, Priority: {item.priority}
-                      </div>
+
                     </div>
                   )}
                 </div>
@@ -618,17 +604,29 @@ function getRandomStyle() {
                   ) : (
                     <>
                       <div onDoubleClick={() => handleEdit(item)}>
-                          <div className="title-container">
-                      <h2 className="title">{item.title}</h2>
+             <div className="title-container">
+    <h2 className="title">{item.title}</h2>
+     <p className="duration" >
+            Duration: {item.duration || 'Not set'}
+        </p>
+    <div className="info-container">  {/* Container for duration, dates, and buttons */}
 
-                       <p className="duration" style={{ color: getDurationColor(item.duration) }}>
-                              Duration: {item.duration} </p>
-                  <p className="dueDate">
-                      Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
-                        <br />
-                      Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
-                    </p>
-                    </div>
+        <p className="dueDate">
+            Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+            <br />
+            Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+        </p>
+        <div className="buttonGroup">  {/* Existing class for button styling */}
+            <button className="skipButton" onClick={() => skipTask(item.id)}>
+                Do Tomorrow
+            </button>
+
+            <button className="doneButton" onClick={() => doneTask(item.id)}>
+                Done
+            </button>
+        </div>
+    </div>
+</div>
                         <label>Description:</label>
                         <p className="description">{item.description || 'Not set'}</p>
 
@@ -694,34 +692,19 @@ function getRandomStyle() {
                     >
                       Share <SVGdone />
                     </button>
-                    <button
-                      className="skipButton"
-                      onClick={() => skipTask(item.id)}
-                    >
-                      Skip to Next Day <SVGflag />
-                    </button>
-                    <button
-                      className="archiveButton"
-                      onClick={() => removeTask(item.id)}
-                    >
-                      Remove <SVGremove />
-                    </button>
-                    <button
-                      className="doneButton"
-                      onClick={() => doneTask(item.id)}
-                    >
-                      Done <SVGdone />
-                    </button>
+                     <button className="archiveButton" onClick={() => removeTask(item.id)}>
+                Remove
+            </button>
+
+
                   </div>
-                  <div className="taskInfo">
-                    Owner ID: {item.owner}, Priority: {item.priority}
-                  </div>
+
                 </div>
               ))}
         </div>
       )}
 
-      {/* Settings button to toggle new task form */}
+      {/* SideBar */}
       <div className="sideBar">
         <p htmlFor="historyButton">History</p>
         <button className="historyButton" onClick={handleArchiveClick}>
@@ -743,12 +726,13 @@ function getRandomStyle() {
       {/* Conditional rendering of the new task form */}
       {menuVisible && (
         <div className="add-task-form">
-          <h2>Add New Task</h2>
+        <div className="add-task">
+          <h2>New Task</h2>
           <form onSubmit={handleSubmit}>
             {/* Add New Task Form */}
 
             <div className="task-input">
-              <label htmlFor="title">Task Title:</label>
+              <label htmlFor="title">Task Title:</label><br/>
               <p>Task Title:: {charTitleCount}/50 </p>
               <input
                 type="text"
@@ -767,8 +751,8 @@ function getRandomStyle() {
                 id="task"
                 value={description}
                 onChange={handleDescriptionChange}
-                maxLength={250}
-                
+                maxLength={200}
+
               />
             </div>
 {/* Subtasks Input Section */}
@@ -826,6 +810,7 @@ function getRandomStyle() {
     Add Subtask
   </button>
 </div>
+
 
             <div className="task-input">
               <label htmlFor="startDate">Start Date:</label>
@@ -894,8 +879,10 @@ function getRandomStyle() {
             </div>
           </form>
         </div>
+        </div>
       )}
     </div>
+
   );
 }
 
