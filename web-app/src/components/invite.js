@@ -16,18 +16,11 @@ function Invite() {
         })
         .then(res => res.json())
         .then(data => {
-            console.log(data);
             setInvitations(data);
         })
     },[])
 
-    const handleSendInvite = () => {
-        const invitation = {
-            userEmail: "walkerblack4@gmail.com",
-            taskTitle: "Booking for Boston Calling",
-            taskId: "662ea2c66147ee0822e11c77"
-        }
-        console.log(invitation);
+    const handleSendInvite = (invitation) => {
         fetch(TASK_SVC_URL + "/api/invitations/invite", {
             method:'post',
             body: JSON.stringify(invitation),
@@ -37,8 +30,6 @@ function Invite() {
                 "Content-Type": 'application/json'
             }
         })
-        .then(res => res.text())
-        .then(msg => console.log(msg))
     }
 
     const handleInviteResponse = async (event, invitation) => {
@@ -72,7 +63,6 @@ function Invite() {
 
     return (
         <div>
-            <button onClick={handleSendInvite}>Send Invite</button>
             <ul>
                 {inviteList}
             </ul>
