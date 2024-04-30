@@ -44,76 +44,105 @@ function Home() {
   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
   const [archivedItems, setArchivedItems] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
-  const [subtasks, setSubtasks] = useState([{ title: "", completed: false }]);
   const [isRecurring, setIsRecurring] = useState(false);
-const navigate = useNavigate(); // Hook for navigating
+   const [formErrors, setFormErrors] = useState({});
+  const navigate = useNavigate();
+
+    const [subTasks, setSubtasks] = useState([{
+  title: "",
+  description: "",
+  startDate: "",
+  dueDate: "",
+  priority: 1,
+  duration: "S",
+  completed: false
+}]);
+
+  const archivedStyle = {
+  background: 'linear-gradient(11deg, #c0c0c0 0%, #f0f0f0 100%)',
+  };
+
+    const priorityGradientStyles = [
+    {
+      background: "linear-gradient(11deg, #7673AC 0%, #b3d4ff 100%)", // Lowest
+    },
+    {
+      background: "linear-gradient(11deg, #7bd5b7 0%, #7ccf9f 100%)", // lower
+    },
+    {
+      background: "linear-gradient(11deg, #e1c97a 0%, #ffea9e 100%)", // Medium
+    },
+    {
+      background: "linear-gradient(11deg, #dfa661 0%, #ffc18b 100%)", // Higher
+    },
+    {
+      background: "linear-gradient(11deg, #d46666 0%, #f37d8f 100%)", // Highest
+    },
+  ];
 
   const redirectToCalendar = () => {
     navigate('/calendar');
   };
 
-  const handleRecurringChange = (event) => {
-  setIsRecurring(event.target.checked);
-};
+  const toggleMenu = () => {
+    setMenuVisible(!menuVisible);
+  };
 
-  const skipTask = async (taskId) => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+  const isOverdue = (dueDateString) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    try {
-      const response = await axios.put(
-        `${TASK_API_URL}/${taskId}/skip`,
-        { dueDate: tomorrow.toISOString().split("T")[0] },
-        {
-          withCredentials: true,
-          headers: {
-            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-          },
-        }
-      );
-      if (response.status === 200) {
-        console.log("Task skipped to next day:", response.data);
-        fetchTasks();
-      }
-    } catch (error) {
-      console.error("Error skipping the task:", error);
+    const dueDate = new Date(dueDateString);
+    return dueDate < today;
+  };
+
+
+  const validateForm = () => {
+    const newTaskFail = {};
+    if (new Date(startDate) >= new Date(dueDate)) {
+      newTaskFail.date = "Due date must be after the start date.";
     }
+    return newTaskFail;
   };
 
   const handleSubtaskTitleChange = (index, value) => {
-  const updatedSubtasks = subtasks.map((subtask, i) => {
+  const updatedSubtasks = subTasks.map((subTask, i) => {
     if (i === index) {
-      return { ...subtask, title: value };
+      return { ...subTask, title: value };
     }
-    return subtask;
+    return subTask;
   });
   setSubtasks(updatedSubtasks);
 };
 
-  const addSubtask = () => {
-    setSubtasks([...subtasks, { title: "", completed: false }]);
+const addSubtask = () => {
+  const newSubtask = {
+    title: "",
+    description: "",
+    startDate: new Date().toISOString().slice(0, 10),
+    dueDate: new Date().toISOString().slice(0, 10),
+    priority: 1,
+    duration: "S",
+    completed: false
   };
+  setSubtasks([...subTasks, newSubtask]);
+};
 
   const removeSubtask = (index) => {
-    const filteredSubtasks = subtasks.filter((_, i) => i !== index);
+    const filteredSubtasks = subTasks.filter((_, i) => i !== index);
     setSubtasks(filteredSubtasks);
   };
 
-  const handleSubtaskChange = (event, taskId, subtaskId) => {
-    const updatedItems = items.map((item) => {
-      if (item.id === taskId) {
-        const updatedSubtasks = item.subtasks.map((subtask) => {
-          if (subtask.id === subtaskId) {
-            return { ...subtask, title: event.target.value };
-          }
-          return subtask;
-        });
-        return { ...item, subtasks: updatedSubtasks };
-      }
-      return item;
-    });
-    setItems(updatedItems);
-  };
+const handleSubtaskChange = (index, field, value) => {
+  const updatedSubtasks = subTasks.map((subTask, i) => {
+    if (i === index) {
+      return { ...subTask, [field]: value };
+    }
+    return subTask;
+  });
+  setSubtasks(updatedSubtasks);
+};
+
   const handleEdit = (item) => {
     setEditItemId(item.id);
     setEditableTitle(item.title);
@@ -143,28 +172,6 @@ const navigate = useNavigate(); // Hook for navigating
     setEditItemId(null);
   };
 
-  const fetchArchivedTasks = async () => {
-    try {
-      const response = await axios.get(ARCHIVED_API_URL, {
-        withCredentials: true,
-        headers: {
-          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-        },
-      });
-      if (response.data && Array.isArray(response.data.content)) {
-        console.log(
-          "Archived tasks fetched successfully:",
-          response.data.content
-        );
-        return response.data.content;
-      } else {
-        console.warn("Received non-array:", response.data);
-        return [];
-      }
-    } catch (error) {
-      console.error("Failed to fetch archived tasks:", error);
-    }
-  };
 
   const handleArchiveClick = async () => {
     setShowArchived((prevShowArchived) => {
@@ -240,11 +247,18 @@ const navigate = useNavigate(); // Hook for navigating
     setItems(sortedItems);
   };
 
-  const doneTask = async (taskId) => {
+
+   const handleRecurringChange = (event) => {
+  setIsRecurring(event.target.checked);
+};
+
+  const skipTask = async (taskId) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
     try {
       const response = await axios.put(
-        `${TASK_API_URL}/${taskId}/archive`,
-        {},
+        `${TASK_API_URL}/${taskId}/skip`,
+        { dueDate: tomorrow.toISOString().split("T")[0] },
         {
           withCredentials: true,
           headers: {
@@ -252,73 +266,56 @@ const navigate = useNavigate(); // Hook for navigating
           },
         }
       );
-      setItems((items) => items.filter((item) => item.id !== taskId));
+      if (response.status === 200) {
+        console.log("Task skipped to next day:", response.data);
+        fetchTasks();
+      }
     } catch (error) {
-      console.error("Error finishing the task:", error);
+      console.error("Error skipping the task:", error);
     }
   };
 
-  const removeTask = async (taskId) => {
-    try {
-      await axios.delete(`${TASK_API_URL}/${taskId}`, {
+
+ const doneTask = async (taskId) => {
+  try {
+    const response = await axios.put(
+      `${TASK_API_URL}/${taskId}/archive`,
+      {},
+      {
         withCredentials: true,
         headers: {
           "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
         },
-      });
-
-      setItems((items) => items.filter((item) => item.id !== taskId));
-    } catch (error) {
-      console.error("Error removing the task:", error);
+      }
+    );
+    if (response.status === 200) {
+      console.log("Task marked as done:", response.data);
+      fetchTasks();
     }
-  };
+    setItems((items) => items.filter((item) => item.id !== taskId));
+  } catch (error) {
+    console.error("Error finishing the task:", error);
+  }
+};
 
-  const toggleMenu = () => {
-    setMenuVisible(!menuVisible);
-  };
-
-  const isOverdue = (dueDateString) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const dueDate = new Date(dueDateString);
-    return dueDate < today;
-  };
-
-  const priorityGradientStyles = [
-    {
-      background: "linear-gradient(11deg, #7673AC 0%, #b3d4ff 100%)", // Low
-    },
-    {
-      background: "linear-gradient(11deg, #7bd5b7 0%, #7ccf9f 100%)", // Slightly higher priority
-    },
-    {
-      background: "linear-gradient(11deg, #e1c97a 0%, #ffea9e 100%)", // Medium priority
-    },
-    {
-      background: "linear-gradient(11deg, #dfa661 0%, #ffc18b 100%)", // Higher priority
-    },
-    {
-      background: "linear-gradient(11deg, #d46666 0%, #f37d8f 100%)", // High priority
-    },
-  ];
-
-  const validateForm = () => {
-    const newTaskFail = {};
-    if (new Date(startDate) >= new Date(dueDate)) {
-      newTaskFail.date = "Due date must be after the start date.";
+ const removeTask = async (taskId) => {
+  try {
+    const response = await axios.delete(`${TASK_API_URL}/${taskId}`, {
+      withCredentials: true,
+      headers: {
+        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+      },
+    });
+    if (response.status === 200) {
+      console.log("Task removed successfully:", response.data);
+      fetchTasks();
     }
-    return newTaskFail;
-  };
+    setItems((items) => items.filter((item) => item.id !== taskId));
+  } catch (error) {
+    console.error("Error removing the task:", error);
+  }
+};
 
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-      setUsername(storedUsername);
-    } else {
-      console.log("No username found in localStorage.");
-    }
-  }, []);
 
   useEffect(() => {
     fetchTasks();
@@ -331,83 +328,107 @@ const navigate = useNavigate(); // Hook for navigating
     setIsListView(!isListView);
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const data = {
-    owner,
-    title,
-    description,
-    startDate: new Date(startDate).toISOString(),
-    dueDate: new Date(dueDate).toISOString(),
-    priority,
-    duration,
-    isRecurring,
-    subtasks,
-  };
 
+// Task retrieval and submission
+
+const fetchTasks = async () => {
   try {
-    await axios.post(TASK_API_URL, data, {
-      withCredentials: true,
-      headers: {
-        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-      },
-    });
-    resetForm();
-    fetchTasks();
+    const response = await axios.get(isListView ? PAGINATED_TASKS_API_URL : TOP_TASK_API_URL, { withCredentials: true });
+    if (Array.isArray(response.data.content)) {
+      setItems(response.data.content);
+    } else if (response.data && !Array.isArray(response.data.content)) {
+      setItems([response.data]);
+    } else {
+      console.error('Expected an array or an object for content, received:', response.data);
+      setItems([]);
+    }
   } catch (error) {
-    console.error("Error submitting task data:", error);
+    console.error("Error fetching tasks:", error);
+    setItems([]);
   }
 };
 
 
-const resetForm = () => {
-  setOwner("");
-  setTitle("");
-  setDescription("");
-  setStartDate("");
-  setDueDate("");
-  setPriority(1);
-  setIsRecurring(false);
-  setSubtasks([{ title: '', completed: false }]);
-  toggleMenu();
+const fetchTopTask = async () => {
+  try {
+    const response = await axios.get(TOP_TASK_API_URL, { withCredentials: true });
+    console.log(response.data);
+    setItems(response.data.content);
+  } catch (error) {
+    console.error("Error fetching top task:", error);
+    alert("Failed to fetch top task");
+  }
 };
 
 
-  const fetchTopTask = async () => {
+  const fetchArchivedTasks = async () => {
     try {
-      const response = await axios.get(TOP_TASK_API_URL, {
-        withCredentials: true,
-      });
-      console.log(response.data);
-      setItems(response.data.content);
-    } catch (error) {
-      console.error("Error fetching top task:", error);
-    }
-  };
-
-  const fetchTasks = async (sortOrder = "Newest") => {
-    try {
-      const url = `${PAGINATED_TASKS_API_URL}?sortOrder=${sortOrder}`;
-      const response = await axios.get(url, {
+      const response = await axios.get(ARCHIVED_API_URL, {
         withCredentials: true,
         headers: {
           "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
         },
       });
-      if (Array.isArray(response.data.content)) {
-        setItems(response.data.content);
-      } else {
-        console.error(
-          "Expected an array for content, received:",
-          response.data
+      if (response.data && Array.isArray(response.data.content)) {
+        console.log(
+          "Archived tasks fetched successfully:",
+          response.data.content
         );
-        setItems([]);
+        return response.data.content;
+      } else {
+        console.warn("Received non-array:", response.data);
+        return [];
       }
     } catch (error) {
-      console.error("Error fetching tasks:", error);
-      setItems([]);
+      console.error("Failed to fetch archived tasks:", error);
     }
   };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const errors = validateForm();
+  try {
+    const data = {
+      owner,
+      title,
+      description,
+      // createdDate: new Date(createdDate).toISOString(),
+      startDate: startDate ? new Date(startDate).toISOString() : null,
+      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+      priority,
+       duration,
+       isRecurring,
+       subTasks: subTasks.map(subTask => ({
+    title: subTask.title,
+    completed: subTask.completed
+  })),
+      color: priorityGradientStyles[priority - 1],
+    };
+
+    await axios.post(TASK_API_URL, [data], {
+      withCredentials: true,
+      headers: {
+        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+      },
+    });
+
+    setOwner("");
+    setTitle("");
+    setDescription("");
+    setStartDate("");
+    setDueDate("");
+    setPriority(1);
+    setIsRecurring(false);
+    setSubtasks([{ title: '', completed: false }]);
+    toggleMenu();
+    alert("Task added successfully");
+    fetchTopTask();
+      fetchTasks();
+  } catch (error) {
+    console.error("Error submitting data:", error);
+    alert("Failed to add task" + error.message);
+  }
+};
 
   return (
     <div className="App">
@@ -416,11 +437,13 @@ const resetForm = () => {
         <div className="leftItems">
           <img src={logo} alt="Logo" className="logo" />
           <button onClick={handleLogout}>
-            <p>
-              username
-              {username}
-              <br /> Logout
-            </p>
+       <div className="logout">
+              <p>
+                username
+                {username}
+                <br /> Logout
+              </p>
+            </div>
           </button>
         </div>
 
@@ -469,7 +492,7 @@ const resetForm = () => {
                 <div
                   className="item"
                   key={index}
-                  style={priorityGradientStyles[item.priority - 1]}
+                  style={showArchived ? archivedStyle : priorityGradientStyles[item.priority - 1]}
                 >
                   {editItemId === item.id ? (
                     <div>
@@ -491,23 +514,23 @@ const resetForm = () => {
                   ) : (
                     <div onDoubleClick={() => handleEdit(item)}>
                       <h2 className="title">{item.title}</h2>
-                      <p className="description">{item.description}</p>
-                      <ul className="subtasks-list">
-                        {item.subtasks &&
-                          item.subtasks.map((subtask, subindex) => (
+                      <p className="description">{item.description || 'Not set'}</p>
+                      <ul className="subTasks-list">
+                        {item.subTasks &&
+                          item.subTasks.map((subTask, subindex) => (
                             <li key={subindex}>
-                              {subtask.title} -{" "}
-                              {subtask.completed ? "Done" : "Pending"}
+                              {subTask.title} -{" "}
+                              {subTask.completed ? "Done" : "Pending"}
                             </li>
                           ))}
                       </ul>
-                      <p className="duration">Duration: {item.duration}</p>
+                      <p className="duration">Duration: {item.duration || 'Not set'}</p>
                       <p className="dueDate">
-                        Start: {item.startDate.split("T")[0]}
-                      </p>
-                      <p className="dueDate">
-                        Due: {item.dueDate.split("T")[0]}
-                      </p>
+  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+</p>
+<p className="dueDate">
+  Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+</p>
                       <div className="buttonGroup">
                         <button
                           className="shareTaskButton"
@@ -529,9 +552,7 @@ const resetForm = () => {
                           Done <SVGdone />
                         </button>
                       </div>
-                      <div className="taskInfo">
-                        Owner ID: {item.owner}, Priority: {item.priority}
-                      </div>
+
                     </div>
                   )}
                 </div>
@@ -558,44 +579,93 @@ const resetForm = () => {
                         onChange={handleDescriptionEdit}
                         onBlur={() => saveChanges(item)}
                       />
+
                     </div>
                   ) : (
                     <>
                       <div onDoubleClick={() => handleEdit(item)}>
-                        <h2 className="title">{item.title}</h2>
-                        <p className="description">{item.description}</p>
+             <div className="title-container">
+    <h2 className="title">{item.title}</h2>
+     <p className="duration" >
+            Duration: {item.duration || 'Not set'}
+        </p>
+    <div className="info-container">
+
+        <p className="dueDate">
+  {/* Include "Overdue" text with the flag */}
+  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+  <br />
+   {isOverdue(item.dueDate) && <><SVGflag /> Over</>}Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+</p>
+        <div className="buttonGroup">  {/* Existing class for button styling */}
+            <button className="skipButton" onClick={() => skipTask(item.id)}>
+                Do Tomorrow
+            </button>
+
+            <button className="doneButton" onClick={() => doneTask(item.id)}>
+                Done
+            </button>
+        </div>
+    </div>
+</div>
+                        <label>Description:</label>
+                        <p className="description">{item.description || 'Not set'}</p>
+
                       </div>
-                      <div className="subtasks-section">
-                        <label>Subtasks:</label>
-                        {subtasks.map((subtask, index) => (
-                          <div key={index} className="subtask-input">
-                            <input
-                              type="text"
-                              value={subtask.title}
-                              onChange={(e) =>
-                                handleSubtaskTitleChange(index, e.target.value)
-                              }
-                              placeholder="Subtask title"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeSubtask(index)}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        ))}
-                        <button type="button" onClick={addSubtask}>
-                          Add Subtask
-                        </button>
-                      </div>
+                    <div className="subTasks-section">
+  {subTasks.map((subTask, index) => (
+    <div key={index} className="subTask-input">
+      <input
+        type="text"
+        value={subTask.title}
+        onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+        placeholder="Subtask title"
+
+      />
+      <textarea className="subTasks-description"
+        value={subTask.description}
+        onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
+        placeholder="Description"
+      />
+      <input
+        type="datetime-local"
+        value={subTask.startDate}
+        onChange={(e) => handleSubtaskChange(index, 'startDate', e.target.value)}
+      />
+      <input
+        type="datetime-local"
+        value={subTask.dueDate}
+        onChange={(e) => handleSubtaskChange(index, 'dueDate', e.target.value)}
+      />
+      <select
+        onChange={(e) => handleSubtaskChange(index, 'priority', parseInt(e.target.value, 10))}
+        value={subTask.priority}
+      >
+        <option value={1}>Lowest</option>
+        <option value={2}>Lower</option>
+        <option value={3}>Medium</option>
+        <option value={4}>Higher</option>
+        <option value={5}>Highest</option>
+      </select>
+      <select
+        onChange={(e) => handleSubtaskChange(index, 'duration', e.target.value)}
+        value={subTask.duration}
+      >
+        <option value="S">Small</option>
+        <option value="M">Medium</option>
+        <option value="L">Large</option>
+        <option value="XL">XLarge</option>
+      </select>
+      <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
+    </div>
+  ))}
+  <button type="button" onClick={() => addSubtask()}>
+    Add Subtask
+  </button>
+</div>
                     </>
                   )}
-                  <p className="duration">Duration: {item.duration}</p>
-                  <p className="dueDate">
-                    Start: {item.startDate.split("T")[0]}
-                  </p>
-                  <p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
+
                   <div className="buttonGroup">
                     <button
                       className="shareTaskButton"
@@ -603,34 +673,19 @@ const resetForm = () => {
                     >
                       Share <SVGdone />
                     </button>
-                    <button
-                      className="skipButton"
-                      onClick={() => skipTask(item.id)}
-                    >
-                      Skip to Next Day <SVGflag />
-                    </button>
-                    <button
-                      className="archiveButton"
-                      onClick={() => removeTask(item.id)}
-                    >
-                      Remove <SVGremove />
-                    </button>
-                    <button
-                      className="doneButton"
-                      onClick={() => doneTask(item.id)}
-                    >
-                      Done <SVGdone />
-                    </button>
+                     <button className="archiveButton" onClick={() => removeTask(item.id)}>
+                Remove
+            </button>
+
+
                   </div>
-                  <div className="taskInfo">
-                    Owner ID: {item.owner}, Priority: {item.priority}
-                  </div>
+
                 </div>
               ))}
         </div>
       )}
 
-      {/* Settings button to toggle new task form */}
+      {/* SideBar */}
       <div className="sideBar">
         <p htmlFor="historyButton">History</p>
         <button className="historyButton" onClick={handleArchiveClick}>
@@ -652,12 +707,13 @@ const resetForm = () => {
       {/* Conditional rendering of the new task form */}
       {menuVisible && (
         <div className="add-task-form">
-          <h2>Add New Task</h2>
+        <div className="add-task">
+          <h2>New Task</h2>
           <form onSubmit={handleSubmit}>
             {/* Add New Task Form */}
 
             <div className="task-input">
-              <label htmlFor="title">Task Title:</label>
+              <label htmlFor="title">Task Title:</label><br/>
               <p>Task Title:: {charTitleCount}/50 </p>
               <input
                 type="text"
@@ -676,28 +732,66 @@ const resetForm = () => {
                 id="task"
                 value={description}
                 onChange={handleDescriptionChange}
-                maxLength={250}
-                required
+                maxLength={200}
+
               />
             </div>
-            {/* Subtasks input */}
-            <div className="subtasks-section">
-              <label>Subtasks:</label>
-              {subtasks.map((subtask, index) => (
-  <div key={index} className="subtask-input">
-    <input
-      type="text"
-      value={subtask.title}
-      onChange={(e) => handleSubtaskTitleChange(index, e.target.value)}
-      placeholder="Subtask title"
-    />
-    <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
-  </div>
-))}
-<button type="button" onClick={() => setSubtasks([...subtasks, { title: '', completed: false }])}>
-  Add Subtask
-</button>
-            </div>
+{/* Subtasks Input Section */}
+<div className="subTasks-section">
+  <label>Subtasks:</label>
+  {subTasks.map((subTask, index) => (
+    <div key={index} className="subTask-input">
+      <input
+        type="text"
+        value={subTask.title}
+        onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+        placeholder="Subtask title"
+
+      />
+      <textarea
+        value={subTask.description}
+        onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
+        placeholder="Description"
+      />
+      <input
+        type="datetime-local"
+        value={subTask.startDate}
+        onChange={(e) => handleSubtaskChange(index, 'startDate', e.target.value)}
+        placeholder="Start Date"
+      />
+      <input
+        type="datetime-local"
+        value={subTask.dueDate}
+        onChange={(e) => handleSubtaskChange(index, 'dueDate', e.target.value)}
+        placeholder="Due Date"
+      />
+      <select
+        onChange={(e) => handleSubtaskChange(index, 'priority', parseInt(e.target.value, 10))}
+        value={subTask.priority}
+      >
+        <option value={1}>Lowest</option>
+        <option value={2}>Lower</option>
+        <option value={3}>Medium</option>
+        <option value={4}>Higher</option>
+        <option value={5}>Highest</option>
+      </select>
+      <select
+        onChange={(e) => handleSubtaskChange(index, 'duration', e.target.value)}
+        value={subTask.duration}
+      >
+        <option value="S">Small</option>
+        <option value="M">Medium</option>
+        <option value="L">Large</option>
+        <option value="XL">XLarge</option>
+      </select>
+      <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
+    </div>
+  ))}
+  <button type="button" onClick={() => addSubtask()}>
+    Add Subtask
+  </button>
+</div>
+
 
             <div className="task-input">
               <label htmlFor="startDate">Start Date:</label>
@@ -706,7 +800,7 @@ const resetForm = () => {
                 id="startDate"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                required
+
               />
             </div>
             <div className="task-input">
@@ -716,7 +810,7 @@ const resetForm = () => {
                 id="dueDate"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                required
+
               />
             </div>
 <div className="task-input">
@@ -762,11 +856,14 @@ const resetForm = () => {
               <button className="submit" type="submit">
                 Submit
               </button>
+               {formErrors.date && <p className="error">{formErrors.date}</p>}
             </div>
           </form>
         </div>
+        </div>
       )}
     </div>
+
   );
 }
 

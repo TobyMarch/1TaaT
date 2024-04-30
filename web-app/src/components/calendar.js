@@ -104,11 +104,9 @@ function Calendar() {
 )
 
     return (
-        <div>
-            <button onClick={handleFetchEvents}>Fetch Events</button>
-            <button onClick={handleClearEvents}>Clear Events</button>
-            <button onClick={handleTestButton}>Test Button</button>
-            <button onClick={handleLogout}>Logout</button>
+       <div className="google-calendar-container">
+            <button onClick={handleFetchEvents}>Update</button>
+            <button onClick={handleClearEvents}>Clear</button>
             <ul>{eventsList}</ul>
             <div>
                 {nextPageToken &&

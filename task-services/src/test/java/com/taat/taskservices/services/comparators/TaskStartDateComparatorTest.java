@@ -23,14 +23,14 @@ public class TaskStartDateComparatorTest {
         List<Task> taskList = new ArrayList<>();
         Instant currentDateInstant = Instant.now().truncatedTo(ChronoUnit.SECONDS);
 
-        taskList.add(new Task("1", "testOwner", "Test Task 1", "A task for testing", null,
+        taskList.add(new Task("1", "ext-1", "testOwner", "Test Task 1", "A task for testing", null,
                 currentDateInstant.minus(1, ChronoUnit.DAYS), null, 5, Duration.M.toString(), Collections.emptyList(),
                 false, false, Collections.emptyList()));
-        taskList.add(new Task("2", "testOwner", "Test Task 2", "A task for testing", null,
+        taskList.add(new Task("2", "ext-2", "testOwner", "Test Task 2", "A task for testing", null,
                 currentDateInstant.minus(2, ChronoUnit.DAYS), null, 5, Duration.M.toString(), Collections.emptyList(),
                 false, false, Collections.emptyList()));
         taskList.add(
-                new Task("3", "testOwner", "Test Task 3", "A task with a null start date", null, null, null, 5,
+                new Task("3", "ext-3", "testOwner", "Test Task 3", "A task with a null start date", null, null, null, 5,
                         Duration.M.toString(), Collections.emptyList(), false, false, Collections.emptyList()));
 
         TaskStartDateComparator startDateComparator = new TaskStartDateComparator();

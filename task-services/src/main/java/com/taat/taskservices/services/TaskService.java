@@ -156,34 +156,51 @@ public class TaskService {
         List<Task> taskEntities = new ArrayList<>();
         for (TaskDTO dto : taskDTOs) {
             Task inputTaskEntity = dto.dtoToEntity();
-            inputTaskEntity.setOwner(owner);
-            inputTaskEntity.setSubTasks(null);
-            if (inputTaskEntity.getCreatedDate() == null) {
-                inputTaskEntity.setCreatedDate(Instant.now());
-            }
-
-            if (dto.getSubTasks() != null && !dto.getSubTasks().isEmpty()) {
-                List<String> subTaskIds = new ArrayList<>();
-                for (TaskDTO subTaskDTO : dto.getSubTasks()) {
-                    Task inputSubTaskEntity = subTaskDTO.dtoToEntity();
-                    if (inputSubTaskEntity.getCreatedDate() == null) {
-                        inputSubTaskEntity.setCreatedDate(Instant.now());
-                    }
-
-                    Task savedEntity = taskRepo.save(inputSubTaskEntity);
-                    if (savedEntity != null) {
-                        taskEntities.add(savedEntity);
-                        subTaskIds.add(savedEntity.getId());
-                    }
+            if (!isDuplicateExternalTask(inputTaskEntity)) {
+                inputTaskEntity.setOwner(owner);
+                inputTaskEntity.setSubTasks(null);
+                if (inputTaskEntity.getCreatedDate() == null) {
+                    inputTaskEntity.setCreatedDate(Instant.now());
                 }
-                inputTaskEntity.setSubTasks(subTaskIds);
-            }
-            Task savedTaskEntity = taskRepo.save(inputTaskEntity);
-            if (savedTaskEntity != null) {
-                taskEntities.add(inputTaskEntity);
+
+                if (dto.getSubTasks() != null && !dto.getSubTasks().isEmpty()) {
+                    List<String> subTaskIds = new ArrayList<>();
+                    for (TaskDTO subTaskDTO : dto.getSubTasks()) {
+                        Task inputSubTaskEntity = subTaskDTO.dtoToEntity();
+                        if (inputSubTaskEntity.getCreatedDate() == null) {
+                            inputSubTaskEntity.setCreatedDate(Instant.now());
+                        }
+
+                        Task savedEntity = taskRepo.save(inputSubTaskEntity);
+                        if (savedEntity != null) {
+                            taskEntities.add(savedEntity);
+                            subTaskIds.add(savedEntity.getId());
+                        }
+                    }
+                    inputTaskEntity.setSubTasks(subTaskIds);
+                }
+                Task savedTaskEntity = taskRepo.save(inputTaskEntity);
+                if (savedTaskEntity != null) {
+                    taskEntities.add(inputTaskEntity);
+                }
             }
         }
         return taskEntities;
+    }
+
+    private boolean isDuplicateExternalTask(Task task) {
+        if ((task.getId() == null || task.getId().isEmpty())
+                && (task.getExternalId() != null && !task.getExternalId().isEmpty())) {
+            boolean duplicateCheckResult = taskRepo.existsByExternalId(task.getExternalId());
+            if (duplicateCheckResult) {
+                logger.info(
+                        "Task with ExternalID {} already exists in internal database, skipping duplicate submission.",
+                        task.getExternalId());
+            }
+            return duplicateCheckResult;
+        } else {
+            return false;
+        }
     }
 
     private void saveUserTasks(List<Task> taskEntities, String userId) {
