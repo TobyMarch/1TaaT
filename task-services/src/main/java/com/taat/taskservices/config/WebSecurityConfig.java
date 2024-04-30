@@ -46,8 +46,9 @@ public class WebSecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .csrf((csrf) -> csrf
-                        .csrfTokenRepository(customCsrfTokenRepository())
-                        .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
+                        .disable()
+                // .csrfTokenRepository(customCsrfTokenRepository())
+                // .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 )
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .oauth2Login(login -> login
