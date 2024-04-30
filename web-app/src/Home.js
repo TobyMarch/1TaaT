@@ -641,7 +641,7 @@ function getRandomStyle() {
         value={subTask.title}
         onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
         placeholder="Subtask title"
-        required
+
       />
       <textarea className="subTasks-description"
         value={subTask.description}
@@ -781,7 +781,7 @@ function getRandomStyle() {
         value={subTask.title}
         onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
         placeholder="Subtask title"
-        required
+
       />
       <textarea
         value={subTask.description}
