@@ -47,7 +47,7 @@ public class TaskServiceTest {
         Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString(), Mockito.any(Instant.class)))
                 .thenReturn(testTasks.get(0));
 
-        TaskDTO topTask = taskService.getTopTask("");
+        Optional<TaskDTO> topTask = taskService.getTopTask("testUser");
         Assertions.assertNotNull(topTask);
         Mockito.verify(impUserTaskRepo, Mockito.times(0)).saveAll(Mockito.anyIterable());
     }
@@ -61,7 +61,7 @@ public class TaskServiceTest {
         Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString(), Mockito.any(Instant.class)))
                 .thenReturn(testTasks.get(0));
 
-        TaskDTO topTask = taskService.getTopTask("");
+        Optional<TaskDTO> topTask = taskService.getTopTask("testUser");
         Assertions.assertNotNull(topTask);
         Mockito.verify(impUserTaskRepo, Mockito.times(1)).saveAll(Mockito.anyIterable());
     }
@@ -209,7 +209,8 @@ public class TaskServiceTest {
         Mockito.when(impTaskRepo.existsByOwnerAndId(Mockito.anyString(), Mockito.eq(taskId))).thenReturn(true);
         Mockito.when(impTaskRepo.findById(taskId)).thenReturn(Optional.of(spyTestTask));
         Mockito.when(impTaskRepo.save(Mockito.any(Task.class))).thenReturn(spyTestTask);
-        Mockito.when(impTaskRepo.existsByExternalId(Mockito.anyString())).thenReturn(false);
+        Mockito.when(impTaskRepo.existsByOwnerAndExternalId(Mockito.anyString(), Mockito.anyString()))
+                .thenReturn(false);
 
         List<UserTask> joinEntries = getTestTaskJoinEntries(List.of(testTask, nextTask), "testUser");
         Mockito.when(impUserTaskRepo.findByTaskIds(List.of(taskId)))

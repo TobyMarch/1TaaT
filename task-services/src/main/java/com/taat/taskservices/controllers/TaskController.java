@@ -44,8 +44,12 @@ public class TaskController {
     public ResponseEntity<TaskDTO> getTopTask(@AuthenticationPrincipal OAuth2User principal) {
         try {
             String userId = principal.getAttributes().get("sub").toString();
-            TaskDTO tasks = taskService.getTopTask(userId);
-            return new ResponseEntity<>(tasks, HttpStatus.OK);
+            Optional<TaskDTO> task = taskService.getTopTask(userId);
+            if (task.isPresent()) {
+                return new ResponseEntity<>(task.get(), HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
         } catch (Exception e) {
             logger.warn("Exception in Top Task retrieval: ", e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
