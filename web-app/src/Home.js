@@ -261,6 +261,7 @@ const handleSubtaskChange = (index, field, value) => {
         { dueDate: tomorrow.toISOString().split("T")[0] },
         {
           withCredentials: true,
+          withXSRFToken: true,
           headers: {
             "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
           },
@@ -283,6 +284,7 @@ const handleSubtaskChange = (index, field, value) => {
       {},
       {
         withCredentials: true,
+        withXSRFToken: true,
         headers: {
           "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
         },
@@ -302,6 +304,7 @@ const handleSubtaskChange = (index, field, value) => {
   try {
     const response = await axios.delete(`${TASK_API_URL}/${taskId}`, {
       withCredentials: true,
+      withXSRFToken: true,
       headers: {
         "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
       },
@@ -407,6 +410,7 @@ const handleSubmit = async (e) => {
 
     await axios.post(TASK_API_URL, [data], {
       withCredentials: true,
+      withXSRFToken: true,
       headers: {
         "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
       },
