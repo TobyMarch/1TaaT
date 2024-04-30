@@ -17,5 +17,6 @@ public class TaskInvitation {
   @Id
   private String id;
   private String userEmail;
+  private String taskTitle;
   private String taskId;
 }

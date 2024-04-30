@@ -430,6 +430,10 @@ const handleSubmit = async (e) => {
   }
 };
 
+const handleNotificationsClicked = () => {
+  navigate("/invite")
+}
+
   return (
     <div className="App">
       {/* Top Bar Nav */}
@@ -696,7 +700,7 @@ const handleSubmit = async (e) => {
           <SVGimport />
         </button>
         <p htmlFor="shareButton">Share</p>
-        <button className="shareButton" onClick={toggleMenu}>
+        <button className="shareButton" onClick={handleNotificationsClicked}>
           <SVGshare />
         </button>
         <p htmlFor="addButton">New</p>

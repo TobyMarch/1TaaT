@@ -36,6 +36,8 @@ public class TaskInvitationController {
 
   //TODO: confirm deletion for all users if one deletes
   //TODO: ability to leave task?
+  //TODO: validity helper functions
+  //TODO: services
 
   @PostMapping("/invite")
   public ResponseEntity<String> inviteUserToTask(@AuthenticationPrincipal OAuth2User principal,
@@ -69,10 +71,10 @@ public class TaskInvitationController {
     return new ResponseEntity<>("failed", HttpStatus.OK);
   }
 
-  @PostMapping("/reject")
+  @DeleteMapping("/reject")
   public ResponseEntity<String> rejectInvitation(@AuthenticationPrincipal OAuth2User principal,
                                                  @RequestBody TaskInvitation invitation) {
-    if (principal.getAttribute("email") == invitation.getUserEmail()) {
+    if (Objects.equals(principal.getAttribute("email").toString(), invitation.getUserEmail())) {
       invitationRepository.delete(invitation);
       return new ResponseEntity<>("success", HttpStatus.OK);
     }
