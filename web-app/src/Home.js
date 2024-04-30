@@ -44,40 +44,66 @@ function Home() {
   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
   const [archivedItems, setArchivedItems] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
-  const [subTasks, setSubtasks] = useState([{ title: "", completed: false }]);
   const [isRecurring, setIsRecurring] = useState(false);
-const navigate = useNavigate(); // Hook for navigating
+   const [formErrors, setFormErrors] = useState({});
+  const navigate = useNavigate();
+
+    const [subTasks, setSubtasks] = useState([{
+  title: "",
+  description: "",
+  startDate: "",
+  dueDate: "",
+  priority: 1,
+  duration: "S",
+  completed: false
+}]);
+
+  const archivedStyle = {
+  background: 'linear-gradient(11deg, #c0c0c0 0%, #f0f0f0 100%)',
+  };
+
+    const priorityGradientStyles = [
+    {
+      background: "linear-gradient(11deg, #7673AC 0%, #b3d4ff 100%)", // Lowest
+    },
+    {
+      background: "linear-gradient(11deg, #7bd5b7 0%, #7ccf9f 100%)", // lower
+    },
+    {
+      background: "linear-gradient(11deg, #e1c97a 0%, #ffea9e 100%)", // Medium
+    },
+    {
+      background: "linear-gradient(11deg, #dfa661 0%, #ffc18b 100%)", // Higher
+    },
+    {
+      background: "linear-gradient(11deg, #d46666 0%, #f37d8f 100%)", // Highest
+    },
+  ];
+
 
   const redirectToCalendar = () => {
     navigate('/calendar');
   };
 
-  const handleRecurringChange = (event) => {
-  setIsRecurring(event.target.checked);
-};
+  const toggleMenu = () => {
+    setMenuVisible(!menuVisible);
+  };
 
-  const skipTask = async (taskId) => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
+  const isOverdue = (dueDateString) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    try {
-      const response = await axios.put(
-        `${TASK_API_URL}/${taskId}/skip`,
-        { dueDate: tomorrow.toISOString().split("T")[0] },
-        {
-          withCredentials: true,
-          headers: {
-            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-          },
-        }
-      );
-      if (response.status === 200) {
-        console.log("Task skipped to next day:", response.data);
-        fetchTasks();
-      }
-    } catch (error) {
-      console.error("Error skipping the task:", error);
+    const dueDate = new Date(dueDateString);
+    return dueDate < today;
+  };
+
+
+  const validateForm = () => {
+    const newTaskFail = {};
+    if (new Date(startDate) >= new Date(dueDate)) {
+      newTaskFail.date = "Due date must be after the start date.";
     }
+    return newTaskFail;
   };
 
   const handleSubtaskTitleChange = (index, value) => {
@@ -90,30 +116,34 @@ const navigate = useNavigate(); // Hook for navigating
   setSubtasks(updatedSubtasks);
 };
 
-  const addSubtask = () => {
-    setSubtasks([...subTasks, { title: "", completed: false }]);
+const addSubtask = () => {
+  const newSubtask = {
+    title: "",
+    description: "",
+    startDate: new Date().toISOString().slice(0, 10),
+    dueDate: new Date().toISOString().slice(0, 10),
+    priority: 1,
+    duration: "S",
+    completed: false
   };
+  setSubtasks([...subTasks, newSubtask]);
+};
 
   const removeSubtask = (index) => {
     const filteredSubtasks = subTasks.filter((_, i) => i !== index);
     setSubtasks(filteredSubtasks);
   };
 
-  const handleSubtaskChange = (event, taskId, subTaskId) => {
-    const updatedItems = items.map((item) => {
-      if (item.id === taskId) {
-        const updatedSubtasks = item.subTasks.map((subTask) => {
-          if (subTask.id === subTaskId) {
-            return { ...subTask, title: event.target.value };
-          }
-          return subTask;
-        });
-        return { ...item, subTasks: updatedSubtasks };
-      }
-      return item;
-    });
-    setItems(updatedItems);
-  };
+const handleSubtaskChange = (index, field, value) => {
+  const updatedSubtasks = subTasks.map((subTask, i) => {
+    if (i === index) {
+      return { ...subTask, [field]: value };
+    }
+    return subTask;
+  });
+  setSubtasks(updatedSubtasks);
+};
+
   const handleEdit = (item) => {
     setEditItemId(item.id);
     setEditableTitle(item.title);
@@ -143,28 +173,6 @@ const navigate = useNavigate(); // Hook for navigating
     setEditItemId(null);
   };
 
-  const fetchArchivedTasks = async () => {
-    try {
-      const response = await axios.get(ARCHIVED_API_URL, {
-        withCredentials: true,
-        headers: {
-          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-        },
-      });
-      if (response.data && Array.isArray(response.data.content)) {
-        console.log(
-          "Archived tasks fetched successfully:",
-          response.data.content
-        );
-        return response.data.content;
-      } else {
-        console.warn("Received non-array:", response.data);
-        return [];
-      }
-    } catch (error) {
-      console.error("Failed to fetch archived tasks:", error);
-    }
-  };
 
   const handleArchiveClick = async () => {
     setShowArchived((prevShowArchived) => {
@@ -240,6 +248,35 @@ const navigate = useNavigate(); // Hook for navigating
     setItems(sortedItems);
   };
 
+
+   const handleRecurringChange = (event) => {
+  setIsRecurring(event.target.checked);
+};
+
+  const skipTask = async (taskId) => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    try {
+      const response = await axios.put(
+        `${TASK_API_URL}/${taskId}/skip`,
+        { dueDate: tomorrow.toISOString().split("T")[0] },
+        {
+          withCredentials: true,
+          headers: {
+            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log("Task skipped to next day:", response.data);
+        fetchTasks();
+      }
+    } catch (error) {
+      console.error("Error skipping the task:", error);
+    }
+  };
+
+
   const doneTask = async (taskId) => {
     try {
       const response = await axios.put(
@@ -273,52 +310,7 @@ const navigate = useNavigate(); // Hook for navigating
     }
   };
 
-  const toggleMenu = () => {
-    setMenuVisible(!menuVisible);
-  };
 
-  const isOverdue = (dueDateString) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const dueDate = new Date(dueDateString);
-    return dueDate < today;
-  };
-
-  const priorityGradientStyles = [
-    {
-      background: "linear-gradient(11deg, #7673AC 0%, #b3d4ff 100%)", // Low
-    },
-    {
-      background: "linear-gradient(11deg, #7bd5b7 0%, #7ccf9f 100%)", // Slightly higher priority
-    },
-    {
-      background: "linear-gradient(11deg, #e1c97a 0%, #ffea9e 100%)", // Medium priority
-    },
-    {
-      background: "linear-gradient(11deg, #dfa661 0%, #ffc18b 100%)", // Higher priority
-    },
-    {
-      background: "linear-gradient(11deg, #d46666 0%, #f37d8f 100%)", // High priority
-    },
-  ];
-
-  const validateForm = () => {
-    const newTaskFail = {};
-    if (new Date(startDate) >= new Date(dueDate)) {
-      newTaskFail.date = "Due date must be after the start date.";
-    }
-    return newTaskFail;
-  };
-
-  useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (storedUsername) {
-      setUsername(storedUsername);
-    } else {
-      console.log("No username found in localStorage.");
-    }
-  }, []);
 
   useEffect(() => {
     fetchTasks();
@@ -332,16 +324,10 @@ const navigate = useNavigate(); // Hook for navigating
   };
 
 
-const fetchTopTask = async () => {
-  try {
-    const response = await axios.get(TOP_TASK_API_URL, { withCredentials: true });
-    console.log(response.data);
-    setItems(response.data.content);
-  } catch (error) {
-    console.error("Error fetching top task:", error);
-    alert("Failed to fetch top task");
-  }
-};
+
+//
+// Task retrieval and submission
+//
 
 const fetchTasks = async () => {
   try {
@@ -360,19 +346,59 @@ const fetchTasks = async () => {
   }
 };
 
+
+const fetchTopTask = async () => {
+  try {
+    const response = await axios.get(TOP_TASK_API_URL, { withCredentials: true });
+    console.log(response.data);
+    setItems(response.data.content);
+  } catch (error) {
+    console.error("Error fetching top task:", error);
+    alert("Failed to fetch top task");
+  }
+};
+
+
+  const fetchArchivedTasks = async () => {
+    try {
+      const response = await axios.get(ARCHIVED_API_URL, {
+        withCredentials: true,
+        headers: {
+          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+        },
+      });
+      if (response.data && Array.isArray(response.data.content)) {
+        console.log(
+          "Archived tasks fetched successfully:",
+          response.data.content
+        );
+        return response.data.content;
+      } else {
+        console.warn("Received non-array:", response.data);
+        return [];
+      }
+    } catch (error) {
+      console.error("Failed to fetch archived tasks:", error);
+    }
+  };
+
 const handleSubmit = async (e) => {
   e.preventDefault();
+  const errors = validateForm();
   try {
     const data = {
       owner,
       title,
       description,
-      startDate: new Date(startDate).toISOString(),
-      dueDate: new Date(dueDate).toISOString(),
+      startDate: startDate ? new Date(startDate).toISOString() : null,
+      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
       priority,
        duration,
        isRecurring,
-       subTasks,
+       subTasks: subTasks.map(subTask => ({
+    title: subTask.title,
+    completed: subTask.completed
+  })),
       color: priorityGradientStyles[priority - 1],
     };
 
@@ -400,6 +426,30 @@ const handleSubmit = async (e) => {
     alert("Failed to add task" + error.message);
   }
 };
+
+
+const StarSVG = ({ style }) => (
+  <svg style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" fill="currentColor"/>
+  </svg>
+);
+
+function getRandomStyle() {
+  const top = Math.random() * 100;
+  const left = Math.random() * 100;
+  const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
+  const size = Math.random() * (30 - 10) + 10; // Sizes between 10px and 30px
+
+  return {
+    position: 'absolute',
+    top: `${top}%`,
+    left: `${left}%`,
+    width: `${size}px`,
+    height: `${size}px`,
+    color,
+  };
+}
+
 
   return (
     <div className="App">
@@ -461,7 +511,7 @@ const handleSubmit = async (e) => {
                 <div
                   className="item"
                   key={index}
-                  style={priorityGradientStyles[item.priority - 1]}
+                  style={showArchived ? archivedStyle : priorityGradientStyles[item.priority - 1]}
                 >
                   {editItemId === item.id ? (
                     <div>
@@ -483,7 +533,7 @@ const handleSubmit = async (e) => {
                   ) : (
                     <div onDoubleClick={() => handleEdit(item)}>
                       <h2 className="title">{item.title}</h2>
-                      <p className="description">{item.description}</p>
+                      <p className="description">{item.description || 'Not set'}</p>
                       <ul className="subTasks-list">
                         {item.subTasks &&
                           item.subTasks.map((subTask, subindex) => (
@@ -495,11 +545,11 @@ const handleSubmit = async (e) => {
                       </ul>
                       <p className="duration">Duration: {item.duration}</p>
                       <p className="dueDate">
-                        Start: {item.startDate.split("T")[0]}
-                      </p>
-                      <p className="dueDate">
-                        Due: {item.dueDate.split("T")[0]}
-                      </p>
+  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+</p>
+<p className="dueDate">
+  Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+</p>
                       <div className="buttonGroup">
                         <button
                           className="shareTaskButton"
@@ -555,39 +605,68 @@ const handleSubmit = async (e) => {
                     <>
                       <div onDoubleClick={() => handleEdit(item)}>
                         <h2 className="title">{item.title}</h2>
-                        <p className="description">{item.description}</p>
+                        <p className="description">{item.description || 'Not set'}</p>
                       </div>
-                      <div className="subTasks-section">
-                        <label>Subtasks:</label>
-                        {subTasks.map((subTask, index) => (
-                          <div key={index} className="subTask-input">
-                            <input
-                              type="text"
-                              value={subTask.title}
-                              onChange={(e) =>
-                                handleSubtaskTitleChange(index, e.target.value)
-                              }
-                              placeholder="Subtask title"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => removeSubtask(index)}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        ))}
-                        <button type="button" onClick={addSubtask}>
-                          Add Subtask
-                        </button>
-                      </div>
+                    <div className="subTasks-section">
+  {subTasks.map((subTask, index) => (
+    <div key={index} className="subTask-input">
+      <input
+        type="text"
+        value={subTask.title}
+        onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+        placeholder="Subtask title"
+        required
+      />
+      <textarea
+        value={subTask.description}
+        onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
+        placeholder="Description"
+      />
+      <input
+        type="datetime-local"
+        value={subTask.startDate}
+        onChange={(e) => handleSubtaskChange(index, 'startDate', e.target.value)}
+      />
+      <input
+        type="datetime-local"
+        value={subTask.dueDate}
+        onChange={(e) => handleSubtaskChange(index, 'dueDate', e.target.value)}
+      />
+      <select
+        onChange={(e) => handleSubtaskChange(index, 'priority', parseInt(e.target.value, 10))}
+        value={subTask.priority}
+      >
+        <option value={1}>Lowest</option>
+        <option value={2}>Lower</option>
+        <option value={3}>Medium</option>
+        <option value={4}>Higher</option>
+        <option value={5}>Highest</option>
+      </select>
+      <select
+        onChange={(e) => handleSubtaskChange(index, 'duration', e.target.value)}
+        value={subTask.duration}
+      >
+        <option value="S">Small</option>
+        <option value="M">Medium</option>
+        <option value="L">Large</option>
+        <option value="XL">XLarge</option>
+      </select>
+      <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
+    </div>
+  ))}
+  <button type="button" onClick={() => addSubtask()}>
+    Add Subtask
+  </button>
+</div>
                     </>
                   )}
                   <p className="duration">Duration: {item.duration}</p>
                   <p className="dueDate">
-                    Start: {item.startDate.split("T")[0]}
-                  </p>
-                  <p className="dueDate">Due: {item.dueDate.split("T")[0]}</p>
+  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+</p>
+<p className="dueDate">
+  Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+</p>
                   <div className="buttonGroup">
                     <button
                       className="shareTaskButton"
@@ -669,27 +748,64 @@ const handleSubmit = async (e) => {
                 value={description}
                 onChange={handleDescriptionChange}
                 maxLength={250}
-                required
+                
               />
             </div>
-            {/* Subtasks input */}
-            <div className="subTasks-section">
-              <label>Subtasks:</label>
-              {subTasks.map((subTask, index) => (
-  <div key={index} className="subTask-input">
-    <input
-      type="text"
-      value={subTask.title}
-      onChange={(e) => handleSubtaskTitleChange(index, e.target.value)}
-      placeholder="Subtask title"
-    />
-    <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
-  </div>
-))}
-<button type="button" onClick={() => setSubtasks([...subTasks, { title: '', completed: false }])}>
-  Add Subtask
-</button>
-            </div>
+{/* Subtasks Input Section */}
+<div className="subTasks-section">
+  <label>Subtasks:</label>
+  {subTasks.map((subTask, index) => (
+    <div key={index} className="subTask-input">
+      <input
+        type="text"
+        value={subTask.title}
+        onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+        placeholder="Subtask title"
+        required
+      />
+      <textarea
+        value={subTask.description}
+        onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
+        placeholder="Description"
+      />
+      <input
+        type="datetime-local"
+        value={subTask.startDate}
+        onChange={(e) => handleSubtaskChange(index, 'startDate', e.target.value)}
+        placeholder="Start Date"
+      />
+      <input
+        type="datetime-local"
+        value={subTask.dueDate}
+        onChange={(e) => handleSubtaskChange(index, 'dueDate', e.target.value)}
+        placeholder="Due Date"
+      />
+      <select
+        onChange={(e) => handleSubtaskChange(index, 'priority', parseInt(e.target.value, 10))}
+        value={subTask.priority}
+      >
+        <option value={1}>Lowest</option>
+        <option value={2}>Lower</option>
+        <option value={3}>Medium</option>
+        <option value={4}>Higher</option>
+        <option value={5}>Highest</option>
+      </select>
+      <select
+        onChange={(e) => handleSubtaskChange(index, 'duration', e.target.value)}
+        value={subTask.duration}
+      >
+        <option value="S">Small</option>
+        <option value="M">Medium</option>
+        <option value="L">Large</option>
+        <option value="XL">XLarge</option>
+      </select>
+      <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
+    </div>
+  ))}
+  <button type="button" onClick={() => addSubtask()}>
+    Add Subtask
+  </button>
+</div>
 
             <div className="task-input">
               <label htmlFor="startDate">Start Date:</label>
@@ -698,7 +814,7 @@ const handleSubmit = async (e) => {
                 id="startDate"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                required
+                
               />
             </div>
             <div className="task-input">
@@ -708,7 +824,7 @@ const handleSubmit = async (e) => {
                 id="dueDate"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                required
+                
               />
             </div>
 <div className="task-input">
@@ -754,6 +870,7 @@ const handleSubmit = async (e) => {
               <button className="submit" type="submit">
                 Submit
               </button>
+               {formErrors.date && <p className="error">{formErrors.date}</p>}
             </div>
           </form>
         </div>
