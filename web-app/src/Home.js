@@ -276,39 +276,45 @@ const handleSubtaskChange = (index, field, value) => {
   };
 
 
-  const doneTask = async (taskId) => {
-    try {
-      const response = await axios.put(
-        `${TASK_API_URL}/${taskId}/archive`,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-          },
-        }
-      );
-      setItems((items) => items.filter((item) => item.id !== taskId));
-    } catch (error) {
-      console.error("Error finishing the task:", error);
-    }
-  };
-
-  const removeTask = async (taskId) => {
-    try {
-      await axios.delete(`${TASK_API_URL}/${taskId}`, {
+ const doneTask = async (taskId) => {
+  try {
+    const response = await axios.put(
+      `${TASK_API_URL}/${taskId}/archive`,
+      {},
+      {
         withCredentials: true,
         headers: {
           "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
         },
-      });
-
-      setItems((items) => items.filter((item) => item.id !== taskId));
-    } catch (error) {
-      console.error("Error removing the task:", error);
+      }
+    );
+    if (response.status === 200) {
+      console.log("Task marked as done:", response.data);
+      fetchTasks();
     }
-  };
+    setItems((items) => items.filter((item) => item.id !== taskId));
+  } catch (error) {
+    console.error("Error finishing the task:", error);
+  }
+};
 
+ const removeTask = async (taskId) => {
+  try {
+    const response = await axios.delete(`${TASK_API_URL}/${taskId}`, {
+      withCredentials: true,
+      headers: {
+        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+      },
+    });
+    if (response.status === 200) {
+      console.log("Task removed successfully:", response.data);
+      fetchTasks();
+    }
+    setItems((items) => items.filter((item) => item.id !== taskId));
+  } catch (error) {
+    console.error("Error removing the task:", error);
+  }
+};
 
 
   useEffect(() => {
@@ -323,10 +329,7 @@ const handleSubtaskChange = (index, field, value) => {
   };
 
 
-
-//
 // Task retrieval and submission
-//
 
 const fetchTasks = async () => {
   try {
@@ -389,6 +392,7 @@ const handleSubmit = async (e) => {
       owner,
       title,
       description,
+      // createdDate: new Date(createdDate).toISOString(),
       startDate: startDate ? new Date(startDate).toISOString() : null,
       dueDate: dueDate ? new Date(dueDate).toISOString() : null,
       priority,
@@ -425,30 +429,6 @@ const handleSubmit = async (e) => {
     alert("Failed to add task" + error.message);
   }
 };
-
-
-const StarSVG = ({ style }) => (
-  <svg style={style} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27Z" fill="currentColor"/>
-  </svg>
-);
-
-function getRandomStyle() {
-  const top = Math.random() * 100;
-  const left = Math.random() * 100;
-  const color = `hsl(${Math.random() * 360}, 100%, 70%)`;
-  const size = Math.random() * (30 - 10) + 10; // Sizes between 10px and 30px
-
-  return {
-    position: 'absolute',
-    top: `${top}%`,
-    left: `${left}%`,
-    width: `${size}px`,
-    height: `${size}px`,
-    color,
-  };
-}
-
 
   return (
     <div className="App">
@@ -609,13 +589,14 @@ function getRandomStyle() {
      <p className="duration" >
             Duration: {item.duration || 'Not set'}
         </p>
-    <div className="info-container">  {/* Container for duration, dates, and buttons */}
+    <div className="info-container">
 
         <p className="dueDate">
-            Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
-            <br />
-            Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
-        </p>
+  {/* Include "Overdue" text with the flag */}
+  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+  <br />
+   {isOverdue(item.dueDate) && <><SVGflag /> Over</>}Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+</p>
         <div className="buttonGroup">  {/* Existing class for button styling */}
             <button className="skipButton" onClick={() => skipTask(item.id)}>
                 Do Tomorrow
@@ -819,7 +800,7 @@ function getRandomStyle() {
                 id="startDate"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                
+
               />
             </div>
             <div className="task-input">
@@ -829,7 +810,7 @@ function getRandomStyle() {
                 id="dueDate"
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
-                
+
               />
             </div>
 <div className="task-input">
