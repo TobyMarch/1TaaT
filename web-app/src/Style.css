@@ -49,12 +49,9 @@ html, body {
 .sideBar {
   padding: 13px;
   margin: 2vw;
-
-
   position: absolute;
   bottom: 0;
   left: 0;
-
   border-radius: 10px;
   background: linear-gradient(0deg, hsla(243, 26%, 56%, .2) 9%,  hsla(0, 56%, 62%, .2) 97%);
   font-family: 'cool';
@@ -163,13 +160,26 @@ button {
   font-size: 17px;
 }
 .add-task-form p {
-  align-self: flex-start; /* Align paragraphs to the left */
+  align-self: flex-start;
+
+}
+h2{
+  font-family:"cool";
+  color:#333;
+  font-size: 30px;
+}
+.add-task{
+    background: #2223;
+    border-radius: 10px;
+    border: 3px solid #333;
+    padding: 3%;
+    width: 80vw;
+    height:80vh;
 }
 .task-input{
   width: 80vw;
   display: flex;
-  align-items: center;
-
+  align-items: left;
   padding: 5px;
 }
 label {
@@ -200,7 +210,9 @@ input[type="text"], textarea {
   resize: vertical;
 }
 input[type="datetime-local"]{
-
+border-radius: 10px;
+border: none;
+padding: 5px;
 }
 
 input[type="range"] {
@@ -335,8 +347,6 @@ input[type="range"]::-webkit-slider-thumb {
   height: 30px;
   width: 30px;
   background-color: #fff;
-}
-.taskInfo{
 }
 
 .buttonGroup {
