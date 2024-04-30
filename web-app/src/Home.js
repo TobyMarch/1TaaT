@@ -80,6 +80,17 @@ function Home() {
     },
   ];
 
+function getDurationColor(duration) {
+  const firstChar = duration.charAt(0); // We use the first character for this example
+  switch (firstChar) {
+    case 'S': return '#000'; // Darker teal
+    case 'M': return '#000'; // Darker gold
+    case 'L': return '#000'; // Darker orange
+    case 'XL': return '#000'; // Darker red
+    default: return 'grey'; // A default color if no cases match
+  }
+}
+
 
   const redirectToCalendar = () => {
     navigate('/calendar');
@@ -458,11 +469,13 @@ function getRandomStyle() {
         <div className="leftItems">
           <img src={logo} alt="Logo" className="logo" />
           <button onClick={handleLogout}>
-            <p>
-              username
-              {username}
-              <br /> Logout
-            </p>
+       <div className="logout">
+              <p>
+                username
+                {username}
+                <br /> Logout
+              </p>
+            </div>
           </button>
         </div>
 
@@ -600,12 +613,25 @@ function getRandomStyle() {
                         onChange={handleDescriptionEdit}
                         onBlur={() => saveChanges(item)}
                       />
+
                     </div>
                   ) : (
                     <>
                       <div onDoubleClick={() => handleEdit(item)}>
-                        <h2 className="title">{item.title}</h2>
+                          <div className="title-container">
+                      <h2 className="title">{item.title}</h2>
+
+                       <p className="duration" style={{ color: getDurationColor(item.duration) }}>
+                              Duration: {item.duration} </p>
+                  <p className="dueDate">
+                      Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+                        <br />
+                      Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+                    </p>
+                    </div>
+                        <label>Description:</label>
                         <p className="description">{item.description || 'Not set'}</p>
+
                       </div>
                     <div className="subTasks-section">
   {subTasks.map((subTask, index) => (
@@ -617,7 +643,7 @@ function getRandomStyle() {
         placeholder="Subtask title"
         required
       />
-      <textarea
+      <textarea className="subTasks-description"
         value={subTask.description}
         onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
         placeholder="Description"
@@ -660,13 +686,7 @@ function getRandomStyle() {
 </div>
                     </>
                   )}
-                  <p className="duration">Duration: {item.duration}</p>
-                  <p className="dueDate">
-  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
-</p>
-<p className="dueDate">
-  Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
-</p>
+
                   <div className="buttonGroup">
                     <button
                       className="shareTaskButton"
