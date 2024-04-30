@@ -105,12 +105,10 @@ function Calendar() {
 
     return (
        <div className="google-calendar-container">
-            <button onClick={handleFetchEvents}>Update</button>
-            <button onClick={handleClearEvents}>Clear</button>
             <ul>{eventsList}</ul>
             <div>
                 {nextPageToken &&
-                    <button>Next Page</button>
+                    <button onClick={handleFetchEvents}>Next Page</button>
                 }
             </div>
         </div>
