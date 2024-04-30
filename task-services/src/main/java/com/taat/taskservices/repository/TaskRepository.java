@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
+import org.springframework.data.mongodb.repository.ExistsQuery;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.taat.taskservices.dto.TaskDTO;
@@ -18,7 +20,8 @@ public interface TaskRepository extends MongoRepository<Task, String> {
 
     Boolean existsByOwnerAndId(String owner, String id);
 
-    Boolean existsByExternalId(String externalId);
+    @ExistsQuery("{owner: '?0', externalId: '?1'}")
+    Boolean existsByOwnerAndExternalId(String owner, String externalId);
 
     @Aggregation(pipeline = { "{$match: {_id: ObjectId('?0')}}",
             "{$unwind: {path: \"$subTasks\", preserveNullAndEmptyArrays: true}}",

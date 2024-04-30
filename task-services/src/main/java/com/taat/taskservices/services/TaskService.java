@@ -161,7 +161,7 @@ public class TaskService {
         List<Task> taskEntities = new ArrayList<>();
         for (TaskDTO dto : taskDTOs) {
             Task inputTaskEntity = dto.dtoToEntity();
-            if (!isDuplicateExternalTask(inputTaskEntity)) {
+            if (!isDuplicateExternalTask(inputTaskEntity, owner)) {
                 inputTaskEntity.setOwner(owner);
                 inputTaskEntity.setSubTasks(null);
                 if (inputTaskEntity.getCreatedDate() == null) {
@@ -193,10 +193,10 @@ public class TaskService {
         return taskEntities;
     }
 
-    private boolean isDuplicateExternalTask(Task task) {
+    private boolean isDuplicateExternalTask(Task task, String owner) {
         if ((task.getId() == null || task.getId().isEmpty())
                 && (task.getExternalId() != null && !task.getExternalId().isEmpty())) {
-            boolean duplicateCheckResult = taskRepo.existsByExternalId(task.getExternalId());
+            boolean duplicateCheckResult = taskRepo.existsByOwnerAndExternalId(owner, task.getExternalId());
             if (duplicateCheckResult) {
                 logger.info(
                         "Task with ExternalID {} already exists in internal database, skipping duplicate submission.",
