@@ -47,12 +47,23 @@ public class TaskControllerTest {
     TaskController taskController;
 
     @Test
-    public void testGetTopTask_Imperative() {
+    public void testGetTopTask() {
         OAuth2User principal = getTestUserPrincipal();
         TaskDTO taskDto = getTestTasks().get(0);
-        Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(taskDto);
+        Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(Optional.of(taskDto));
         ResponseEntity<TaskDTO> results = taskController.getTopTask(principal);
         Assertions.assertNotNull(results);
+        Assertions.assertEquals(HttpStatus.OK, results.getStatusCode());
+        Mockito.verify(taskService, Mockito.times(1)).getTopTask(Mockito.eq(principal.getAttribute("sub")));
+    }
+
+    @Test
+    public void testGetTopTask_NoResults() {
+        OAuth2User principal = getTestUserPrincipal();
+        Mockito.when(taskService.getTopTask(Mockito.anyString())).thenReturn(Optional.empty());
+        ResponseEntity<TaskDTO> results = taskController.getTopTask(principal);
+        Assertions.assertNotNull(results);
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, results.getStatusCode());
         Mockito.verify(taskService, Mockito.times(1)).getTopTask(Mockito.eq(principal.getAttribute("sub")));
     }
 

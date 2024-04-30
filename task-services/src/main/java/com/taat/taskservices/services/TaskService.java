@@ -113,14 +113,19 @@ public class TaskService {
         }
     }
 
-    public TaskDTO getTopTask(final String userId) {
+    public Optional<TaskDTO> getTopTask(final String userId) {
         UserTask currentTopTask = userTaskRepo.findTopUserTask(userId);
-        // Ensure that prioritization has run at least once today
-        Instant startOfDay = Instant.now().truncatedTo(ChronoUnit.DAYS);
-        if (currentTopTask.getLastSorted() == null || currentTopTask.getLastSorted().isBefore(startOfDay)) {
-            this.runPrioritization(userId);
+        if (currentTopTask != null) {
+            // Ensure that prioritization has run at least once today
+            Instant startOfDay = Instant.now().truncatedTo(ChronoUnit.DAYS);
+            if (currentTopTask.getLastSorted() == null || currentTopTask.getLastSorted().isBefore(startOfDay)) {
+                this.runPrioritization(userId);
+            }
+            return Optional.of(TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId, startOfDay),
+                    Collections.emptyList()));
+        } else {
+            return Optional.empty();
         }
-        return TaskDTO.entityToDTO(userTaskRepo.findTopTaskByUserTaskSort(userId, startOfDay), Collections.emptyList());
     }
 
     public Page<TaskDTO> getArchivedTasks(final String userId, Pageable pageable) {
