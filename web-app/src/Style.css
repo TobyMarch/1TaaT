@@ -78,6 +78,13 @@ html, body {
   color: #6059;
   padding: -10px;
 }
+.logout p{
+    margin-right: 15px;
+  font-size: 15px;
+  font-family: 'cool';
+  color: #6059;
+  padding: -10px;
+}
 
 .filterDropdown {
   flex-grow: 1;
@@ -260,40 +267,73 @@ input[type="range"]::-webkit-slider-thumb {
     height: 70vh;
   }
 }
-
+.title-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
 
 .title {
   text-align: left;
   color: #345;
-  font-family: 'BrownBagLunch';
+  font-family: 'cool';
   font-size: 50px;
   margin: 0;
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: normal;
 }
-
+.duration {
+  font-size: 20px;
+}
 .dueDate {
   text-align:right;
   color: #000;
   padding: 0;
   margin: 0;
-  font-size:14px;
+  font-size:15px;
 }
+.description-label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 4px;
+  font-size: 10px;
 
+}
 .description {
   font-size: 20px;
   text-align:left;
-  margin-left: 30px;
   color: #000;
    word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: normal;
   padding:3%;
+  border-radius: 10px;
+  background: #fff4;
+}
+.subTasks-section{
+  background: #fff4;
+    padding:3%;
+  border-radius: 10px;
+
+}
+
+.subTasks-description {
+ font-size: 15px;
+  text-align:left;
+  color: #000;
+   word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+  padding:3%;
+  border-radius: 10px;
+  background: #fff4;
+  height: 30px;
 }
 .subtasks-list{
-  height: 40px;
-  width: 40px;
+  height: 30px;
+  width: 30px;
   background-color: #fff;
 }
 .taskInfo{
