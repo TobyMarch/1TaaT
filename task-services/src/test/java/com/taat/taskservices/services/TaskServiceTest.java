@@ -47,7 +47,7 @@ public class TaskServiceTest {
         Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString(), Mockito.any(Instant.class)))
                 .thenReturn(testTasks.get(0));
 
-        TaskDTO topTask = taskService.getTopTask("");
+        Optional<TaskDTO> topTask = taskService.getTopTask("testUser");
         Assertions.assertNotNull(topTask);
         Mockito.verify(impUserTaskRepo, Mockito.times(0)).saveAll(Mockito.anyIterable());
     }
@@ -61,7 +61,7 @@ public class TaskServiceTest {
         Mockito.when(impUserTaskRepo.findTopTaskByUserTaskSort(Mockito.anyString(), Mockito.any(Instant.class)))
                 .thenReturn(testTasks.get(0));
 
-        TaskDTO topTask = taskService.getTopTask("");
+        Optional<TaskDTO> topTask = taskService.getTopTask("testUser");
         Assertions.assertNotNull(topTask);
         Mockito.verify(impUserTaskRepo, Mockito.times(1)).saveAll(Mockito.anyIterable());
     }
