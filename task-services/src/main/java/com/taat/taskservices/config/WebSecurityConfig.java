@@ -50,7 +50,7 @@ public class WebSecurityConfig {
                 // .csrfTokenRepository(customCsrfTokenRepository())
                 // .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
                 )
-                .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                // .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
                 .oauth2Login(login -> login
                         .loginPage("/oauth2/authorization/google")
                         .authorizationEndpoint(auth -> auth
