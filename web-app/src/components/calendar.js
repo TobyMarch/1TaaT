@@ -14,7 +14,10 @@ import { CalendarEvent } from './CalendarEvent';
 function Calendar() {
     const [events, setEvents] = useState([]);
     const [nextPageToken, setNextPageToken] = useState(undefined);
+    const [prevPageToken, setPrevPageToken] = useState(undefined);
+    const [curPageToken, setCurPageToken] = useState(undefined);
     const [cookies] = useCookies(["XSRF-TOKEN"]);
+    const [pageTokens, setPageTokens] = useState([]);
 
     useEffect(() => {
         const gapiLoaded = () => {
@@ -42,11 +45,25 @@ function Calendar() {
         document.body.appendChild(client);
     }, []);
 
-    const handleFetchEvents = async () => {
+    const handleNextPage = () => {
+        const token = nextPageToken;
+        setPageTokens([...pageTokens, curPageToken]);
+        setCurPageToken(nextPageToken);
+        setPrevPageToken(curPageToken);
+        handleFetchEvents(token);
+    }
+
+    const handlePrevPage = () => {
+        const token = prevPageToken;
+        setCurPageToken(prevPageToken);
+        setPrevPageToken(pageTokens[pageTokens.length - 1])
+        setPageTokens([...pageTokens].filter(t => t != token));
+        handleFetchEvents(token);
+    }
+
+    const handleFetchEvents = async (token) => {
         const request = calendarRequest;
-        if(nextPageToken != undefined) {
-            request.pageToken = nextPageToken;
-        }
+        request.pageToken = token;
 
         const response = await callGapi(request, REFRESH_ACCESS_TOKEN, cookies["XSRF-TOKEN"]);
         setEvents(response.result.items);
@@ -59,26 +76,12 @@ function Calendar() {
         }
     }
 
-    const handleClearEvents = () => {
-        setEvents([]);
-    }
-
     const handleTestButton = () => {
-        console.log(events);
-        console.log(nextPageToken);
-    }
-
-    const handleLogout = () => {
-        fetch(LOGOUT_ROUTE, {
-            method:'post',
-            credentials: 'include',
-            headers: {
-                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"]
-            }
-        })
-        .then(res => {
-            if (res.status === 200) {window.location.href = window.location.origin;}
-        });
+        // console.log(events);
+        // console.log(nextPageToken);
+        // console.log(pageTokens);
+        // console.log(window.gapi);
+        // handleFetchEvents();
     }
 
     const handleSubmit = (task) => {
@@ -105,10 +108,14 @@ function Calendar() {
 
     return (
        <div className="google-calendar-container">
+            {/* <button onClick={handleTestButton}>Test</button> */}
             <ul>{eventsList}</ul>
             <div>
+                {prevPageToken &&
+                    <button onClick={handleNextPage}>Prev Page</button>
+                }
                 {nextPageToken &&
-                    <button onClick={handleFetchEvents}>Next Page</button>
+                    <button onClick={handlePrevPage}>Next Page</button>
                 }
             </div>
         </div>
