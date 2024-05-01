@@ -726,12 +726,6 @@ const saveChanges = (item) => {
 
                   <div className="buttonGroup">
                     <button
-                      className="shareTaskButton"
-                      onClick={() => removeTask(item.id)}
-                    >
-                      Share
-                    </button>
-                    <button
                       className="archiveButton"
                       onClick={() => removeTask(item.id)}
                     >
@@ -756,10 +750,7 @@ const saveChanges = (item) => {
         <button className="importButton" onClick={redirectToCalendar}>
           <SVGimport />
         </button>
-        <p htmlFor="shareButton">Share</p>
-        <button className="shareButton" onClick={toggleMenu}>
-          <SVGshare />
-        </button>
+
         <p htmlFor="addButton">New</p>
         <button className="addButton" onClick={redirectToNewTask}>
           <SVGAdd />
