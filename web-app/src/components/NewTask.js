@@ -329,18 +329,20 @@ const handleSubmit = async (e) => {
 
   return (
  <div className="add-task-form">
+
     <div className="add-task">
       <h2>New Task</h2>
       <form onSubmit={handleSubmit}>
+       <div className="Tasks-section">
         <div className="task-input">
-          <label htmlFor="title">Task Title:</label><br/>
-          <p>Task Title: {charTitleCount}/50 </p>
+          <label htmlFor="title">Title:</label><br/>
+          <p>Task Title: {charTitleCount}/30 </p>
           <input
             type="text"
             id="title"
             value={title}
             onChange={handleTitleChange}
-            maxLength={50}
+            maxLength={30}
             required
           />
         </div>
@@ -352,50 +354,12 @@ const handleSubmit = async (e) => {
             id="task"
             value={description}
             onChange={handleDescriptionChange}
-            maxLength={200}
+            maxLength={250}
           />
         </div>
+</div>
 
-        <button type="button" onClick={toggleSubtasksVisibility}>
-          {showSubtasks ? "Hide Subtasks" : "Add Subtasks"}
-        </button>
-
-        {/* Subtasks Input Section */}
-        {showSubtasks && <div className="subTasks-section">
-          <label>Subtasks:</label>
-          {subTasks.map((subTask, index) => (
-            <div key={index} className="subTask-input">
-              <input
-                type="text"
-                value={subTask.title}
-                onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
-                placeholder="Subtask title"
-              />
-              <textarea
-                value={subTask.description}
-                onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
-                placeholder="Description"
-              />
-              <input
-                type="datetime-local"
-                value={subTask.startDate}
-                onChange={(e) => handleSubtaskChange(index, 'startDate', e.target.value)}
-                placeholder="Start Date"
-              />
-              <input
-                type="datetime-local"
-                value={subTask.dueDate}
-                onChange={(e) => handleSubtaskChange(index, 'dueDate', e.target.value)}
-                placeholder="Due Date"
-              />
-              <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
-            </div>
-          ))}
-          <button type="button" onClick={addSubtask}>
-            Add Subtask
-          </button>
-        </div>}
-
+<div className="data-section">
         <div className="task-input">
           <label htmlFor="startDate">Start Date:</label>
           <input
@@ -449,11 +413,51 @@ const handleSubmit = async (e) => {
             <option value="XL">XLarge</option>
           </select>
         </div>
-        <div className="button-container">
-         <button className="back" onClick={() => navigate('/')}>
+</div>
+  <button className="addSubTasks" type="button" onClick={toggleSubtasksVisibility}>
+          {showSubtasks ? "Hide Subtasks" : "Add Subtasks"}
+        </button>
+        {/* Subtasks Input Section */}
+        {showSubtasks && <div className="subTasks-section">
+          <label>Subtasks:</label>
+          {subTasks.map((subTask, index) => (
+            <div key={index} className="subTask-input">
+              <input
+                type="text"
+                value={subTask.title}
+                onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+                placeholder="Subtask title"
+              />
+              <textarea
+                value={subTask.description}
+                onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
+                placeholder="Description"
+              />
+              <input
+                type="datetime-local"
+                value={subTask.startDate}
+                onChange={(e) => handleSubtaskChange(index, 'startDate', e.target.value)}
+                placeholder="Start Date"
+              />
+              <input
+                type="datetime-local"
+                value={subTask.dueDate}
+                onChange={(e) => handleSubtaskChange(index, 'dueDate', e.target.value)}
+                placeholder="Due Date"
+              />
+              <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
+            </div>
+          ))}
+          <button className="addSubTasks" type="button" onClick={addSubtask}>
+            Add Subtask
+          </button>
+        </div>}
+
+        <div className="new-button-container">
+         <button className="newBack" onClick={() => navigate('/')}>
   Back
 </button>
-          <button className="submit" type="submit">
+          <button className="newAdd" type="submit">
             Submit
           </button>
           {formErrors.date && <p className="error">{formErrors.date}</p>}

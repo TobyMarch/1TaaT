@@ -82,7 +82,18 @@ html, body {
   color: #6059;
   padding: -10px;
 }
-
+.nextPage, .previousPage{
+ height:30px;
+    padding: 5px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
+    color: white;
+    font-family: 'Arial', sans-serif;
+}
 .filterDropdown {
   flex-grow: 1;
   justify-content: right;
@@ -107,6 +118,38 @@ button {
   margin: 0;
   outline: none;
   cursor: pointer;
+}
+.new-button-container{
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+.newBack{
+    height:30px;
+    padding: 5px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    background-color: #2328;
+}
+
+.newAdd{
+    height:30px;
+    padding: 5px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
+    color: black;
+    font-family: 'Arial', sans-serif;
+     background-color: #afa;
 }
 
 .addButton, .shareButton, .historyButton, .importButton{
@@ -158,6 +201,7 @@ button {
   justify-content: center;
   align-items: center;
   font-size: 17px;
+
 }
 .add-task-form p {
   align-self: flex-start;
@@ -165,22 +209,23 @@ button {
 }
 h2{
   font-family:"cool";
-  color:#333;
-  font-size: 30px;
+  color: #6059;
+  font-size: 50px;
 }
 .add-task{
-    background: #2223;
+    background: #eee5;
     border-radius: 10px;
-    border: 3px solid #333;
-    padding: 3%;
-    width: 80vw;
-    height:80vh;
+    border: 2px solid #eee;
+    padding: 20px;
+    width: 90vw;
+     height: auto;
+     box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
 }
 .task-input{
-  width: 80vw;
+  width: 70vw;
   display: flex;
   align-items: left;
-  padding: 5px;
+  padding: 10px;
 }
 label {
   margin-right: 30px;
@@ -192,14 +237,16 @@ label {
   align-items: flex-start; /* Align labels to the left */
 }
 textarea {
-  width: 70%;
-  height: 150px;
+  width: 80%;
+  height: 74px;
   padding: 10px;
   margin: 5px 0 20px;
   border-radius: 5px;
   border: 1px solid #ccc;
   resize: none;
   word-wrap: break-word;
+  margin: 10px;
+
 }
 input[type="text"], textarea {
   width: 70%;
@@ -207,12 +254,14 @@ input[type="text"], textarea {
   border-radius: 15px;
   border-radius: 5px;
   border: 1px solid #ccc;
-  resize: vertical;
+
+   margin: 10px;
 }
 input[type="datetime-local"]{
 border-radius: 10px;
 border: none;
 padding: 5px;
+padding: 10px;
 }
 
 input[type="range"] {
@@ -237,6 +286,31 @@ input[type="range"]::-webkit-slider-thumb {
   cursor: pointer;
   border: 2px solid #F40752;
   border-radius: 50%;
+}
+
+.durationDropdown {
+    width: 200px;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.durationDropdown select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: white;
+    cursor: pointer;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+    appearance: none;
+}
+
+.durationDropdown select:focus {
+    outline: none;
+    border-color: #0056b3;
+    box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.25);
 }
 
 /* List and Items */
@@ -313,6 +387,14 @@ input[type="range"]::-webkit-slider-thumb {
   font-size: 10px;
 
 }
+.data-section{
+      background: #fff4;
+    padding:10px;
+  border-radius: 10px;
+  margin:10px;
+    display: flex;
+    flex-direction: column;
+}
 .description {
   font-size: 20px;
   text-align:left;
@@ -323,6 +405,11 @@ input[type="range"]::-webkit-slider-thumb {
   padding:3%;
   border-radius: 10px;
   background: #fff4;
+}
+.Tasks-section{
+    background: #fff4;
+    padding:10px;
+  border-radius: 10px;
 }
 .subTasks-section{
   background: #fff4;
@@ -348,7 +435,19 @@ input[type="range"]::-webkit-slider-thumb {
   width: 30px;
   background-color: #fff;
 }
-
+.addSubTasks{
+    height:30px;
+    padding: 5px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    background-color: #9328;
+}
 .buttonGroup {
     display: flex;
     justify-content: space-around;
@@ -431,13 +530,31 @@ height:100px;
 /* calendar.sj */
 
 .google-calendar-container{
- background: #0003;
- padding:100px;
+ padding:50px;
 }
 .google-calendar-container p {
 font-size: 20px;
 }
-
+.taskCalImport{
+   background: #fff6;
+ padding:30px;
+ border-radius: 10px;
+ box-shadow: 3px -3px 17px #fff4, -4px 4px 15px #1114;
+ border: 1px solid #eee
+}
+.backHome{
+   height:30px;
+    padding: 5px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    outline: none;
+    color: white;
+    font-family: 'Arial', sans-serif;
+    background: #777;
+}
 /* Material button styles for Google Sign-In etc. */
 .gsi-material-button {
   -moz-user-select: none;

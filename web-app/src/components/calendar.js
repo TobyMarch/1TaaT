@@ -9,6 +9,8 @@ import {
 import { useCookies } from 'react-cookie';
 import { calendarRequest, setGapiToken, callGapi } from './gapi-utils';
 import { CalendarEvent } from './CalendarEvent';
+import { useNavigate } from 'react-router-dom';
+
 
 function Calendar() {
     const [events, setEvents] = useState([]);
@@ -17,6 +19,7 @@ function Calendar() {
     const [curPageToken, setCurPageToken] = useState(undefined);
     const [cookies] = useCookies(["XSRF-TOKEN"]);
     const [pageTokens, setPageTokens] = useState([]);
+      const navigate = useNavigate();
 
     useEffect(() => {
         const gapiLoaded = () => {
@@ -97,6 +100,9 @@ function Calendar() {
 
     return (
        <div className="google-calendar-container">
+         <button className="backHome " onClick={() => navigate('/')}>
+  Back
+</button>
             <ul>{eventsList}</ul>
             <div>
                 {pageTokens.length > 0 &&
