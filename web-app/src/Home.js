@@ -570,27 +570,6 @@ const saveChanges = (item) => {
                             )
                           : "Not set"}
                       </p>
-                      <div className="buttonGroup">
-                        <button
-                          className="shareTaskButton"
-                          onClick={() => removeTask(item.id)}
-                        >
-                          Share
-                        </button>
-
-                        <button
-                          className="archiveButton"
-                          onClick={() => removeTask(item.id)}
-                        >
-                          Remove
-                        </button>
-                        <button
-                          className="doneButton"
-                          onClick={() => doneTask(item.id)}
-                        >
-                          Done
-                        </button>
-                      </div>
                     </div>
                   )}
                 </div>

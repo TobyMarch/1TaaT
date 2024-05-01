@@ -43,7 +43,9 @@ export function CalendarEvent({event, handleSubmit}) {
                 max="5"
                 onChange={(e) => setPriority(parseInt(e.target.value, 10))}
             />
+            <p>Duration</p>
             <div className="durationDropdown">
+
                 <select
                     onChange={(e) => setDuration(e.target.value)}
                     value={duration}
@@ -56,7 +58,7 @@ export function CalendarEvent({event, handleSubmit}) {
             </div>
 
 
-            <button onClick={(e) => submitClicked(e)}>Add Task</button>
+            <button className="newAdd" onClick={(e) => submitClicked(e)}>Add Task</button>
         </div>
             )
 }
