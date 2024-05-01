@@ -167,31 +167,43 @@ function Home() {
     setEditableDescription(e.target.value);
   };
 
-  const saveChanges = (item) => {
-    axios
-      .post(
-        `${TASK_API_URL}/${item.id}`,
-        {
-          title: editableTitle,
-          description: editableDescription,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-          },
-          withCredentials: true,
-        }
-      )
-      .then((response) => {
-        console.log("Update successful:", response.data);
-        fetchTasks();
-      })
-      .catch((error) => {
-        console.error("Failed to save changes:", error);
-      });
-  };
-
+const saveChanges = (item) => {
+  axios.put(
+    `${TASK_API_URL}/${item.id}`,
+    {
+      title: editableTitle,
+      description: editableDescription,
+      startDate: item.startDate,
+      dueDate: item.dueDate,
+      priority: item.priority,
+      duration: item.duration,
+      subTasks: item.subTasks.map(subTask => ({
+          title: subTask.title,
+          description: subTask.description,
+          startDate: subTask.startDate,
+          dueDate: subTask.dueDate,
+          priority: subTask.priority,
+          duration: subTask.duration,
+          completed: subTask.completed
+      })),
+      isdelayable: item.isdelayable
+    },
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+      },
+      withCredentials: true,
+    }
+  )
+  .then(response => {
+    console.log("Update successful:", response.data);
+    fetchTasks(); // Refresh the tasks list to reflect the update
+  })
+  .catch(error => {
+    console.error("Failed to save changes:", error);
+  });
+};
   const handleArchiveClick = async () => {
     setSelectedOption("");
     setPageNumber(0);
