@@ -1,17 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "./Style.css";
-import logo from "./img/logo.svg";
-import { ReactComponent as SVGarchive } from "./img/history.svg";
-import { ReactComponent as SVGSingle } from "./img/single.svg";
-import { ReactComponent as SVGMulti } from "./img/multi.svg";
-import { ReactComponent as SVGAdd } from "./img/add.svg";
-import { ReactComponent as SVGshare } from "./img/share.svg";
-import { ReactComponent as SVGflag } from "./img/flag.svg";
-import { ReactComponent as SVGimport } from "./img/Google_Calendar_icon_(2020).svg";
+// import "./Style.css";
+// import logo from "./img/logo.svg";
 import { useCookies } from "react-cookie";
 import { useNavigate } from 'react-router-dom';
-import NewTask from './components/NewTask';
 
 
 
@@ -21,9 +13,9 @@ import {
   PAGINATED_TASKS_API_URL,
   ARCHIVED_API_URL,
   LOGOUT_ROUTE,
-} from "./URLConstants";
+} from "../URLConstants";
 
-function Home() {
+function NewTask() {
   const [owner, setOwner] = useState("");
   const [createdDate, setCreatedDate] = useState("");
   const [isListView, setIsListView] = useState(false);
@@ -86,10 +78,6 @@ function Home() {
 
   const redirectToCalendar = () => {
     navigate('/calendar');
-  };
-
-    const redirectToNewTask = () => {
-    navigate('/NewTask');
   };
 
   const toggleMenu = () => {
@@ -422,6 +410,7 @@ const handleSubmit = async (e) => {
     setSubtasks([{ title: '' }]);
     toggleMenu();
     alert("Task added successfully");
+    navigate('/');
     fetchTasks();
   } catch (error) {
     console.error("Error submitting data:", error);
@@ -429,279 +418,141 @@ const handleSubmit = async (e) => {
   }
 };
 
+
   return (
-    <div className="App">
-      {/* Top Bar Nav */}
-      <div className="topBar">
-        <div className="leftItems">
-          <img src={logo} alt="Logo" className="logo" />
-          <button onClick={handleLogout}>
-       <div className="logout">
-<p>
-          Logout
-              </p>
-            </div>
-          </button>
+ <div className="add-task-form">
+    <div className="add-task">
+      <h2>New Task</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="task-input">
+          <label htmlFor="title">Task Title:</label><br/>
+          <p>Task Title: {charTitleCount}/50 </p>
+          <input
+            type="text"
+            id="title"
+            value={title}
+            onChange={handleTitleChange}
+            maxLength={50}
+            required
+          />
+        </div>
+        <div className="task-input">
+          <label htmlFor="task">Task:</label>
+          <p>Characters: {charDescriptionCount}/250</p>
+          <textarea
+            type="text"
+            id="task"
+            value={description}
+            onChange={handleDescriptionChange}
+            maxLength={200}
+          />
         </div>
 
-        <div className="filterDropdown">
-          <select onChange={handleOptionChange} value={selectedOption}>
-            <option value="Highest">Highest Priority</option>
-            <option value="Lowest">Lowest Priority</option>
-            <option value="Newest">Newest</option>
-            <option value="Oldest">Oldest</option>
-            <option value="createdDate">Created Date</option>
-            <option value="startDate">Start Date</option>
-            <option value="dueDate">Due Date</option>
+        <button type="button" onClick={toggleSubtasksVisibility}>
+          {showSubtasks ? "Hide Subtasks" : "Add Subtasks"}
+        </button>
+
+        {/* Subtasks Input Section */}
+        {showSubtasks && <div className="subTasks-section">
+          <label>Subtasks:</label>
+          {subTasks.map((subTask, index) => (
+            <div key={index} className="subTask-input">
+              <input
+                type="text"
+                value={subTask.title}
+                onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
+                placeholder="Subtask title"
+              />
+              <textarea
+                value={subTask.description}
+                onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
+                placeholder="Description"
+              />
+              <input
+                type="datetime-local"
+                value={subTask.startDate}
+                onChange={(e) => handleSubtaskChange(index, 'startDate', e.target.value)}
+                placeholder="Start Date"
+              />
+              <input
+                type="datetime-local"
+                value={subTask.dueDate}
+                onChange={(e) => handleSubtaskChange(index, 'dueDate', e.target.value)}
+                placeholder="Due Date"
+              />
+              <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
+            </div>
+          ))}
+          <button type="button" onClick={addSubtask}>
+            Add Subtask
+          </button>
+        </div>}
+
+        <div className="task-input">
+          <label htmlFor="startDate">Start Date:</label>
+          <input
+            type="datetime-local"
+            id="startDate"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+          />
+        </div>
+        <div className="task-input">
+          <label htmlFor="dueDate">Due Date:</label>
+          <input
+            type="datetime-local"
+            id="dueDate"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
+        </div>
+        <div className="task-input">
+          <input
+            type="checkbox"
+            id="delayable"
+            name="delayable"
+            checked={isdelayable}
+            onChange={handledelayableChange}
+          />
+          <label htmlFor="delayable">Delayable</label>
+        </div>
+
+        <div>
+          <label htmlFor="priority">Priority:</label>
+          <input
+            type="range"
+            id="priority"
+            value={priority}
+            min="1"
+            max="5"
+            onChange={(e) => setPriority(parseInt(e.target.value, 10))}
+          />
+          <span>{priority}</span>
+        </div>
+        <label htmlFor="duration">Duration:</label>
+        <div className="durationDropdown">
+          <select
+            onChange={(e) => setDuration(e.target.value)}
+            value={duration}
+          >
+            <option value="S">Small</option>
+            <option value="M">Medium</option>
+            <option value="L">Large</option>
+            <option value="XL">XLarge</option>
           </select>
         </div>
-
-        <button className="toggle" onClick={toggleColumns}>
-          {isListView ? (
-            <>
-              <p>
-                Task <br />
-                List
-                <br />
-                View
-              </p>
-              <SVGMulti />
-            </>
-          ) : (
-            <>
-              <p>
-                Top <br />
-                Task
-                <br />
-                View
-              </p>
-              <SVGSingle />
-            </>
-          )}
-        </button>
-      </div>
-
-      {/* Task List */}
-      {!menuVisible && (
-        <div className={`List ${isListView ? "listView" : ""}`}>
-          {showArchived
-            ? archivedItems.map((item, index) => (
-                <div
-                  className="item"
-                  key={index}
-                  style={showArchived ? archivedStyle : priorityGradientStyles[item.priority - 1]}
-                >
-                  {editItemId === item.id ? (
-                    <div>
-                      <input
-                        value={editableTitle}
-                        onChange={handleTitleEdit}
-                        onBlur={() => saveChanges(item)}
-                        onKeyPress={(e) =>
-                          e.key === "Enter" && saveChanges(item)
-                        }
-                        autoFocus
-                      />
-                      <textarea
-                        value={editableDescription}
-                        onChange={handleDescriptionEdit}
-                        onBlur={() => saveChanges(item)}
-                      />
-                    </div>
-                  ) : (
-                    <div onDoubleClick={() => handleEdit(item)}>
-                      <h2 className="title">{item.title}</h2>
-                      <p className="description">{item.description || 'Not set'}</p>
-                      <ul className="subTasks-list">
-                        {item.subTasks &&
-                          item.subTasks.map((subTask, subindex) => (
-                            <li key={subindex}>
-                              {subTask.title} -{" "}
-                              {subTask.completed ? "Done" : "Pending"}
-                            </li>
-                          ))}
-                      </ul>
-                      <p className="duration">Duration: {item.duration || 'Not set'}</p>
-                      <p className="dueDate">
-                        Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
-                      </p>
-                      <p className="dueDate">
-                        Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
-                      </p>
-                      <div className="buttonGroup">
-                        <button
-                          className="shareTaskButton"
-                          onClick={() => removeTask(item.id)}
-                        >
-                          Share
-                        </button>
-
-                        <button
-                          className="archiveButton"
-                          onClick={() => removeTask(item.id)}
-                        >
-                          Remove
-                        </button>
-                        <button
-                          className="doneButton"
-                          onClick={() => doneTask(item.id)}
-                        >
-                          Done
-                        </button>
-                      </div>
-
-                    </div>
-                  )}
-                </div>
-              ))
-            : items.map((item, index) => (
-                <div
-                  className="item"
-                  key={index}
-                  style={priorityGradientStyles[item.priority - 1]}
-                >
-                  {editItemId === item.id ? (
-                    <div>
-                      <input
-                        value={editableTitle}
-                        onChange={handleTitleEdit}
-                        onBlur={() => saveChanges(item)}
-                        onKeyPress={(e) =>
-                          e.key === "Enter" && saveChanges(item)
-                        }
-                        autoFocus
-                      />
-                      <textarea
-                        value={editableDescription}
-                        onChange={handleDescriptionEdit}
-                        onBlur={() => saveChanges(item)}
-                      />
-
-                    </div>
-                  ) : (
-                    <>
-                      <div onDoubleClick={() => handleEdit(item)}>
-             <div className="title-container">
-    <h2 className="title">{item.title}</h2>
-     <p className="duration" >
-            Duration: {item.duration || 'Not set'}
-        </p>
-    <div className="info-container">
-
-        <p className="dueDate">
-  {/* Include "Overdue" text with the flag */}
-  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
-  <br />
-   {isOverdue(item.dueDate) && <><SVGflag /> Over</>}Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
-</p>
-        <div className="buttonGroup">  {/* Existing class for button styling */}
-            <button className="skipButton" onClick={() => skipTask(item.id)}>
-                Do Tomorrow
-            </button>
-
-            <button className="doneButton" onClick={() => doneTask(item.id)}>
-                Done
-            </button>
+        <div className="button-container">
+         <button className="back" onClick={() => navigate('/')}>
+  Back
+</button>
+          <button className="submit" type="submit">
+            Submit
+          </button>
+          {formErrors.date && <p className="error">{formErrors.date}</p>}
         </div>
+      </form>
     </div>
-</div>
-                        <label>Description:</label>
-                        <p className="description">{item.description || 'Not set'}</p>
-
-
-                      </div>
-                    <div className="subTasks-section">
-  {subTasks.map((subTask, index) => (
-    <div key={index} className="subTask-input">
-      <input
-        type="text"
-        value={subTask.title}
-        onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
-        placeholder="Subtask title"
-
-      />
-      <textarea className="subTasks-description"
-        value={subTask.description}
-        onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
-        placeholder="Description"
-      />
-      <input
-        type="datetime-local"
-        value={subTask.startDate}
-        onChange={(e) => handleSubtaskChange(index, 'startDate', e.target.value)}
-      />
-      <input
-        type="datetime-local"
-        value={subTask.dueDate}
-        onChange={(e) => handleSubtaskChange(index, 'dueDate', e.target.value)}
-      />
-      <select
-        onChange={(e) => handleSubtaskChange(index, 'priority', parseInt(e.target.value, 10))}
-        value={subTask.priority}
-      >
-        <option value={1}>Lowest</option>
-        <option value={2}>Lower</option>
-        <option value={3}>Medium</option>
-        <option value={4}>Higher</option>
-        <option value={5}>Highest</option>
-      </select>
-      <select
-        onChange={(e) => handleSubtaskChange(index, 'duration', e.target.value)}
-        value={subTask.duration}
-      >
-        <option value="S">Small</option>
-        <option value="M">Medium</option>
-        <option value="L">Large</option>
-        <option value="XL">XLarge</option>
-      </select>
-      <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
-    </div>
-  ))}
-  <button type="button" onClick={() => addSubtask()}>
-    Add Subtask
-  </button>
-</div>
-                    </>
-                  )}
-
-                  <div className="buttonGroup">
-                    <button
-                      className="shareTaskButton"
-                      onClick={() => removeTask(item.id)}
-                    >
-                      Share
-                    </button>
-                     <button className="archiveButton" onClick={() => removeTask(item.id)}>
-                Remove
-            </button>
-                  </div>
-                </div>
-              ))}
-        </div>
-      )}
-
-      {/* SideBar */}
-      <div className="sideBar">
-        <p htmlFor="historyButton">History</p>
-        <button className="historyButton" onClick={handleArchiveClick}>
-          <SVGarchive />
-        </button>
-     <p htmlFor="ImportButton">Google <br />Import</p>
-        <button className="importButton" onClick={redirectToCalendar}>
-          <SVGimport />
-        </button>
-        <p htmlFor="shareButton">Share</p>
-        <button className="shareButton" onClick={toggleMenu}>
-          <SVGshare />
-        </button>
-        <p htmlFor="addButton">New</p>
-        <button className="addButton" onClick={redirectToNewTask}>
-          <SVGAdd />
-        </button>
-      </div>
-
   </div>
-);
-}
+)}
 
-export default Home;
+export default NewTask;

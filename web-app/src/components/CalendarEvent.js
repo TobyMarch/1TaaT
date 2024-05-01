@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export function CalendarEvent({event, handleSubmit}) {
     const [priority, setPriority] = useState(3);
@@ -6,6 +7,7 @@ export function CalendarEvent({event, handleSubmit}) {
     const createdDate = event.created;
     const startDate = event.start.dateTime ? event.start.dateTime : event.start.date;
     const dueDate = event.end.dateTime ? event.end.dateTime : event.end.date;
+  const navigate = useNavigate();
 
     const submitClicked = (e) => {
         e.preventDefault();
@@ -51,8 +53,15 @@ export function CalendarEvent({event, handleSubmit}) {
                     <option value="XL">Extra Large</option>
                 </select>
             </div>
+
+         <button className="back to home " onClick={() => navigate('/')}>
+  Back
+</button>
             <button onClick={(e) => submitClicked(e)}>Add Task</button>
         </div>
+            )
+}
+
 // <div>
 //         <h2>{event.summary}</h2> {/* Displaying the task summary (Title) */}
 //         <p className="dueDate">
@@ -133,5 +142,3 @@ export function CalendarEvent({event, handleSubmit}) {
 //         <button onClick={(e) => submitClicked(e)}>Add Task</button>
 //     </div>
 // );
-    )
-}
