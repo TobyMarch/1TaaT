@@ -210,7 +210,7 @@ const saveChanges = (item) => {
     setPageNumber(0);
     setShowArchived((prevShowArchived) => {
       if (!prevShowArchived) {
-        fetchArchivedTasks()
+        fetchArchivedTasks(selectedOption)
           .then((archivedTasks) => {
             setArchivedItems(archivedTasks);
           })
@@ -336,10 +336,10 @@ const saveChanges = (item) => {
 
   // Task retrieval and submission
 
-  const fetchTasks = async () => {
+  const fetchTasks = async (sortParam) => {
     try {
       let paginatedWithparams =
-        PAGINATED_TASKS_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
+        PAGINATED_TASKS_API_URL + `?size=10&page=${pageNumber}` + (sortParam ? sortParam : selectedOption);
       const response = await axios.get(
         isListView ? paginatedWithparams : TOP_TASK_API_URL,
         { withCredentials: true }
@@ -362,9 +362,9 @@ const saveChanges = (item) => {
     }
   };
 
-  const fetchArchivedTasks = async () => {
+  const fetchArchivedTasks = async (sortParam) => {
     try {
-        let paginatedWithParameters = ARCHIVED_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
+        let paginatedWithParameters = ARCHIVED_API_URL + `?size=10&page=${pageNumber}` + (sortParam ? sortParam : selectedOption);
         const response = await axios.get(paginatedWithParameters, {
         withCredentials: true,
         headers: {
