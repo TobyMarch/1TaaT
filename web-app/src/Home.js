@@ -561,30 +561,13 @@ function Home() {
                   key={index}
                   style={priorityGradientStyles[item.priority - 1]}
                 >
+                <div className="title-container" >
                   <h2 className="title">{item.title}</h2>
                   <p className="duration">
                     Duration: {item.duration || "Not set"}
                   </p>
-                  <div className="buttonGroup">
-                    <button
-                      className="skipButton"
-                      onClick={() => skipTask(item.id)}
-                    >
-                      Do Tomorrow
-                    </button>
-                    <button
-                      className="archiveButton"
-                      onClick={() => removeTask(item.id)}
-                    >
-                      Remove
-                    </button>
-                    <button
-                      className="doneButton"
-                      onClick={() => doneTask(item.id)}
-                    >
-                      Done
-                    </button>
-                  </div>
+
+
                   <div className="info-container">
                    <p className="dueDate">
                         Start:{" "}
@@ -598,7 +581,7 @@ function Home() {
                           })
                           : "Not set"}
                       </p>
-                                          <p className="dueDate">
+                                          <p className="dueDate"><br/>
                         Due:{" "}
                         {item.dueDate
                           ? new Date(Date.parse(item.dueDate)).toLocaleString([], {
@@ -616,9 +599,33 @@ function Home() {
                         <SVGflag /> Overdue
                       </p>
                     )}
+                    </div>
+
+                  </div>
+                  <div className="buttonGroup">
+
+                    <button
+                      className="archiveButton"
+                      onClick={() => removeTask(item.id)}
+                    >
+                      Remove
+                    </button>
+                    <button
+                      className="doneButton"
+                      onClick={() => doneTask(item.id)}
+                    >
+                      Done
+                    </button>
+                      <button
+                      className="skipButton"
+                      onClick={() => skipTask(item.id)}
+                    >
+                      Do Tomorrow
+                    </button>
                   </div>
                   <label>Description:</label>
                   <p className="description">{item.description || "Not set"}</p>
+                  <div className="subTasks-con">
                   <div className="subTasks-list">
                     {item.subTasks &&
                       item.subTasks.map((subTask, subIndex) => (
@@ -631,6 +638,7 @@ function Home() {
                           <p>Duration: {subTask.duration}</p>
                         </div>
                       ))}
+                  </div>
                   </div>
                   {isListView && (
                     <div className="buttonGroup">
