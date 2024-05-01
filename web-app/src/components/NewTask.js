@@ -23,7 +23,7 @@ function NewTask() {
   const [editItemId, setEditItemId] = useState(null);
   const [editableTitle, setEditableTitle] = useState("");
   const [editableDescription, setEditableDescription] = useState("");
-  const [menuVisible, setMenuVisible] = useState(false);
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -34,8 +34,6 @@ function NewTask() {
   const [cookies] = useCookies(["XSRF-TOKEN"]);
   const [charTitleCount, setTitleCharCount] = useState(0);
   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
-  const [archivedItems, setArchivedItems] = useState([]);
-  const [showArchived, setShowArchived] = useState(false);
   const [isdelayable, setIsdelayable] = useState(false);
    const [formErrors, setFormErrors] = useState({});
     const [showSubtasks, setShowSubtasks] = useState(false);
@@ -53,10 +51,6 @@ function NewTask() {
   duration: "S",
   completed: false
 }]);
-
-  const archivedStyle = {
-  background: 'linear-gradient(11deg, #c0c0c0 0%, #f0f0f0 100%)',
-  };
 
     const priorityGradientStyles = [
     {
@@ -78,10 +72,6 @@ function NewTask() {
 
   const redirectToCalendar = () => {
     navigate('/calendar');
-  };
-
-  const toggleMenu = () => {
-    setMenuVisible(!menuVisible);
   };
 
 
@@ -175,21 +165,7 @@ const saveChanges = (item) => {
   });
 };
 
-  const handleArchiveClick = async () => {
-    setShowArchived((prevShowArchived) => {
-      if (!prevShowArchived) {
-        fetchArchivedTasks()
-          .then((archivedTasks) => {
-            setArchivedItems(archivedTasks);
-          })
-          .catch((error) => {
-            console.error("Failed to fetch archived tasks:", error);
-            setArchivedItems([]);
-          });
-      }
-      return !prevShowArchived;
-    });
-  };
+
 
   const handleLogout = () => {
     fetch(LOGOUT_ROUTE, {
@@ -350,28 +326,6 @@ const fetchTasks = async () => {
   }
 };
 
-  const fetchArchivedTasks = async () => {
-    try {
-      const response = await axios.get(ARCHIVED_API_URL, {
-        withCredentials: true,
-        headers: {
-          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-        },
-      });
-      if (response.data && Array.isArray(response.data.content)) {
-        console.log(
-          "Archived tasks fetched successfully:",
-          response.data.content
-        );
-        return response.data.content;
-      } else {
-        console.warn("Received non-array:", response.data);
-        return [];
-      }
-    } catch (error) {
-      console.error("Failed to fetch archived tasks:", error);
-    }
-  };
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -408,7 +362,6 @@ const handleSubmit = async (e) => {
     setPriority(1);
     setIsdelayable(false);
     setSubtasks([{ title: '' }]);
-    toggleMenu();
     alert("Task added successfully");
     navigate('/');
     fetchTasks();

@@ -10,10 +10,8 @@ import { ReactComponent as SVGshare } from "./img/share.svg";
 import { ReactComponent as SVGflag } from "./img/flag.svg";
 import { ReactComponent as SVGimport } from "./img/Google_Calendar_icon_(2020).svg";
 import { useCookies } from "react-cookie";
-import { useNavigate } from 'react-router-dom';
-import NewTask from './components/NewTask';
-
-
+import { useNavigate } from "react-router-dom";
+import NewTask from "./components/NewTask";
 
 import {
   TASK_API_URL,
@@ -50,24 +48,26 @@ function Home() {
   const [showSubtasks, setShowSubtasks] = useState(false);
   const navigate = useNavigate();
   const toggleSubtasksVisibility = () => {
-  setShowSubtasks(!showSubtasks);
-};
-
-    const [subTasks, setSubtasks] = useState([{
-  title: "",
-  description: "",
-  startDate: "",
-  dueDate: "",
-  priority: 1,
-  duration: "S",
-  completed: false
-}]);
-
-  const archivedStyle = {
-  background: 'linear-gradient(11deg, #c0c0c0 0%, #f0f0f0 100%)',
+    setShowSubtasks(!showSubtasks);
   };
 
-    const priorityGradientStyles = [
+  const [subTasks, setSubtasks] = useState([
+    {
+      title: "",
+      description: "",
+      startDate: "",
+      dueDate: "",
+      priority: 1,
+      duration: "S",
+      completed: false,
+    },
+  ]);
+
+  const archivedStyle = {
+    background: "linear-gradient(11deg, #c0c0c0 0%, #f0f0f0 100%)",
+  };
+
+  const priorityGradientStyles = [
     {
       background: "linear-gradient(11deg, #7673AC 0%, #b3d4ff 100%)", // Lowest
     },
@@ -86,17 +86,16 @@ function Home() {
   ];
 
   const redirectToCalendar = () => {
-    navigate('/calendar');
+    navigate("/calendar");
   };
 
-    const redirectToNewTask = () => {
-    navigate('/NewTask');
+  const redirectToNewTask = () => {
+    navigate("/NewTask");
   };
 
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
   };
-
 
   const isOverdue = (dueDateString) => {
     const today = new Date();
@@ -105,7 +104,6 @@ function Home() {
     const dueDate = new Date(dueDateString);
     return dueDate < today;
   };
-
 
   const validateForm = () => {
     const newTaskFail = {};
@@ -116,27 +114,26 @@ function Home() {
   };
 
   const handleSubtaskTitleChange = (index, value) => {
-  const updatedSubtasks = subTasks.map((subTask, i) => {
-    if (i === index) {
-      return { ...subTask, title: value };
-    }
-    return subTask;
-  });
-  setSubtasks(updatedSubtasks);
-};
-
-
+    const updatedSubtasks = subTasks.map((subTask, i) => {
+      if (i === index) {
+        return { ...subTask, title: value };
+      }
+      return subTask;
+    });
+    setSubtasks(updatedSubtasks);
+  };
 
   const addSubtask = () => {
     setSubtasks([
       ...subTasks,
-      { title: "",
+      {
+        title: "",
         description: "",
         startDate: new Date().toISOString().slice(0, 10),
         dueDate: new Date().toISOString().slice(0, 10),
         priority: 1,
         duration: "S",
-       }
+      },
     ]);
   };
 
@@ -145,16 +142,15 @@ function Home() {
     setSubtasks(filteredSubtasks);
   };
 
-
-const handleSubtaskChange = (index, field, value) => {
-  const updatedSubtasks = subTasks.map((subTask, i) => {
-    if (i === index) {
-      return { ...subTask, [field]: value };
-    }
-    return subTask;
-  });
-  setSubtasks(updatedSubtasks);
-};
+  const handleSubtaskChange = (index, field, value) => {
+    const updatedSubtasks = subTasks.map((subTask, i) => {
+      if (i === index) {
+        return { ...subTask, [field]: value };
+      }
+      return subTask;
+    });
+    setSubtasks(updatedSubtasks);
+  };
 
   const handleEdit = (item) => {
     setEditItemId(item.id);
@@ -170,23 +166,30 @@ const handleSubtaskChange = (index, field, value) => {
     setEditableDescription(e.target.value);
   };
 
-const saveChanges = (item) => {
-  axios.put(`${TASK_API_URL}/${item.id}`, {
-    title: editableTitle,
-    description: editableDescription,
-  }, {
-    headers: {
-      "Content-Type": "application/json",
-      "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-    },
-    withCredentials: true
-  }).then(response => {
-    console.log("Update successful:", response.data);
-    fetchTasks();
-  }).catch(error => {
-    console.error("Failed to save changes:", error);
-  });
-};
+  const saveChanges = (item) => {
+    axios
+      .post(
+        `${TASK_API_URL}/${item.id}`,
+        {
+          title: editableTitle,
+          description: editableDescription,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+          },
+          withCredentials: true,
+        }
+      )
+      .then((response) => {
+        console.log("Update successful:", response.data);
+        fetchTasks();
+      })
+      .catch((error) => {
+        console.error("Failed to save changes:", error);
+      });
+  };
 
   const handleArchiveClick = async () => {
     setShowArchived((prevShowArchived) => {
@@ -263,47 +266,57 @@ const saveChanges = (item) => {
     }
   };
 
+  const doneTask = async (taskId) => {
+    try {
+      const response = await axios.put(
+        `${TASK_API_URL}/${taskId}/archive`,
+        {},
+        {
+          withCredentials: true,
+          headers: {
+            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+          },
+        }
+      );
+      if (response.status === 200) {
+        console.log("Task marked as done:", response.data);
+        fetchTasks();
+      }
+      setItems((items) => items.filter((item) => item.id !== taskId));
+    } catch (error) {
+      console.error("Error finishing the task:", error);
+    }
+  };
 
- const doneTask = async (taskId) => {
-  try {
-    const response = await axios.put(
-      `${TASK_API_URL}/${taskId}/archive`,
-      {},
-      {
+  const removeTask = async (taskId) => {
+    try {
+      const response = await axios.delete(`${TASK_API_URL}/${taskId}`, {
         withCredentials: true,
         headers: {
           "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
         },
+      });
+      if (response.status === 200) {
+        console.log("Task removed successfully:", response.data);
+        fetchTasks();
       }
-    );
-    if (response.status === 200) {
-      console.log("Task marked as done:", response.data);
-      fetchTasks();
+      setItems((items) => items.filter((item) => item.id !== taskId));
+    } catch (error) {
+      console.error("Error removing the task:", error);
     }
-    setItems((items) => items.filter((item) => item.id !== taskId));
-  } catch (error) {
-    console.error("Error finishing the task:", error);
-  }
-};
-
- const removeTask = async (taskId) => {
-  try {
-    const response = await axios.delete(`${TASK_API_URL}/${taskId}`, {
-      withCredentials: true,
-      headers: {
-        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-      },
-    });
-    if (response.status === 200) {
-      console.log("Task removed successfully:", response.data);
-      fetchTasks();
+  };
+useEffect(() => {
+  async function fetchSubTasks() {
+    try {
+      const response = await axios.get('url_to_fetch_subTasks');
+      setSubtasks(response.data);
+    } catch (error) {
+      console.error('Failed to fetch subTasks:', error);
     }
-    setItems((items) => items.filter((item) => item.id !== taskId));
-  } catch (error) {
-    console.error("Error removing the task:", error);
   }
-};
 
+  fetchSubTasks();
+}, []);
 
   useEffect(() => {
     fetchTasks();
@@ -316,26 +329,32 @@ const saveChanges = (item) => {
     setIsListView(!isListView);
   };
 
+  // Task retrieval and submission
 
-// Task retrieval and submission
-
-const fetchTasks = async () => {
-  try {
-    let paginatedWithparams = PAGINATED_TASKS_API_URL +'?size=10'+selectedOption;
-    const response = await axios.get(isListView ? paginatedWithparams : TOP_TASK_API_URL, { withCredentials: true });
-    if (Array.isArray(response.data.content)) {
-      setItems(response.data.content);
-    } else if (response.data && !Array.isArray(response.data.content)) {
-      setItems([response.data]);
-    } else {
-      console.error('Expected an array or an object for content, received:', response.data);
+  const fetchTasks = async () => {
+    try {
+      let paginatedWithparams =
+        PAGINATED_TASKS_API_URL + "?size=10" + selectedOption;
+      const response = await axios.get(
+        isListView ? paginatedWithparams : TOP_TASK_API_URL,
+        { withCredentials: true }
+      );
+      if (Array.isArray(response.data.content)) {
+        setItems(response.data.content);
+      } else if (response.data && !Array.isArray(response.data.content)) {
+        setItems([response.data]);
+      } else {
+        console.error(
+          "Expected an array or an object for content, received:",
+          response.data
+        );
+        setItems([]);
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
       setItems([]);
     }
-  } catch (error) {
-    console.error("Error fetching tasks:", error);
-    setItems([]);
-  }
-};
+  };
 
   const fetchArchivedTasks = async () => {
     try {
@@ -360,49 +379,49 @@ const fetchTasks = async () => {
     }
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const errors = validateForm();
-  try {
-    const data = {
-      owner,
-      title,
-      description,
-      startDate: startDate ? new Date(startDate).toISOString() : null,
-      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
-      priority,
-       duration,
-       isdelayable,
-       subTasks: subTasks.map(subTask => ({
-    title: subTask.title,
-    // completed: subTask.completed
-  })),
-      color: priorityGradientStyles[priority - 1],
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const errors = validateForm();
+    try {
+      const data = {
+        owner,
+        title,
+        description,
+        startDate: startDate ? new Date(startDate).toISOString() : null,
+        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+        priority,
+        duration,
+        isdelayable,
+        subTasks: subTasks.map((subTask) => ({
+          title: subTask.title,
+          // completed: subTask.completed
+        })),
+        color: priorityGradientStyles[priority - 1],
+      };
 
-    await axios.post(TASK_API_URL, [data], {
-      withCredentials: true,
-      headers: {
-        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-      },
-    });
+      await axios.post(TASK_API_URL, [data], {
+        withCredentials: true,
+        headers: {
+          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+        },
+      });
 
-    setOwner("");
-    setTitle("");
-    setDescription("");
-    setStartDate("");
-    setDueDate("");
-    setPriority(1);
-    setIsdelayable(false);
-    setSubtasks([{ title: '' }]);
-    toggleMenu();
-    alert("Task added successfully");
-    fetchTasks();
-  } catch (error) {
-    console.error("Error submitting data:", error);
-    alert("Failed to add task" + error.message);
-  }
-};
+      setOwner("");
+      setTitle("");
+      setDescription("");
+      setStartDate("");
+      setDueDate("");
+      setPriority(1);
+      setIsdelayable(false);
+      setSubtasks([{ title: "" }]);
+      toggleMenu();
+      alert("Task added successfully");
+      fetchTasks();
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      alert("Failed to add task" + error.message);
+    }
+  };
 
   return (
     <div className="App">
@@ -411,17 +430,15 @@ const handleSubmit = async (e) => {
         <div className="leftItems">
           <img src={logo} alt="Logo" className="logo" />
           <button onClick={handleLogout}>
-       <div className="logout">
-<p>
-          Logout
-              </p>
+            <div className="logout">
+              <p>Logout</p>
             </div>
           </button>
         </div>
 
         <div className="filterDropdown">
           <select onChange={handleOptionChange} value={selectedOption}>
-          <option value=""></option>
+            <option value=""></option>
             <option value="&sort=priority,DESC">Highest Priority</option>
             <option value="&sort=priority,ASC">Lowest Priority</option>
             <option value="&sort=createdDate,ASC">Newest</option>
@@ -462,7 +479,11 @@ const handleSubmit = async (e) => {
                 <div
                   className="item"
                   key={index}
-                  style={showArchived ? archivedStyle : priorityGradientStyles[item.priority - 1]}
+                  style={
+                    showArchived
+                      ? archivedStyle
+                      : priorityGradientStyles[item.priority - 1]
+                  }
                 >
                   {editItemId === item.id ? (
                     <div>
@@ -484,7 +505,9 @@ const handleSubmit = async (e) => {
                   ) : (
                     <div onDoubleClick={() => handleEdit(item)}>
                       <h2 className="title">{item.title}</h2>
-                      <p className="description">{item.description || 'Not set'}</p>
+                      <p className="description">
+                        {item.description || "Not set"}
+                      </p>
                       <ul className="subTasks-list">
                         {item.subTasks &&
                           item.subTasks.map((subTask, subindex) => (
@@ -494,12 +517,38 @@ const handleSubmit = async (e) => {
                             </li>
                           ))}
                       </ul>
-                      <p className="duration">Duration: {item.duration || 'Not set'}</p>
-                      <p className="dueDate">
-                        Start: {item.startDate ? new Date(Date.parse(item.startDate)).toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour: '2-digit', minute:'2-digit'})  : 'Not set'}
+                      <p className="duration">
+                        Duration: {item.duration || "Not set"}
                       </p>
                       <p className="dueDate">
-                        Due: {item.dueDate ? new Date(Date.parse(item.dueDate)).toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour: '2-digit', minute:'2-digit'})  : 'Not set'}
+                        Start:{" "}
+                        {item.startDate
+                          ? new Date(Date.parse(item.startDate)).toLocaleString(
+                              [],
+                              {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )
+                          : "Not set"}
+                      </p>
+                      <p className="dueDate">
+                        Due:{" "}
+                        {item.dueDate
+                          ? new Date(Date.parse(item.dueDate)).toLocaleString(
+                              [],
+                              {
+                                year: "numeric",
+                                month: "2-digit",
+                                day: "2-digit",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )
+                          : "Not set"}
                       </p>
                       <div className="buttonGroup">
                         <button
@@ -522,7 +571,6 @@ const handleSubmit = async (e) => {
                           Done
                         </button>
                       </div>
-
                     </div>
                   )}
                 </div>
@@ -549,91 +597,167 @@ const handleSubmit = async (e) => {
                         onChange={handleDescriptionEdit}
                         onBlur={() => saveChanges(item)}
                       />
-
                     </div>
                   ) : (
                     <>
                       <div onDoubleClick={() => handleEdit(item)}>
-             <div className="title-container">
-    <h2 className="title">{item.title}</h2>
-     <p className="duration" >
-            Duration: {item.duration || 'Not set'}
-        </p>
-    <div className="info-container">
-
-        <p className="dueDate">
-  {/* Include "Overdue" text with the flag */}
-  Start: {item.startDate ? new Date(Date.parse(item.startDate)).toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour: '2-digit', minute:'2-digit'})  : 'Not set'}
-  <br />
-   {isOverdue(item.dueDate) && <><SVGflag /> Over</>}Due: {item.dueDate ? new Date(Date.parse(item.dueDate)).toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour: '2-digit', minute:'2-digit'})  : 'Not set'}
-</p>
-        <div className="buttonGroup">  {/* Existing class for button styling */}
-            <button className="skipButton" onClick={() => skipTask(item.id)}>
-                Do Tomorrow
-            </button>
-
-            <button className="doneButton" onClick={() => doneTask(item.id)}>
-                Done
-            </button>
-        </div>
-    </div>
-</div>
+                        <div className="title-container">
+                          <h2 className="title">{item.title}</h2>
+                          <p className="duration">
+                            Duration: {item.duration || "Not set"}
+                          </p>
+                          <div className="info-container">
+                            <p className="dueDate">
+                              {/* Include "Overdue" text with the flag */}
+                              Start:{" "}
+                              {item.startDate
+                                ? new Date(
+                                    Date.parse(item.startDate)
+                                  ).toLocaleString([], {
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : "Not set"}
+                              <br />
+                              {isOverdue(item.dueDate) && (
+                                <>
+                                  <SVGflag /> Over
+                                </>
+                              )}
+                              Due:{" "}
+                              {item.dueDate
+                                ? new Date(
+                                    Date.parse(item.dueDate)
+                                  ).toLocaleString([], {
+                                    year: "numeric",
+                                    month: "2-digit",
+                                    day: "2-digit",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : "Not set"}
+                            </p>
+                            <div className="buttonGroup">
+                              {" "}
+                              {/* Existing class for button styling */}
+                              <button
+                                className="skipButton"
+                                onClick={() => skipTask(item.id)}
+                              >
+                                Do Tomorrow
+                              </button>
+                              <button
+                                className="doneButton"
+                                onClick={() => doneTask(item.id)}
+                              >
+                                Done
+                              </button>
+                            </div>
+                          </div>
+                        </div>
                         <label>Description:</label>
-                        <p className="description">{item.description || 'Not set'}</p>
-
-
+                        <p className="description">
+                          {item.description || "Not set"}
+                        </p>
                       </div>
-                    <div className="subTasks-section">
-  {subTasks.map((subTask, index) => (
-    <div key={index} className="subTask-input">
-      <input
-        type="text"
-        value={subTask.title}
-        onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
-        placeholder="Subtask title"
-
-      />
-      <textarea className="subTasks-description"
-        value={subTask.description}
-        onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
-        placeholder="Description"
-      />
-      <input
-        type="datetime-local"
-        value={subTask.startDate}
-        onChange={(e) => handleSubtaskChange(index, 'startDate', e.target.value)}
-      />
-      <input
-        type="datetime-local"
-        value={subTask.dueDate}
-        onChange={(e) => handleSubtaskChange(index, 'dueDate', e.target.value)}
-      />
-      <select
-        onChange={(e) => handleSubtaskChange(index, 'priority', parseInt(e.target.value, 10))}
-        value={subTask.priority}
-      >
-        <option value={1}>Lowest</option>
-        <option value={2}>Lower</option>
-        <option value={3}>Medium</option>
-        <option value={4}>Higher</option>
-        <option value={5}>Highest</option>
-      </select>
-      <select
-        onChange={(e) => handleSubtaskChange(index, 'duration', e.target.value)}
-        value={subTask.duration}
-      >
-        <option value="S">Small</option>
-        <option value="M">Medium</option>
-        <option value="L">Large</option>
-        <option value="XL">XLarge</option>
-      </select>
-      <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
-    </div>
-  ))}
-  <button type="button" onClick={() => addSubtask()}>
-    Add Subtask
-  </button>
-</div>
+                      <button type="button" onClick={toggleSubtasksVisibility}>
+                        {showSubtasks ? 'Hide Subtasks' : 'Show Subtasks'}
+                      </button>
+                      <div className="subTasks-section">
+                        {subTasks.map((subTask, index) => (
+                          <div key={index} className="subTask-input">
+                            <input
+                              type="text"
+                              value={subTask.title}
+                              onChange={(e) =>
+                                handleSubtaskChange(
+                                  index,
+                                  "title",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Subtask title"
+                            />
+                            <textarea
+                              className="subTasks-description"
+                              value={subTask.description}
+                              onChange={(e) =>
+                                handleSubtaskChange(
+                                  index,
+                                  "description",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Description"
+                            />
+                            <input
+                              type="datetime-local"
+                              value={subTask.startDate}
+                              onChange={(e) =>
+                                handleSubtaskChange(
+                                  index,
+                                  "startDate",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <input
+                              type="datetime-local"
+                              value={subTask.dueDate}
+                              onChange={(e) =>
+                                handleSubtaskChange(
+                                  index,
+                                  "dueDate",
+                                  e.target.value
+                                )
+                              }
+                            />
+                            <select
+                              onChange={(e) =>
+                                handleSubtaskChange(
+                                  index,
+                                  "priority",
+                                  parseInt(e.target.value, 10)
+                                )
+                              }
+                              value={subTask.priority}
+                            >
+                              <option value={1}>Lowest</option>
+                              <option value={2}>Lower</option>
+                              <option value={3}>Medium</option>
+                              <option value={4}>Higher</option>
+                              <option value={5}>Highest</option>
+                            </select>
+                            <select
+                              onChange={(e) =>
+                                handleSubtaskChange(
+                                  index,
+                                  "duration",
+                                  e.target.value
+                                )
+                              }
+                              value={subTask.duration}
+                            >
+                              <option value="S">Small</option>
+                              <option value="M">Medium</option>
+                              <option value="L">Large</option>
+                              <option value="XL">XLarge</option>
+                            </select>
+                            <button
+                              type="button"
+                              onClick={() => removeSubtask(index)}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                        <button type="button" onClick={() => addSubtask()}>
+                          Add Subtask
+                        </button>
+                      </div>
                     </>
                   )}
 
@@ -644,9 +768,12 @@ const handleSubmit = async (e) => {
                     >
                       Share
                     </button>
-                     <button className="archiveButton" onClick={() => removeTask(item.id)}>
-                Remove
-            </button>
+                    <button
+                      className="archiveButton"
+                      onClick={() => removeTask(item.id)}
+                    >
+                      Remove
+                    </button>
                   </div>
                 </div>
               ))}
@@ -659,7 +786,10 @@ const handleSubmit = async (e) => {
         <button className="historyButton" onClick={handleArchiveClick}>
           <SVGarchive />
         </button>
-     <p htmlFor="ImportButton">Google <br />Import</p>
+        <p htmlFor="ImportButton">
+          Google <br />
+          Import
+        </p>
         <button className="importButton" onClick={redirectToCalendar}>
           <SVGimport />
         </button>
@@ -672,9 +802,8 @@ const handleSubmit = async (e) => {
           <SVGAdd />
         </button>
       </div>
-
-  </div>
-);
+    </div>
+  );
 }
 
 export default Home;
