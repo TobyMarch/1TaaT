@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-// import "./Style.css";
-// import logo from "./img/logo.svg";
 import { useCookies } from "react-cookie";
-import { useNavigate } from 'react-router-dom';
-
-
+import { useNavigate } from "react-router-dom";
 
 import {
   TASK_API_URL,
@@ -35,24 +31,26 @@ function NewTask() {
   const [charTitleCount, setTitleCharCount] = useState(0);
   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
   const [isdelayable, setIsdelayable] = useState(false);
-   const [formErrors, setFormErrors] = useState({});
-    const [showSubtasks, setShowSubtasks] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [showSubtasks, setShowSubtasks] = useState(false);
   const navigate = useNavigate();
   const toggleSubtasksVisibility = () => {
-  setShowSubtasks(!showSubtasks);
-};
+    setShowSubtasks(!showSubtasks);
+  };
 
-    const [subTasks, setSubtasks] = useState([{
-  title: "",
-  description: "",
-  startDate: "",
-  dueDate: "",
-  priority: 1,
-  duration: "S",
-  completed: false
-}]);
+  const [subTasks, setSubtasks] = useState([
+    {
+      title: "",
+      description: "",
+      startDate: "",
+      dueDate: "",
+      priority: 1,
+      duration: "S",
+      completed: false,
+    },
+  ]);
 
-    const priorityGradientStyles = [
+  const priorityGradientStyles = [
     {
       background: "linear-gradient(11deg, #7673AC 0%, #b3d4ff 100%)", // Lowest
     },
@@ -70,7 +68,6 @@ function NewTask() {
     },
   ];
 
-
   const isOverdue = (dueDateString) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -78,7 +75,6 @@ function NewTask() {
     const dueDate = new Date(dueDateString);
     return dueDate < today;
   };
-
 
   const validateForm = () => {
     const newTaskFail = {};
@@ -89,27 +85,26 @@ function NewTask() {
   };
 
   const handleSubtaskTitleChange = (index, value) => {
-  const updatedSubtasks = subTasks.map((subTask, i) => {
-    if (i === index) {
-      return { ...subTask, title: value };
-    }
-    return subTask;
-  });
-  setSubtasks(updatedSubtasks);
-};
-
-
+    const updatedSubtasks = subTasks.map((subTask, i) => {
+      if (i === index) {
+        return { ...subTask, title: value };
+      }
+      return subTask;
+    });
+    setSubtasks(updatedSubtasks);
+  };
 
   const addSubtask = () => {
     setSubtasks([
       ...subTasks,
-      { title: "",
+      {
+        title: "",
         description: "",
         startDate: new Date().toISOString().slice(0, 10),
         dueDate: new Date().toISOString().slice(0, 10),
         priority: 1,
         duration: "S",
-       }
+      },
     ]);
   };
 
@@ -118,16 +113,15 @@ function NewTask() {
     setSubtasks(filteredSubtasks);
   };
 
-
-const handleSubtaskChange = (index, field, value) => {
-  const updatedSubtasks = subTasks.map((subTask, i) => {
-    if (i === index) {
-      return { ...subTask, [field]: value };
-    }
-    return subTask;
-  });
-  setSubtasks(updatedSubtasks);
-};
+  const handleSubtaskChange = (index, field, value) => {
+    const updatedSubtasks = subTasks.map((subTask, i) => {
+      if (i === index) {
+        return { ...subTask, [field]: value };
+      }
+      return subTask;
+    });
+    setSubtasks(updatedSubtasks);
+  };
 
   const handleEdit = (item) => {
     setEditItemId(item.id);
@@ -143,25 +137,30 @@ const handleSubtaskChange = (index, field, value) => {
     setEditableDescription(e.target.value);
   };
 
-const saveChanges = (item) => {
-  axios.put(`${TASK_API_URL}/${item.id}`, {
-    title: editableTitle,
-    description: editableDescription,
-  }, {
-    headers: {
-      "Content-Type": "application/json",
-      "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-    },
-    withCredentials: true
-  }).then(response => {
-    console.log("Update successful:", response.data);
-    fetchTasks();
-  }).catch(error => {
-    console.error("Failed to save changes:", error);
-  });
-};
-
-
+  const saveChanges = (item) => {
+    axios
+      .put(
+        `${TASK_API_URL}/${item.id}`,
+        {
+          title: editableTitle,
+          description: editableDescription,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+          },
+          withCredentials: true,
+        }
+      )
+      .then((response) => {
+        console.log("Update successful:", response.data);
+        fetchTasks();
+      })
+      .catch((error) => {
+        console.error("Failed to save changes:", error);
+      });
+  };
 
   const handleLogout = () => {
     fetch(LOGOUT_ROUTE, {
@@ -221,10 +220,9 @@ const saveChanges = (item) => {
     setItems(sortedItems);
   };
 
-
-   const handledelayableChange = (event) => {
-  setIsdelayable(event.target.checked);
-};
+  const handledelayableChange = (event) => {
+    setIsdelayable(event.target.checked);
+  };
 
   const skipTask = async (taskId) => {
     const tomorrow = new Date();
@@ -249,7 +247,6 @@ const saveChanges = (item) => {
     }
   };
 
-
   useEffect(() => {
     fetchTasks();
     const currentDate = new Date().toISOString().split("T")[0];
@@ -261,210 +258,233 @@ const saveChanges = (item) => {
     setIsListView(!isListView);
   };
 
-
-// Task retrieval and submission
-
-const fetchTasks = async () => {
-  try {
-    const response = await axios.get(isListView ? PAGINATED_TASKS_API_URL : TOP_TASK_API_URL, { withCredentials: true });
-    if (Array.isArray(response.data.content)) {
-      setItems(response.data.content);
-    } else if (response.data && !Array.isArray(response.data.content)) {
-      setItems([response.data]);
-    } else {
-      console.error('Expected an array or an object for content, received:', response.data);
+  // Task retrieval and submission
+  const fetchTasks = async () => {
+    try {
+      const response = await axios.get(
+        isListView ? PAGINATED_TASKS_API_URL : TOP_TASK_API_URL,
+        { withCredentials: true }
+      );
+      if (Array.isArray(response.data.content)) {
+        setItems(response.data.content);
+      } else if (response.data && !Array.isArray(response.data.content)) {
+        setItems([response.data]);
+      } else {
+        console.error(
+          "Expected an array or an object for content, received:",
+          response.data
+        );
+        setItems([]);
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
       setItems([]);
     }
-  } catch (error) {
-    console.error("Error fetching tasks:", error);
-    setItems([]);
-  }
-};
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const errors = validateForm();
+    try {
+      const data = {
+        owner,
+        title,
+        description,
+        startDate: startDate ? new Date(startDate).toISOString() : null,
+        dueDate: dueDate ? new Date(dueDate).toISOString() : null,
+        priority,
+        duration,
+        isdelayable,
+        subTasks: subTasks.map((subTask) => ({
+          title: subTask.title,
+          // completed: subTask.completed
+        })),
+        color: priorityGradientStyles[priority - 1],
+      };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  const errors = validateForm();
-  try {
-    const data = {
-      owner,
-      title,
-      description,
-      startDate: startDate ? new Date(startDate).toISOString() : null,
-      dueDate: dueDate ? new Date(dueDate).toISOString() : null,
-      priority,
-       duration,
-       isdelayable,
-       subTasks: subTasks.map(subTask => ({
-    title: subTask.title,
-    // completed: subTask.completed
-  })),
-      color: priorityGradientStyles[priority - 1],
-    };
+      await axios.post(TASK_API_URL, [data], {
+        withCredentials: true,
+        headers: {
+          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+        },
+      });
 
-    await axios.post(TASK_API_URL, [data], {
-      withCredentials: true,
-      headers: {
-        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-      },
-    });
-
-    setOwner("");
-    setTitle("");
-    setDescription("");
-    setStartDate("");
-    setDueDate("");
-    setPriority(1);
-    setIsdelayable(false);
-    setSubtasks([{ title: '' }]);
-    alert("Task added successfully");
-    navigate('/');
-    fetchTasks();
-  } catch (error) {
-    console.error("Error submitting data:", error);
-    alert("Failed to add task" + error.message);
-  }
-};
-
+      setOwner("");
+      setTitle("");
+      setDescription("");
+      setStartDate("");
+      setDueDate("");
+      setPriority(1);
+      setIsdelayable(false);
+      setSubtasks([{ title: "" }]);
+      alert("Task added successfully");
+      navigate("/");
+      fetchTasks();
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      alert("Failed to add task" + error.message);
+    }
+  };
 
   return (
- <div className="add-task-form">
-
-    <div className="add-task">
-      <h2>New Task</h2>
-      <form onSubmit={handleSubmit}>
-       <div className="Tasks-section">
-        <div className="task-input">
-          <label htmlFor="title">Title:</label><br/>
-          <p>Task Title: {charTitleCount}/30 </p>
-          <input
-            type="text"
-            id="title"
-            value={title}
-            onChange={handleTitleChange}
-            maxLength={30}
-            required
-          />
-        </div>
-        <div className="task-input">
-          <label htmlFor="task">Task:</label>
-          <p>Characters: {charDescriptionCount}/250</p>
-          <textarea
-            type="text"
-            id="task"
-            value={description}
-            onChange={handleDescriptionChange}
-            maxLength={250}
-          />
-        </div>
-</div>
-
-<div className="data-section">
-        <div className="task-input">
-          <label htmlFor="startDate">Start Date:</label>
-          <input
-            type="datetime-local"
-            id="startDate"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-        </div>
-        <div className="task-input">
-          <label htmlFor="dueDate">Due Date:</label>
-          <input
-            type="datetime-local"
-            id="dueDate"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-        </div>
-        <div className="task-input">
-          <input
-            type="checkbox"
-            id="delayable"
-            name="delayable"
-            checked={isdelayable}
-            onChange={handledelayableChange}
-          />
-          <label htmlFor="delayable">Delayable</label>
-        </div>
-
-        <div>
-          <label htmlFor="priority">Priority:</label>
-          <input
-            type="range"
-            id="priority"
-            value={priority}
-            min="1"
-            max="5"
-            onChange={(e) => setPriority(parseInt(e.target.value, 10))}
-          />
-          <span>{priority}</span>
-        </div>
-        <label htmlFor="duration">Duration:</label>
-        <div className="durationDropdown">
-          <select
-            onChange={(e) => setDuration(e.target.value)}
-            value={duration}
-          >
-            <option value="S">Small</option>
-            <option value="M">Medium</option>
-            <option value="L">Large</option>
-            <option value="XL">XLarge</option>
-          </select>
-        </div>
-</div>
-  <button className="addSubTasks" type="button" onClick={toggleSubtasksVisibility}>
-          {showSubtasks ? "Hide Subtasks" : "Add Subtasks"}
-        </button>
-        {/* Subtasks Input Section */}
-        {showSubtasks && <div className="subTasks-section">
-          <label>Subtasks:</label>
-          {subTasks.map((subTask, index) => (
-            <div key={index} className="subTask-input">
+    <div className="add-task-form">
+      <div className="add-task">
+        <h2>New Task</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="Tasks-section">
+            <div className="task-input">
+              <label htmlFor="title">Title:</label>
+              <br />
+              <p>Task Title: {charTitleCount}/30 </p>
               <input
                 type="text"
-                value={subTask.title}
-                onChange={(e) => handleSubtaskChange(index, 'title', e.target.value)}
-                placeholder="Subtask title"
+                id="title"
+                value={title}
+                onChange={handleTitleChange}
+                maxLength={30}
+                required
               />
-              <textarea
-                value={subTask.description}
-                onChange={(e) => handleSubtaskChange(index, 'description', e.target.value)}
-                placeholder="Description"
-              />
-              <input
-                type="datetime-local"
-                value={subTask.startDate}
-                onChange={(e) => handleSubtaskChange(index, 'startDate', e.target.value)}
-                placeholder="Start Date"
-              />
-              <input
-                type="datetime-local"
-                value={subTask.dueDate}
-                onChange={(e) => handleSubtaskChange(index, 'dueDate', e.target.value)}
-                placeholder="Due Date"
-              />
-              <button type="button" onClick={() => removeSubtask(index)}>Remove</button>
             </div>
-          ))}
-          <button className="addSubTasks" type="button" onClick={addSubtask}>
-            Add Subtask
-          </button>
-        </div>}
+            <div className="task-input">
+              <label htmlFor="task">Task:</label>
+              <p>Characters: {charDescriptionCount}/250</p>
+              <textarea
+                type="text"
+                id="task"
+                value={description}
+                onChange={handleDescriptionChange}
+                maxLength={250}
+              />
+            </div>
+          </div>
 
-        <div className="new-button-container">
-         <button className="newBack" onClick={() => navigate('/')}>
-  Back
-</button>
-          <button className="newAdd" type="submit">
-            Submit
+          <div className="data-section">
+            <div className="task-input">
+              <label htmlFor="startDate">Start Date:</label>
+              <input
+                type="datetime-local"
+                id="startDate"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+            <div className="task-input">
+              <label htmlFor="dueDate">Due Date:</label>
+              <input
+                type="datetime-local"
+                id="dueDate"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
+            </div>
+            <div className="task-input">
+              <input
+                type="checkbox"
+                id="delayable"
+                name="delayable"
+                checked={isdelayable}
+                onChange={handledelayableChange}
+              />
+              <label htmlFor="delayable">Delayable</label>
+            </div>
+
+            <div>
+              <label htmlFor="priority">Priority:</label>
+              <input
+                type="range"
+                id="priority"
+                value={priority}
+                min="1"
+                max="5"
+                onChange={(e) => setPriority(parseInt(e.target.value, 10))}
+              />
+              <span>{priority}</span>
+            </div>
+            <label htmlFor="duration">Duration:</label>
+            <div className="durationDropdown">
+              <select
+                onChange={(e) => setDuration(e.target.value)}
+                value={duration}
+              >
+                <option value="S">Small</option>
+                <option value="M">Medium</option>
+                <option value="L">Large</option>
+                <option value="XL">XLarge</option>
+              </select>
+            </div>
+          </div>
+          <button
+            className="addSubTasks"
+            type="button"
+            onClick={toggleSubtasksVisibility}
+          >
+            {showSubtasks ? "Hide Subtasks" : "Add Subtasks"}
           </button>
-          {formErrors.date && <p className="error">{formErrors.date}</p>}
-        </div>
-      </form>
+          {/* Subtasks Input Section */}
+          {showSubtasks && (
+            <div className="subTasks-section">
+              <label>Subtasks:</label>
+              {subTasks.map((subTask, index) => (
+                <div key={index} className="subTask-input">
+                  <input
+                    type="text"
+                    value={subTask.title}
+                    onChange={(e) =>
+                      handleSubtaskChange(index, "title", e.target.value)
+                    }
+                    placeholder="Subtask title"
+                  />
+                  <textarea
+                    value={subTask.description}
+                    onChange={(e) =>
+                      handleSubtaskChange(index, "description", e.target.value)
+                    }
+                    placeholder="Description"
+                  />
+                  <input
+                    type="datetime-local"
+                    value={subTask.startDate}
+                    onChange={(e) =>
+                      handleSubtaskChange(index, "startDate", e.target.value)
+                    }
+                    placeholder="Start Date"
+                  />
+                  <input
+                    type="datetime-local"
+                    value={subTask.dueDate}
+                    onChange={(e) =>
+                      handleSubtaskChange(index, "dueDate", e.target.value)
+                    }
+                    placeholder="Due Date"
+                  />
+                  <button type="button" onClick={() => removeSubtask(index)}>
+                    Remove
+                  </button>
+                </div>
+              ))}
+              <button
+                className="addSubTasks"
+                type="button"
+                onClick={addSubtask}
+              >
+                Add Subtask
+              </button>
+            </div>
+          )}
+
+          <div className="new-button-container">
+            <button className="newBack" onClick={() => navigate("/")}>
+              Back
+            </button>
+            <button className="newAdd" type="submit">
+              Submit
+            </button>
+            {formErrors.date && <p className="error">{formErrors.date}</p>}
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
-)}
+  );
+}
 
 export default NewTask;

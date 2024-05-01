@@ -12,8 +12,6 @@ import { ReactComponent as SVGimport } from "./img/Google_Calendar_icon_(2020).s
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
 
-
-
 import {
   TASK_API_URL,
   TOP_TASK_API_URL,
@@ -53,22 +51,20 @@ function Home() {
     setShowSubtasks(!showSubtasks);
   };
 
-
-const redirectToEditTask = (item) => {
-  navigate(`/EditTask/${item.id}`, { state: { task:item } });
-
-};
+  const redirectToEditTask = (item) => {
+    navigate(`/EditTask/${item.id}`, { state: { task: item } });
+  };
 
   const [subTasks, setSubtasks] = useState([
-      // {
-      //   title: "",
-      //   description: "",
-      //   startDate: "",
-      //   dueDate: "",
-      //   priority: 1,
-      //   duration: "S",
-      //   completed: false,
-      // },
+    // {
+    //   title: "",
+    //   description: "",
+    //   startDate: "",
+    //   dueDate: "",
+    //   priority: 1,
+    //   duration: "S",
+    //   completed: false,
+    // },
   ]);
 
   const archivedStyle = {
@@ -99,10 +95,7 @@ const redirectToEditTask = (item) => {
 
   const redirectToNewTask = () => {
     navigate("/NewTask");
-
   };
-
-
 
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
@@ -134,23 +127,23 @@ const redirectToEditTask = (item) => {
     setSubtasks(updatedSubtasks);
   };
 
-    const addSubtask = (item) => {
-        if (item.subTasks) {
-            console.log(item.subTasks.length);
-            item.subTasks.push({
-                title: "",
-                description: "",
-                startDate: new Date().toISOString().slice(0, 10),
-                dueDate: new Date().toISOString().slice(0, 10),
-                priority: 1,
-                duration: "S",
-              });
-        }
+  const addSubtask = (item) => {
+    if (item.subTasks) {
+      console.log(item.subTasks.length);
+      item.subTasks.push({
+        title: "",
+        description: "",
+        startDate: new Date().toISOString().slice(0, 10),
+        dueDate: new Date().toISOString().slice(0, 10),
+        priority: 1,
+        duration: "S",
+      });
+    }
   };
 
   const removeSubtask = (item, index) => {
     item.subTasks.filter((_, i) => {
-       return i !== index;
+      return i !== index;
     });
   };
 
@@ -178,43 +171,44 @@ const redirectToEditTask = (item) => {
     setEditableDescription(e.target.value);
   };
 
-const saveChanges = (item) => {
-  axios.put(
-    `${TASK_API_URL}/${item.id}`,
-    {
-      title: editableTitle,
-      description: editableDescription,
-      startDate: item.startDate,
-      dueDate: item.dueDate,
-      priority: item.priority,
-      duration: item.duration,
-      subTasks: item.subTasks.map(subTask => ({
-          title: subTask.title,
-          description: subTask.description,
-          startDate: subTask.startDate,
-          dueDate: subTask.dueDate,
-          priority: subTask.priority,
-          duration: subTask.duration,
-          completed: subTask.completed
-      })),
-      isdelayable: item.isdelayable
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-      },
-      withCredentials: true,
-    }
-  )
-  .then(response => {
-    console.log("Update successful:", response.data);
-    fetchTasks(); // Refresh the tasks list to reflect the update
-  })
-  .catch(error => {
-    console.error("Failed to save changes:", error);
-  });
-};
+  const saveChanges = (item) => {
+    axios
+      .put(
+        `${TASK_API_URL}/${item.id}`,
+        {
+          title: editableTitle,
+          description: editableDescription,
+          startDate: item.startDate,
+          dueDate: item.dueDate,
+          priority: item.priority,
+          duration: item.duration,
+          subTasks: item.subTasks.map((subTask) => ({
+            title: subTask.title,
+            description: subTask.description,
+            startDate: subTask.startDate,
+            dueDate: subTask.dueDate,
+            priority: subTask.priority,
+            duration: subTask.duration,
+            completed: subTask.completed,
+          })),
+          isdelayable: item.isdelayable,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
+          },
+          withCredentials: true,
+        }
+      )
+      .then((response) => {
+        console.log("Update successful:", response.data);
+        fetchTasks(); // Refresh the tasks list to reflect the update
+      })
+      .catch((error) => {
+        console.error("Failed to save changes:", error);
+      });
+  };
   const handleArchiveClick = async () => {
     setSelectedOption("");
     setPageNumber(0);
@@ -332,7 +326,6 @@ const saveChanges = (item) => {
     }
   };
 
-
   useEffect(() => {
     fetchTasks();
     const currentDate = new Date().toISOString().split("T")[0];
@@ -345,11 +338,12 @@ const saveChanges = (item) => {
   };
 
   // Task retrieval and submission
-
   const fetchTasks = async () => {
     try {
       let paginatedWithparams =
-        PAGINATED_TASKS_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
+        PAGINATED_TASKS_API_URL +
+        `?size=10&page=${pageNumber}` +
+        selectedOption;
       const response = await axios.get(
         isListView ? paginatedWithparams : TOP_TASK_API_URL,
         { withCredentials: true }
@@ -374,8 +368,9 @@ const saveChanges = (item) => {
 
   const fetchArchivedTasks = async () => {
     try {
-        let paginatedWithParameters = ARCHIVED_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
-        const response = await axios.get(paginatedWithParameters, {
+      let paginatedWithParameters =
+        ARCHIVED_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
+      const response = await axios.get(paginatedWithParameters, {
         withCredentials: true,
         headers: {
           "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
@@ -400,12 +395,12 @@ const saveChanges = (item) => {
   const previousPage = async () => {
     setPageNumber(pageNumber > 0 ? pageNumber - 1 : pageNumber);
     showArchived ? fetchArchivedTasks() : fetchTasks();
-  }
+  };
 
   const nextPage = async () => {
-    setPageNumber(pageNumber < (totalPages - 1) ? pageNumber + 1 : pageNumber);
+    setPageNumber(pageNumber < totalPages - 1 ? pageNumber + 1 : pageNumber);
     showArchived ? fetchArchivedTasks() : fetchTasks();
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -466,7 +461,7 @@ const saveChanges = (item) => {
 
         <div className="filterDropdown">
           <select onChange={handleOptionChange} value={selectedOption}>
-            <option value=""></option>
+            <option value="">Default</option>
             <option value="&sort=priority,DESC">Highest Priority</option>
             <option value="&sort=priority,ASC">Lowest Priority</option>
             <option value="&sort=createdDate,ASC">Newest</option>
@@ -499,103 +494,132 @@ const saveChanges = (item) => {
         </button>
       </div>
 
+      {!menuVisible && (
+        <div className={`List ${isListView ? "listView" : ""}`}>
+          <button onClick={() => previousPage()}>previous</button>
+          <button onClick={() => nextPage()}>next</button>
+          {showArchived
+            ? archivedItems.map((item, index) => (
+                <div
+                  className="item"
+                  key={index}
+                  style={
+                    showArchived
+                      ? archivedStyle
+                      : priorityGradientStyles[item.priority - 1]
+                  }
+                >
+                  <h2 className="title">{item.title}</h2>
+                  <p className="description">{item.description || "Not set"}</p>
 
-
-{!menuVisible && (
-  <div className={`List ${isListView ? "listView" : ""}`}>
-    <button onClick={() => previousPage()}>previous</button>
-    <button onClick={() => nextPage()}>next</button>
-    {showArchived ? archivedItems.map((item, index) => (
-      <div
-        className="item"
-        key={index}
-        style={showArchived ? archivedStyle : priorityGradientStyles[item.priority - 1]}
-      >
-        <h2 className="title">{item.title}</h2>
-        <p className="description">{item.description || "Not set"}</p>
-
-        <p className="duration">Duration: {item.duration || "Not set"}</p>
-        <p className="dueDate">Start: {item.startDate ? new Date(Date.parse(item.startDate)).toLocaleString() : "Not set"}</p>
-        <p className="dueDate">Due: {item.dueDate ? new Date(Date.parse(item.dueDate)).toLocaleString() : "Not set"}</p>
-        <div className="subTasks-list">
-          {item.subTasks && item.subTasks.map((subTask, subIndex) => (
-            <div key={subIndex} className="subTask-text">
-              <p>Title: {subTask.title}</p>
-              <p>Description: {subTask.description}</p>
-              <p>Start Date: {subTask.startDate}</p>
-              <p>Due Date: {subTask.dueDate}</p>
-              <p>Priority: {subTask.priority}</p>
-              <p>Duration: {subTask.duration}</p>
-            </div>
-          ))}
+                  <p className="duration">
+                    Duration: {item.duration || "Not set"}
+                  </p>
+                  <p className="dueDate">
+                    Start:{" "}
+                    {item.startDate
+                      ? new Date(Date.parse(item.startDate)).toLocaleString()
+                      : "Not set"}
+                  </p>
+                  <p className="dueDate">
+                    Due:{" "}
+                    {item.dueDate
+                      ? new Date(Date.parse(item.dueDate)).toLocaleString()
+                      : "Not set"}
+                  </p>
+                  <div className="subTasks-list">
+                    {item.subTasks &&
+                      item.subTasks.map((subTask, subIndex) => (
+                        <div key={subIndex} className="subTask-text">
+                          <p>Title: {subTask.title}</p>
+                          <p>Description: {subTask.description}</p>
+                          <p>Start Date: {subTask.startDate}</p>
+                          <p>Due Date: {subTask.dueDate}</p>
+                          <p>Priority: {subTask.priority}</p>
+                          <p>Duration: {subTask.duration}</p>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              ))
+            : items.map((item, index) => (
+                <div
+                  className="item"
+                  key={index}
+                  style={priorityGradientStyles[item.priority - 1]}
+                >
+                  <h2 className="title">{item.title}</h2>
+                  <p className="duration">
+                    Duration: {item.duration || "Not set"}
+                  </p>
+                  <div className="buttonGroup">
+                    <button
+                      className="skipButton"
+                      onClick={() => skipTask(item.id)}
+                    >
+                      Do Tomorrow
+                    </button>
+                    <button
+                      className="archiveButton"
+                      onClick={() => removeTask(item.id)}
+                    >
+                      Remove
+                    </button>
+                    <button
+                      className="doneButton"
+                      onClick={() => doneTask(item.id)}
+                    >
+                      Done
+                    </button>
+                  </div>
+                  <div className="info-container">
+                    <p className="dueDate">
+                      Start:{" "}
+                      {item.startDate
+                        ? new Date(Date.parse(item.startDate)).toLocaleString()
+                        : "Not set"}
+                    </p>
+                    <p className="dueDate">
+                      Due:{" "}
+                      {item.dueDate
+                        ? new Date(Date.parse(item.dueDate)).toLocaleString()
+                        : "Not set"}
+                    </p>
+                    {isOverdue(item.dueDate) && (
+                      <p>
+                        <SVGflag /> Overdue
+                      </p>
+                    )}
+                  </div>
+                  <label>Description:</label>
+                  <p className="description">{item.description || "Not set"}</p>
+                  <div className="subTasks-list">
+                    {item.subTasks &&
+                      item.subTasks.map((subTask, subIndex) => (
+                        <div key={subIndex} className="subTask-text">
+                          <p>Title: {subTask.title}</p>
+                          <p>Description: {subTask.description}</p>
+                          <p>Start Date: {subTask.startDate}</p>
+                          <p>Due Date: {subTask.dueDate}</p>
+                          <p>Priority: {subTask.priority}</p>
+                          <p>Duration: {subTask.duration}</p>
+                        </div>
+                      ))}
+                  </div>
+                  {isListView && (
+                    <div className="buttonGroup">
+                      <button
+                        className="editButton"
+                        onClick={() => redirectToEditTask(item)}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
         </div>
-      </div>
-    )) : items.map((item, index) => (
-      <div
-        className="item"
-        key={index}
-        style={priorityGradientStyles[item.priority - 1]}
-      >
-        <h2 className="title">{item.title}</h2>
-        <p className="duration">Duration: {item.duration || "Not set"}</p>
-         <div className="buttonGroup">
-
-                              <button
-                                className="skipButton"
-                                onClick={() => skipTask(item.id)}
-                              >
-                                Do Tomorrow
-                              </button>
-                                <button
-                                        className="archiveButton"
-                                        onClick={() => removeTask(item.id)}
-                                    >
-                                        Remove
-                                    </button>
-                               <button
-                                 className="doneButton"
-                                 onClick={() => doneTask(item.id)}
-                               >
-                                 Done
-                               </button>
-                               </div>
-        <div className="info-container">
-          <p className="dueDate">Start: {item.startDate ? new Date(Date.parse(item.startDate)).toLocaleString() : "Not set"}</p>
-          <p className="dueDate">Due: {item.dueDate ? new Date(Date.parse(item.dueDate)).toLocaleString() : "Not set"}</p>
-          {isOverdue(item.dueDate) && <p><SVGflag /> Overdue</p>}
-        </div>
-        <label>Description:</label>
-        <p className="description">{item.description || "Not set"}</p>
-        <div className="subTasks-list">
-          {item.subTasks && item.subTasks.map((subTask, subIndex) => (
-            <div key={subIndex} className="subTask-text">
-              <p>Title: {subTask.title}</p>
-              <p>Description: {subTask.description}</p>
-              <p>Start Date: {subTask.startDate}</p>
-              <p>Due Date: {subTask.dueDate}</p>
-              <p>Priority: {subTask.priority}</p>
-              <p>Duration: {subTask.duration}</p>
-            </div>
-          ))}
-        </div>
-        {isListView && (
-          <div className="buttonGroup">
-
-            <button
-              className="editButton"
-              onClick={() => redirectToEditTask(item)}
-            >
-              Edit
-            </button>
-          </div>
-        )}
-      </div>
-    ))}
-  </div>
-)}
-
-
-
+      )}
 
       <div className="sideBar">
         <p htmlFor="historyButton">History</p>
