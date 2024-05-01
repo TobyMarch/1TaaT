@@ -62,7 +62,7 @@ function Calendar() {
     }
 
     const handleFetchEvents = async (token) => {
-        const request = calendarRequest;
+        const request = {...calendarRequest};
         request.pageToken = token;
 
         const response = await callGapi(request, REFRESH_ACCESS_TOKEN, cookies["XSRF-TOKEN"]);
@@ -78,16 +78,17 @@ function Calendar() {
 
     const handleTestButton = () => {
         // console.log(events);
-        console.log(nextPageToken);
-        console.log(curPageToken);
-        console.log(prevPageToken);
+        // console.log(nextPageToken);
+        // console.log(curPageToken);
+        // console.log(prevPageToken);
+        // console.log(pageTokens);
         // console.log(pageTokens);
         // console.log(window.gapi);
         // handleFetchEvents();
     }
 
-    const handleSubmit = (task) => {
-        fetch(TASK_API_URL, {
+    const handleSubmit = async (task) => {
+        await fetch(TASK_API_URL, {
             body: JSON.stringify([task]),
             method:'post',
             credentials: 'include',
@@ -96,8 +97,6 @@ function Calendar() {
                 "Content-Type": "application/json"
             }
         })
-        .then(res => res.json())
-        .then(data => console.log(data));
     }
 
     const eventsList = events.map((event, index) =>
@@ -110,14 +109,14 @@ function Calendar() {
 
     return (
        <div className="google-calendar-container">
-            <button onClick={handleTestButton}>Test</button>
+            {/* <button onClick={handleTestButton}>Test</button> */}
             <ul>{eventsList}</ul>
             <div>
-                {prevPageToken &&
-                    <button onClick={handleNextPage}>Prev Page</button>
+                {pageTokens.length > 0 &&
+                    <button onClick={handlePrevPage}>Prev Page</button>
                 }
                 {nextPageToken &&
-                    <button onClick={handlePrevPage}>Next Page</button>
+                    <button onClick={handleNextPage}>Next Page</button>
                 }
             </div>
         </div>
