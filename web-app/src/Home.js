@@ -326,7 +326,7 @@ function Home() {
   const fetchTasks = async () => {
     try {
       let paginatedWithparams =
-        PAGINATED_TASKS_API_URL + `?size=2&page=${pageNumber}` + selectedOption;
+        PAGINATED_TASKS_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
       const response = await axios.get(
         isListView ? paginatedWithparams : TOP_TASK_API_URL,
         { withCredentials: true }
@@ -351,7 +351,7 @@ function Home() {
 
   const fetchArchivedTasks = async () => {
     try {
-        let paginatedWithParameters = ARCHIVED_API_URL + `?size=2&page=${pageNumber}` + selectedOption;
+        let paginatedWithParameters = ARCHIVED_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
         const response = await axios.get(paginatedWithParameters, {
         withCredentials: true,
         headers: {
