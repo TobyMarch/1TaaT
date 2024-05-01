@@ -107,20 +107,6 @@ function EditTask() {
         setSubtasks(updatedSubtasks);
     };
 
-    const handleLogout = () => {
-        fetch(LOGOUT_ROUTE, {
-            method: "post",
-            credentials: "include",
-            headers: {
-                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-            },
-        }).then((res) => {
-            if (res.status === 200) {
-                window.location.href = window.location.origin;
-            }
-        });
-    };
-
     const handleTitleChange = (event) => {
         const newTitle = event.target.value.slice(0, 50);
         setTitle(newTitle);
@@ -186,18 +172,9 @@ function EditTask() {
                         },
                     });
                 });
-            });
+            }).then(() => navigate("/"));
 
-            setOwner(task.owner);
-            setTitle(task.title);
-            setDescription(task.description);
-            setStartDate(task.startDate);
-            setDueDate(task.dueDate);
-            setPriority(task.priority);
-            setDelayable(task.delayable);
-            setSubtasks(task.subTasks);
             toggleMenu();
-            alert("Task added successfully");
         } catch (error) {
             console.error("Error submitting data:", error);
             alert("Failed to add task" + error.message);
@@ -216,7 +193,7 @@ function EditTask() {
                             <input
                                 type="text"
                                 id="title"
-                                value={task.title}
+                                defaultValue={task.title}
                                 onChange={handleTitleChange}
                                 maxLength={30}
                                 required
@@ -228,7 +205,7 @@ function EditTask() {
                             <textarea
                                 type="text"
                                 id="task"
-                                value={task.description}
+                                defaultValue={task.description}
                                 onChange={handleDescriptionChange}
                                 maxLength={250}
                             />
@@ -355,7 +332,7 @@ function EditTask() {
                         <button className="newBack" onClick={() => navigate('/')}>
                             Back
                         </button>
-                        <button className="newAdd"  type="submit" onClick={() => navigate("/")}>
+                        <button className="newAdd" type="submit" onClick={handleSubmit}>
                             Submit
                         </button>
                         {formErrors.date && <p className="error">{formErrors.date}</p>}
