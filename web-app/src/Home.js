@@ -38,6 +38,7 @@ function Home() {
   const [dueDate, setDueDate] = useState("");
   const [priority, setPriority] = useState(1);
   const [duration, setDuration] = useState("S");
+  const [pageNumber, setPageNumber] = useState(0);
   const [selectedOption, setSelectedOption] = useState("");
   const [cookies] = useCookies(["XSRF-TOKEN"]);
   const [charTitleCount, setTitleCharCount] = useState(0);
@@ -45,8 +46,8 @@ function Home() {
   const [archivedItems, setArchivedItems] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
   const [isdelayable, setIsdelayable] = useState(false);
-   const [formErrors, setFormErrors] = useState({});
-    const [showSubtasks, setShowSubtasks] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
+  const [showSubtasks, setShowSubtasks] = useState(false);
   const navigate = useNavigate();
   const toggleSubtasksVisibility = () => {
   setShowSubtasks(!showSubtasks);
@@ -232,39 +233,12 @@ const saveChanges = (item) => {
   const handleOptionChange = (event) => {
     const newSortOrder = event.target.value;
     setSelectedOption(newSortOrder);
-    sortItems(newSortOrder);
     fetchTasks(newSortOrder);
   };
 
-  const sortItems = (filter) => {
-    let sortedItems = [...items];
-    switch (filter) {
-      case "Highest":
-        sortedItems.sort((a, b) => b.priority - a.priority);
-        break;
-      case "Lowest":
-        sortedItems.sort((a, b) => a.priority - b.priority);
-        break;
-      case "Newest":
-        sortedItems.sort(
-          (a, b) => new Date(b.createdDate) - new Date(a.createdDate)
-        );
-        break;
-      case "Oldest":
-        sortedItems.sort(
-          (a, b) => new Date(a.createdDate) - new Date(b.createdDate)
-        );
-        break;
-      default:
-        break;
-    }
-    setItems(sortedItems);
+  const handledelayableChange = (event) => {
+    setIsdelayable(event.target.checked);
   };
-
-
-   const handledelayableChange = (event) => {
-  setIsdelayable(event.target.checked);
-};
 
   const skipTask = async (taskId) => {
     const tomorrow = new Date();
@@ -347,7 +321,8 @@ const saveChanges = (item) => {
 
 const fetchTasks = async () => {
   try {
-    const response = await axios.get(isListView ? PAGINATED_TASKS_API_URL : TOP_TASK_API_URL, { withCredentials: true });
+    let paginatedWithparams = PAGINATED_TASKS_API_URL +'?size=10'+selectedOption;
+    const response = await axios.get(isListView ? paginatedWithparams : TOP_TASK_API_URL, { withCredentials: true });
     if (Array.isArray(response.data.content)) {
       setItems(response.data.content);
     } else if (response.data && !Array.isArray(response.data.content)) {
@@ -446,13 +421,11 @@ const handleSubmit = async (e) => {
 
         <div className="filterDropdown">
           <select onChange={handleOptionChange} value={selectedOption}>
-            <option value="Highest">Highest Priority</option>
-            <option value="Lowest">Lowest Priority</option>
-            <option value="Newest">Newest</option>
-            <option value="Oldest">Oldest</option>
-            <option value="createdDate">Created Date</option>
-            <option value="startDate">Start Date</option>
-            <option value="dueDate">Due Date</option>
+          <option value=""></option>
+            <option value="&sort=priority,DESC">Highest Priority</option>
+            <option value="&sort=priority,ASC">Lowest Priority</option>
+            <option value="&sort=createdDate,ASC">Newest</option>
+            <option value="&sort=createdDate,DESC">Oldest</option>
           </select>
         </div>
 
