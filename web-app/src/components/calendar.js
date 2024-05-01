@@ -78,7 +78,9 @@ function Calendar() {
 
     const handleTestButton = () => {
         // console.log(events);
-        // console.log(nextPageToken);
+        console.log(nextPageToken);
+        console.log(curPageToken);
+        console.log(prevPageToken);
         // console.log(pageTokens);
         // console.log(window.gapi);
         // handleFetchEvents();
