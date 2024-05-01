@@ -6,6 +6,7 @@ import Login from './Login.js';
 import Home from './Home.js'
 import Calendar from './components/calendar';
 import NewTask from "./components/NewTask";
+import EditTask from "./components/EditTasks";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/NewTask" element={<NewTask />} />
+           <Route path="/EditTask/:taskId" element={<EditTask/>} />
         </Route>
         <Route element={<ProtectedRoute loginPage={true} redirectPath="/"/>}>
           <Route path="/login" element={<Login />} />

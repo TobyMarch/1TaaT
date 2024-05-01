@@ -52,6 +52,12 @@ function Home() {
     setShowSubtasks(!showSubtasks);
   };
 
+
+const redirectToEditTask = (item) => {
+  navigate(`/EditTask/${item.id}`, { state: { task:item } });
+
+};
+
   const [subTasks, setSubtasks] = useState([
       // {
       //   title: "",
@@ -724,12 +730,18 @@ const saveChanges = (item) => {
                     </>
                   )}
 
-                  <div className="buttonGroup">
+                 <div className="buttonGroup">
                     <button
                       className="archiveButton"
                       onClick={() => removeTask(item.id)}
                     >
                       Remove
+                    </button>
+                      <button
+                      className="editButton"
+                      onClick={() => redirectToEditTask(item)}
+                    >
+                     Edit
                     </button>
                   </div>
                 </div>
