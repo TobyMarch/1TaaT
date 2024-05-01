@@ -110,7 +110,7 @@ function Calendar() {
 
     return (
        <div className="google-calendar-container">
-            {/* <button onClick={handleTestButton}>Test</button> */}
+            <button onClick={handleTestButton}>Test</button>
             <ul>{eventsList}</ul>
             <div>
                 {prevPageToken &&
