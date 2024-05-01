@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-    LOGOUT_ROUTE,
     ACCESS_TOKEN,
     REFRESH_ACCESS_TOKEN,
     GOOGLE_API_KEY,
@@ -14,7 +13,10 @@ import { CalendarEvent } from './CalendarEvent';
 function Calendar() {
     const [events, setEvents] = useState([]);
     const [nextPageToken, setNextPageToken] = useState(undefined);
+    const [prevPageToken, setPrevPageToken] = useState(undefined);
+    const [curPageToken, setCurPageToken] = useState(undefined);
     const [cookies] = useCookies(["XSRF-TOKEN"]);
+    const [pageTokens, setPageTokens] = useState([]);
 
     useEffect(() => {
         const gapiLoaded = () => {
@@ -42,11 +44,25 @@ function Calendar() {
         document.body.appendChild(client);
     }, []);
 
-    const handleFetchEvents = async () => {
-        const request = calendarRequest;
-        if(nextPageToken != undefined) {
-            request.pageToken = nextPageToken;
-        }
+    const handleNextPage = () => {
+        const token = nextPageToken;
+        setPageTokens([...pageTokens, curPageToken]);
+        setCurPageToken(nextPageToken);
+        setPrevPageToken(curPageToken);
+        handleFetchEvents(token);
+    }
+
+    const handlePrevPage = () => {
+        const token = prevPageToken;
+        setCurPageToken(prevPageToken);
+        setPrevPageToken(pageTokens[pageTokens.length - 1])
+        setPageTokens([...pageTokens].filter(t => t != token));
+        handleFetchEvents(token);
+    }
+
+    const handleFetchEvents = async (token) => {
+        const request = {...calendarRequest};
+        request.pageToken = token;
 
         const response = await callGapi(request, REFRESH_ACCESS_TOKEN, cookies["XSRF-TOKEN"]);
         setEvents(response.result.items);
@@ -59,30 +75,8 @@ function Calendar() {
         }
     }
 
-    const handleClearEvents = () => {
-        setEvents([]);
-    }
-
-    const handleTestButton = () => {
-        console.log(events);
-        console.log(nextPageToken);
-    }
-
-    const handleLogout = () => {
-        fetch(LOGOUT_ROUTE, {
-            method:'post',
-            credentials: 'include',
-            headers: {
-                "X-XSRF-TOKEN": cookies["XSRF-TOKEN"]
-            }
-        })
-        .then(res => {
-            if (res.status === 200) {window.location.href = window.location.origin;}
-        });
-    }
-
-    const handleSubmit = (task) => {
-        fetch(TASK_API_URL, {
+    const handleSubmit = async (task) => {
+        await fetch(TASK_API_URL, {
             body: JSON.stringify([task]),
             method:'post',
             credentials: 'include',
@@ -91,8 +85,6 @@ function Calendar() {
                 "Content-Type": "application/json"
             }
         })
-        .then(res => res.json())
-        .then(data => console.log(data));
     }
 
     const eventsList = events.map((event, index) =>
@@ -107,8 +99,11 @@ function Calendar() {
        <div className="google-calendar-container">
             <ul>{eventsList}</ul>
             <div>
+                {pageTokens.length > 0 &&
+                    <button onClick={handlePrevPage}>Prev Page</button>
+                }
                 {nextPageToken &&
-                    <button onClick={handleFetchEvents}>Next Page</button>
+                    <button onClick={handleNextPage}>Next Page</button>
                 }
             </div>
         </div>
