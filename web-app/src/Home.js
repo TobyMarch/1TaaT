@@ -53,15 +53,15 @@ function Home() {
   };
 
   const [subTasks, setSubtasks] = useState([
-    {
-      title: "",
-      description: "",
-      startDate: "",
-      dueDate: "",
-      priority: 1,
-      duration: "S",
-      completed: false,
-    },
+      // {
+      //   title: "",
+      //   description: "",
+      //   startDate: "",
+      //   dueDate: "",
+      //   priority: 1,
+      //   duration: "S",
+      //   completed: false,
+      // },
   ]);
 
   const archivedStyle = {
@@ -124,23 +124,24 @@ function Home() {
     setSubtasks(updatedSubtasks);
   };
 
-  const addSubtask = () => {
-    setSubtasks([
-      ...subTasks,
-      {
-        title: "",
-        description: "",
-        startDate: new Date().toISOString().slice(0, 10),
-        dueDate: new Date().toISOString().slice(0, 10),
-        priority: 1,
-        duration: "S",
-      },
-    ]);
+    const addSubtask = (item) => {
+        if (item.subTasks) {
+            console.log(item.subTasks.length);
+            item.subTasks.push({
+                title: "",
+                description: "",
+                startDate: new Date().toISOString().slice(0, 10),
+                dueDate: new Date().toISOString().slice(0, 10),
+                priority: 1,
+                duration: "S",
+              });
+        }
   };
 
-  const removeSubtask = (index) => {
-    const filteredSubtasks = subTasks.filter((_, i) => i !== index);
-    setSubtasks(filteredSubtasks);
+  const removeSubtask = (item, index) => {
+    item.subTasks.filter((_, i) => {
+       return i !== index;
+    });
   };
 
   const handleSubtaskChange = (index, field, value) => {
@@ -686,78 +687,42 @@ const saveChanges = (item) => {
                         {showSubtasks ? 'Hide Subtasks' : 'Show Subtasks'}
                       </button>
                       <div className="subTasks-section">
-                        {subTasks.map((subTask, index) => (
+                        {item.subTasks.map((subTask, index) => (
                           <div key={index} className="subTask-input">
                             <input
                               type="text"
                               value={subTask.title}
-                              onChange={(e) =>
-                                handleSubtaskChange(
-                                  index,
-                                  "title",
-                                  e.target.value
-                                )
-                              }
+                              onChange={()=>{}}
                               placeholder="Subtask title"
                             />
                             <textarea
                               className="subTasks-description"
                               value={subTask.description}
-                              onChange={(e) =>
-                                handleSubtaskChange(
-                                  index,
-                                  "description",
-                                  e.target.value
-                                )
-                              }
+                              onChange={()=>{}}
                               placeholder="Description"
                             />
                             <input
                               type="datetime-local"
-                              value={subTask.startDate}
-                              onChange={(e) =>
-                                handleSubtaskChange(
-                                  index,
-                                  "startDate",
-                                  e.target.value
-                                )
-                              }
+                              value={subTask.startDate.slice(0, -1)}
+                              onChange={()=>{}}
                             />
                             <input
                               type="datetime-local"
-                              value={subTask.dueDate}
-                              onChange={(e) =>
-                                handleSubtaskChange(
-                                  index,
-                                  "dueDate",
-                                  e.target.value
-                                )
-                              }
+                              value={subTask.dueDate.slice(0, -1)}
+                              onChange={()=>{}}
                             />
                             <select
-                              onChange={(e) =>
-                                handleSubtaskChange(
-                                  index,
-                                  "priority",
-                                  parseInt(e.target.value, 10)
-                                )
-                              }
+                              onChange={()=>{}}
                               value={subTask.priority}
                             >
-                              <option value={1}>Lowest</option>
-                              <option value={2}>Lower</option>
-                              <option value={3}>Medium</option>
-                              <option value={4}>Higher</option>
-                              <option value={5}>Highest</option>
+                                    <option value={1}>1</option>
+                                    <option value={2}>2</option>
+                                    <option value={3}>3</option>
+                                    <option value={4}>4</option>
+                                    <option value={5}>5</option>
                             </select>
                             <select
-                              onChange={(e) =>
-                                handleSubtaskChange(
-                                  index,
-                                  "duration",
-                                  e.target.value
-                                )
-                              }
+                              onChange={()=>{}}
                               value={subTask.duration}
                             >
                               <option value="S">Small</option>
@@ -767,13 +732,13 @@ const saveChanges = (item) => {
                             </select>
                             <button
                               type="button"
-                              onClick={() => removeSubtask(index)}
+                              onClick={(item) => removeSubtask(item, index)}
                             >
                               Remove
                             </button>
                           </div>
                         ))}
-                        <button type="button" onClick={() => addSubtask()}>
+                        <button type="button" onClick={(item) => addSubtask(item)}>
                           Add Subtask
                         </button>
                       </div>
