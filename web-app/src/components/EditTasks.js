@@ -6,58 +6,42 @@ import { useLocation } from 'react-router-dom';
 
 import {
   TASK_API_URL,
-  TOP_TASK_API_URL,
-  PAGINATED_TASKS_API_URL,
-  ARCHIVED_API_URL,
   LOGOUT_ROUTE,
 } from "../URLConstants";
 
 function EditTask() {
+  const handleISODate = (isoDateString) => {
+    let offset = new Date().getTimezoneOffset()
+    let offsetInMillis = offset * 60000;
+    let timestamp = Date.parse(isoDateString) - offsetInMillis;
+    let localDateTime = new Date(timestamp).toISOString().slice(0, -1);
+    return localDateTime;
+  }
   const location = useLocation();
-  const [item, setItem] = useState(location.state);
-   // const { item } = location.state || {};
-  const [task, setTask] = useState(null);
-  const [owner, setOwner] = useState("");
-  const [createdDate, setCreatedDate] = useState("");
+  const [item, setItem] = useState(location.state.task);
+  const [owner, setOwner] = useState(item.owner);
+  const [createdDate, setCreatedDate] = useState(item.createdDate);
   const [isListView, setIsListView] = useState(false);
   const [items, setItems] = useState([]);
-  const [editItemId, setEditItemId] = useState(null);
-  const [editableTitle, setEditableTitle] = useState("");
-  const [editableDescription, setEditableDescription] = useState("");
   const [menuVisible, setMenuVisible] = useState(false);
   const [title, setTitle] = useState(item.title);
-  const [description, setDescription] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [priority, setPriority] = useState(1);
-  const [duration, setDuration] = useState("S");
-  const [pageNumber, setPageNumber] = useState(0);
-  const [totalPages, setTotalPages] = useState(1);
-  const [selectedOption, setSelectedOption] = useState("");
+  const [description, setDescription] = useState(item.description);
+  const [startDate, setStartDate] = useState(handleISODate(item.startDate));
+  const [dueDate, setDueDate] = useState(handleISODate(item.dueDate));
+  const [priority, setPriority] = useState(item.priority);
+  const [duration, setDuration] = useState(item.duration);
   const [cookies] = useCookies(["XSRF-TOKEN"]);
   const [charTitleCount, setTitleCharCount] = useState(0);
   const [charDescriptionCount, setDescriptionCharCount] = useState(0);
-  const [archivedItems, setArchivedItems] = useState([]);
-  const [showArchived, setShowArchived] = useState(false);
-  const [isdelayable, setIsdelayable] = useState(false);
+  const [delayable, setDelayable] = useState(item.delayable);
   const [formErrors, setFormErrors] = useState({});
+  const [subTasks, setSubtasks] = useState(item.subTasks);
   const [showSubtasks, setShowSubtasks] = useState(false);
   const navigate = useNavigate();
   const toggleSubtasksVisibility = () => {
     setShowSubtasks(!showSubtasks);
   };
-
-  const [subTasks, setSubtasks] = useState([
-      // {
-      //   title: "",
-      //   description: "",
-      //   startDate: "",
-      //   dueDate: "",
-      //   priority: 1,
-      //   duration: "S",
-      //   completed: false,
-      // },
-  ]);
+  
 
   const priorityGradientStyles = [
     {
@@ -76,19 +60,6 @@ function EditTask() {
       background: "linear-gradient(11deg, #d46666 0%, #f37d8f 100%)", // Highest
     },
   ];
-
-  const redirectToCalendar = () => {
-    navigate("/calendar");
-  };
-
-  const redirectToNewTask = () => {
-    navigate("/NewTask");
-
-  };
-
-   const redirectToEditTask = () => {
-    navigate("/editTask");
-  };
 
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
@@ -120,6 +91,7 @@ function EditTask() {
     setSubtasks(updatedSubtasks);
   };
 
+
     const addSubtask = (item) => {
         if (item.subTasks) {
             console.log(item.subTasks.length);
@@ -150,75 +122,6 @@ function EditTask() {
     setSubtasks(updatedSubtasks);
   };
 
-  const handleEdit = (item) => {
-    setEditItemId(item.id);
-    setEditableTitle(item.title);
-    setEditableDescription(item.description);
-  };
-
-  const handleTitleEdit = (e) => {
-    setEditableTitle(e.target.value);
-  };
-
-  const handleDescriptionEdit = (e) => {
-    setEditableDescription(e.target.value);
-  };
-
-const saveChanges = (item) => {
-  axios.post(
-    `${TASK_API_URL}/${item.id}`,
-    {
-      title: editableTitle,
-      description: editableDescription,
-      startDate: item.startDate,
-      dueDate: item.dueDate,
-      priority: item.priority,
-      duration: item.duration,
-      subTasks: item.subTasks.map(subTask => ({
-          title: subTask.title,
-          description: subTask.description,
-          startDate: subTask.startDate,
-          dueDate: subTask.dueDate,
-          priority: subTask.priority,
-          duration: subTask.duration,
-          completed: subTask.completed
-      })),
-      isdelayable: item.isdelayable
-    },
-    {
-      headers: {
-        "Content-Type": "application/json",
-        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-      },
-      withCredentials: true,
-    }
-  )
-  .then(response => {
-    console.log("Update successful:", response.data);
-    fetchTasks(); // Refresh the tasks list to reflect the update
-  })
-  .catch(error => {
-    console.error("Failed to save changes:", error);
-  });
-};
-  const handleArchiveClick = async () => {
-    setSelectedOption("");
-    setPageNumber(0);
-    setShowArchived((prevShowArchived) => {
-      if (!prevShowArchived) {
-        fetchArchivedTasks()
-          .then((archivedTasks) => {
-            setArchivedItems(archivedTasks);
-          })
-          .catch((error) => {
-            console.error("Failed to fetch archived tasks:", error);
-            setArchivedItems([]);
-          });
-      }
-      return !prevShowArchived;
-    });
-  };
-
   const handleLogout = () => {
     fetch(LOGOUT_ROUTE, {
       method: "post",
@@ -245,166 +148,8 @@ const saveChanges = (item) => {
     setDescriptionCharCount(newDescription.length);
   };
 
-  const handleOptionChange = (event) => {
-    const newSortOrder = event.target.value;
-    setSelectedOption(newSortOrder);
-    fetchTasks(newSortOrder);
-  };
-
   const handledelayableChange = (event) => {
-    setIsdelayable(event.target.checked);
-  };
-
-  const skipTask = async (taskId) => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    try {
-      const response = await axios.put(
-        `${TASK_API_URL}/${taskId}/skip`,
-        { dueDate: tomorrow.toISOString().split("T")[0] },
-        {
-          withCredentials: true,
-          headers: {
-            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-          },
-        }
-      );
-      if (response.status === 200) {
-        console.log("Task skipped to next day:", response.data);
-        fetchTasks();
-      }
-    } catch (error) {
-      console.error("Error skipping the task:", error);
-    }
-  };
-
-  const doneTask = async (taskId) => {
-    try {
-      const response = await axios.put(
-        `${TASK_API_URL}/${taskId}/archive`,
-        {},
-        {
-          withCredentials: true,
-          headers: {
-            "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-          },
-        }
-      );
-      if (response.status === 200) {
-        console.log("Task marked as done:", response.data);
-        fetchTasks();
-      }
-      setItems((items) => items.filter((item) => item.id !== taskId));
-    } catch (error) {
-      console.error("Error finishing the task:", error);
-    }
-  };
-
-  const removeTask = async (taskId) => {
-    try {
-      const response = await axios.delete(`${TASK_API_URL}/${taskId}`, {
-        withCredentials: true,
-        headers: {
-          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-        },
-      });
-      if (response.status === 200) {
-        console.log("Task removed successfully:", response.data);
-        fetchTasks();
-      }
-      setItems((items) => items.filter((item) => item.id !== taskId));
-    } catch (error) {
-      console.error("Error removing the task:", error);
-    }
-  };
-
-
-
-    //  useEffect(() => {
-    //     const fetchTask = async () => {
-    //         try {
-    //             const response = await axios.get(`${TASK_API_URL}/${taskId}`, {
-    //                 headers: {
-    //                     'X-XSRF-TOKEN': cookies['XSRF-TOKEN'],
-    //                     'Content-Type': 'application/json'
-    //                 },
-    //                 withCredentials: true
-    //             });
-    //             setTask(response.data);
-    //         } catch (error) {
-    //             console.error('Error fetching task:', error);
-    //         }
-    //     };
-    //
-    //     fetchTask();
-    // }, [taskId, cookies, axios]);
-
-
-
-  // useEffect(() => {
-  //   fetchTasks();
-  //   const currentDate = new Date().toISOString().split("T")[0];
-  //   setStartDate(`${currentDate}T12:00`);
-  //   setDueDate(`${currentDate}T12:00`);
-  // }, [isListView]);
-
-
-
-  const toggleColumns = () => {
-    setIsListView(!isListView);
-  };
-
-  // Task retrieval and submission
-
-  const fetchTasks = async () => {
-    try {
-      let paginatedWithparams =
-        PAGINATED_TASKS_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
-      const response = await axios.get(
-        isListView ? paginatedWithparams : TOP_TASK_API_URL,
-        { withCredentials: true }
-      );
-      if (Array.isArray(response.data.content)) {
-        setItems(response.data.content);
-        setTotalPages(response.data.totalPages);
-      } else if (response.data && !Array.isArray(response.data.content)) {
-        setItems([response.data]);
-      } else {
-        console.error(
-          "Expected an array or an object for content, received:",
-          response.data
-        );
-        setItems([]);
-      }
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
-      setItems([]);
-    }
-  };
-
-  const fetchArchivedTasks = async () => {
-    try {
-        let paginatedWithParameters = ARCHIVED_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
-        const response = await axios.get(paginatedWithParameters, {
-        withCredentials: true,
-        headers: {
-          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-        },
-      });
-      if (response.data && Array.isArray(response.data.content)) {
-        setTotalPages(response.data.totalPages);
-        console.log(
-          "Archived tasks fetched successfully:",
-          response.data.content
-        );
-        return response.data.content;
-      } else {
-        console.warn("Received non-array:", response.data);
-        return [];
-      }
-    } catch (error) {
-      console.error("Failed to fetch archived tasks:", error);
-    }
+    setDelayable(event.target.checked);
   };
 
   const handleSubmit = async (e) => {
@@ -412,19 +157,34 @@ const saveChanges = (item) => {
     const errors = validateForm();
     try {
       const data = {
+        id: item.id,
+        externalId: item.externalId,
         owner,
         title,
         description,
+        createdDate: item.createdDate,
         startDate: startDate ? new Date(startDate).toISOString() : null,
         dueDate: dueDate ? new Date(dueDate).toISOString() : null,
         priority,
         duration,
-        isdelayable,
+        recurrence: item.recurrence,
+        delayable: delayable,
+        archived: item.archived,
         subTasks: subTasks.map((subTask) => ({
-          title: subTask.title,
-          // completed: subTask.completed
-        })),
-        color: priorityGradientStyles[priority - 1],
+            id: subTask.id,
+            externalId: subTask.externalId,
+            owner: subTask.owner,
+            title: subTask.title,
+            description: subTask.description,
+            createdDate: subTask.createdDate,
+            startDate: subTask.startDate ? new Date(subTask.startDate).toISOString() : null,
+            dueDate: subTask.dueDate ? new Date(subTask.dueDate).toISOString() : null,
+            priority: subTask.priority,
+            duration: subTask.duration,
+            recurrence: subTask.recurrence,
+            delayable: subTask.delayable,
+            archived: subTask.archived,
+        }))
       };
 
       await axios.post(TASK_API_URL, [data], {
@@ -434,25 +194,22 @@ const saveChanges = (item) => {
         },
       });
 
-      setOwner("");
-      setTitle("");
-      setDescription("");
-      setStartDate("");
-      setDueDate("");
-      setPriority(1);
-      setIsdelayable(false);
-      setSubtasks([{ title: "" }]);
+      setOwner(item.owner);
+      setTitle(item.title);
+      setDescription(item.description);
+      setStartDate(item.startDate);
+      setDueDate(item.dueDate);
+      setPriority(item.priority);
+      setDelayable(item.delayable);
+      setSubtasks(item.subTasks);
       toggleMenu();
       alert("Task added successfully");
-      fetchTasks();
     } catch (error) {
       console.error("Error submitting data:", error);
       alert("Failed to add task" + error.message);
     }
   };
 
-
-console.log( item );
    return (
  <div className="add-task-form">
     <div className="add-task">
@@ -490,7 +247,7 @@ console.log( item );
           <input
             type="datetime-local"
             id="startDate"
-            value={startDate}
+            defaultValue={startDate}
             onChange={(e) => setStartDate(e.target.value)}
           />
         </div>
@@ -499,7 +256,7 @@ console.log( item );
           <input
             type="datetime-local"
             id="dueDate"
-            value={dueDate}
+            defaultValue={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
           />
         </div>
@@ -508,7 +265,7 @@ console.log( item );
             type="checkbox"
             id="delayable"
             name="delayable"
-            checked={isdelayable}
+            checked={delayable}
             onChange={handledelayableChange}
           />
           <label htmlFor="delayable">Delayable</label>
