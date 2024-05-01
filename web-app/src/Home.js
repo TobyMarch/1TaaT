@@ -468,7 +468,8 @@ function Home() {
             <option value="&sort=createdDate,DESC">Oldest</option>
           </select>
         </div>
-
+          <button className="previousPage" onClick={() => previousPage()}>previous</button>
+          <button className="nextPage" onClick={() => nextPage()}>next</button>
         <button className="toggle" onClick={toggleColumns}>
           {isListView ? (
             <>
@@ -496,8 +497,7 @@ function Home() {
 
       {!menuVisible && (
         <div className={`List ${isListView ? "listView" : ""}`}>
-          <button onClick={() => previousPage()}>previous</button>
-          <button onClick={() => nextPage()}>next</button>
+
           {showArchived
             ? archivedItems.map((item, index) => (
                 <div

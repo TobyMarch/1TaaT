@@ -134,6 +134,21 @@ button {
 	margin: 20px;
 }
 
+.previousPage, .nextPage{
+	height: 30px;
+	padding: 5px 10px;
+	border: none;
+	border-radius: 5px;
+	font-size: 13px;
+	cursor: pointer;
+	transition: background-color 0.3s, transform 0.2s;
+	outline: none;
+	color: black;
+	font-family: 'Arial', sans-serif;
+	background-color: #3333;
+	margin-left:10px;
+	margin-right:10px;
+}
 .newBack {
 	height: 30px;
 	padding: 5px 20px;

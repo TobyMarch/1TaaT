@@ -355,7 +355,7 @@ function EditTask() {
                         <button className="newBack" onClick={() => navigate('/')}>
                             Back
                         </button>
-                        <button className="newAdd" type="submit">
+                        <button className="newAdd"  type="submit" onClick={() => navigate("/")}>
                             Submit
                         </button>
                         {formErrors.date && <p className="error">{formErrors.date}</p>}
