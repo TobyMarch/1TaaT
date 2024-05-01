@@ -316,17 +316,19 @@ public class TaskService {
             userTaskRepo.saveAll(existingUserTasks);
 
             // If task has recurrence schedule, generate next instance(s)
-            if (existingTask.getRecurrence() != null && !existingTask.getRecurrence().isEmpty()) {
-                TaskDTO parentDTO = this.createTaskDTOForNextRecurringDate(existingTask, owner);
-                List<TaskDTO> subTaskDTOs = updatedSubTasks.stream()
-                        .map(subTask -> {
-                            return this.createTaskDTOForNextRecurringDate(subTask, owner);
-                        }).filter(subTask -> {
-                            return subTask != null;
-                        }).collect(Collectors.toList());
-                parentDTO.setSubTasks(subTaskDTOs);
-                this.createUpdateTasks(Collections.singletonList(parentDTO), owner);
-            }
+            // if (existingTask.getRecurrence() != null &&
+            // !existingTask.getRecurrence().isEmpty()) {
+            // TaskDTO parentDTO = this.createTaskDTOForNextRecurringDate(existingTask,
+            // owner);
+            // List<TaskDTO> subTaskDTOs = updatedSubTasks.stream()
+            // .map(subTask -> {
+            // return this.createTaskDTOForNextRecurringDate(subTask, owner);
+            // }).filter(subTask -> {
+            // return subTask != null;
+            // }).collect(Collectors.toList());
+            // parentDTO.setSubTasks(subTaskDTOs);
+            // this.createUpdateTasks(Collections.singletonList(parentDTO), owner);
+            // }
 
             List<TaskDTO> updatedSubTaskDTOs = updatedSubTasks.stream()
                     .map(savedSubTask -> {
