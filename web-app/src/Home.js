@@ -37,6 +37,7 @@ function Home() {
   const [priority, setPriority] = useState(1);
   const [duration, setDuration] = useState("S");
   const [pageNumber, setPageNumber] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
   const [selectedOption, setSelectedOption] = useState("");
   const [cookies] = useCookies(["XSRF-TOKEN"]);
   const [charTitleCount, setTitleCharCount] = useState(0);
@@ -192,6 +193,8 @@ function Home() {
   };
 
   const handleArchiveClick = async () => {
+    setSelectedOption("");
+    setPageNumber(0);
     setShowArchived((prevShowArchived) => {
       if (!prevShowArchived) {
         fetchArchivedTasks()
@@ -323,13 +326,14 @@ function Home() {
   const fetchTasks = async () => {
     try {
       let paginatedWithparams =
-        PAGINATED_TASKS_API_URL + "?size=10" + selectedOption;
+        PAGINATED_TASKS_API_URL + `?size=2&page=${pageNumber}` + selectedOption;
       const response = await axios.get(
         isListView ? paginatedWithparams : TOP_TASK_API_URL,
         { withCredentials: true }
       );
       if (Array.isArray(response.data.content)) {
         setItems(response.data.content);
+        setTotalPages(response.data.totalPages);
       } else if (response.data && !Array.isArray(response.data.content)) {
         setItems([response.data]);
       } else {
@@ -347,13 +351,15 @@ function Home() {
 
   const fetchArchivedTasks = async () => {
     try {
-      const response = await axios.get(ARCHIVED_API_URL, {
+        let paginatedWithParameters = ARCHIVED_API_URL + `?size=2&page=${pageNumber}` + selectedOption;
+        const response = await axios.get(paginatedWithParameters, {
         withCredentials: true,
         headers: {
           "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
         },
       });
       if (response.data && Array.isArray(response.data.content)) {
+        setTotalPages(response.data.totalPages);
         console.log(
           "Archived tasks fetched successfully:",
           response.data.content
@@ -367,6 +373,16 @@ function Home() {
       console.error("Failed to fetch archived tasks:", error);
     }
   };
+
+  const previousPage = async () => {
+    setPageNumber(pageNumber > 0 ? pageNumber - 1 : pageNumber);
+    showArchived ? fetchArchivedTasks() : fetchTasks();
+  }
+
+  const nextPage = async () => {
+    setPageNumber(pageNumber < (totalPages - 1) ? pageNumber + 1 : pageNumber);
+    showArchived ? fetchArchivedTasks() : fetchTasks();
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -463,6 +479,8 @@ function Home() {
       {/* Task List */}
       {!menuVisible && (
         <div className={`List ${isListView ? "listView" : ""}`}>
+                  <button onClick={() => previousPage()}>previous</button>
+                  <button onClick={() => nextPage()}>next</button>
           {showArchived
             ? archivedItems.map((item, index) => (
                 <div
@@ -502,7 +520,7 @@ function Home() {
                           item.subTasks.map((subTask, subindex) => (
                             <li key={subindex}>
                               {subTask.title} -{" "}
-                              {subTask.completed ? "Done" : "Pending"}
+                              {subTask.archived ? "Done" : "Pending"}
                             </li>
                           ))}
                       </ul>
