@@ -515,18 +515,31 @@ function Home() {
                   <p className="duration">
                     Duration: {item.duration || "Not set"}
                   </p>
+                 <p className="dueDate">
+                      Start:{" "}
+                      {item.startDate
+                        ? new Date(Date.parse(item.startDate)).toLocaleString([], {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                        : "Not set"}
+                    </p>
                   <p className="dueDate">
-                    Start:{" "}
-                    {item.startDate
-                      ? new Date(Date.parse(item.startDate)).toLocaleString()
-                      : "Not set"}
-                  </p>
-                  <p className="dueDate">
-                    Due:{" "}
-                    {item.dueDate
-                      ? new Date(Date.parse(item.dueDate)).toLocaleString()
-                      : "Not set"}
-                  </p>
+                      Due:{" "}
+                      {item.dueDate
+                        ? new Date(Date.parse(item.dueDate)).toLocaleString([], {
+                          year: 'numeric',
+                          month: '2-digit',
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                        : "Not set"}
+                    </p>
+
                   <div className="subTasks-list">
                     {item.subTasks &&
                       item.subTasks.map((subTask, subIndex) => (
@@ -573,18 +586,31 @@ function Home() {
                     </button>
                   </div>
                   <div className="info-container">
-                    <p className="dueDate">
-                      Start:{" "}
-                      {item.startDate
-                        ? new Date(Date.parse(item.startDate)).toLocaleString()
-                        : "Not set"}
-                    </p>
-                    <p className="dueDate">
-                      Due:{" "}
-                      {item.dueDate
-                        ? new Date(Date.parse(item.dueDate)).toLocaleString()
-                        : "Not set"}
-                    </p>
+                   <p className="dueDate">
+                        Start:{" "}
+                        {item.startDate
+                          ? new Date(Date.parse(item.startDate)).toLocaleString([], {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
+                          : "Not set"}
+                      </p>
+                                          <p className="dueDate">
+                        Due:{" "}
+                        {item.dueDate
+                          ? new Date(Date.parse(item.dueDate)).toLocaleString([], {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })
+                          : "Not set"}
+                      </p>
+
                     {isOverdue(item.dueDate) && (
                       <p>
                         <SVGflag /> Overdue
