@@ -538,10 +538,10 @@ const handleSubmit = async (e) => {
                       </ul>
                       <p className="duration">Duration: {item.duration || 'Not set'}</p>
                       <p className="dueDate">
-                        Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+                        Start: {item.startDate ? new Date(Date.parse(item.startDate)).toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour: '2-digit', minute:'2-digit'}) : 'Not set'}
                       </p>
                       <p className="dueDate">
-                        Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+                        Due: {item.dueDate ? new Date(Date.parse(item.dueDate)).toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour: '2-digit', minute:'2-digit'}) : 'Not set'}
                       </p>
                       <div className="buttonGroup">
                         <button
@@ -604,11 +604,11 @@ const handleSubmit = async (e) => {
     <div className="info-container">
 
         <p className="dueDate">
-  {/* Include "Overdue" text with the flag */}
-  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
-  <br />
-   {isOverdue(item.dueDate) && <><SVGflag /> Over</>}Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
-</p>
+            {/* Include "Overdue" text with the flag */}
+            Start: {item.startDate ? new Date(Date.parse(item.startDate)).toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour: '2-digit', minute:'2-digit'}) : 'Not set'}
+            <br />
+            {isOverdue(item.dueDate) && <><SVGflag /> Over</>}Due: {item.dueDate ? new Date(Date.parse(item.dueDate)).toLocaleString([], {year: 'numeric', month: '2-digit', day:'2-digit', hour: '2-digit', minute:'2-digit'}) : 'Not set'}
+        </p>
         <div className="buttonGroup">  {/* Existing class for button styling */}
             <button className="skipButton" onClick={() => skipTask(item.id)}>
                 Do Tomorrow
