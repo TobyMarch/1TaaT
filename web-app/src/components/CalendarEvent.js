@@ -23,7 +23,6 @@ export function CalendarEvent({event, handleSubmit}) {
         }
 
         handleSubmit(task);
-navigate('/');
     }
     
     return (
@@ -55,7 +54,7 @@ navigate('/');
                 </select>
             </div>
 
-         <button className="back" onClick={() => navigate('/')}>
+         <button className="back to home " onClick={() => navigate('/')}>
   Back
 </button>
             <button onClick={(e) => submitClicked(e)}>Add Task</button>
