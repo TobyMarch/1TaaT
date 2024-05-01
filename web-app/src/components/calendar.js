@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import {
-    LOGOUT_ROUTE,
     ACCESS_TOKEN,
     REFRESH_ACCESS_TOKEN,
     GOOGLE_API_KEY,
