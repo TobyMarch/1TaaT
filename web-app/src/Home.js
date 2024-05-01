@@ -682,12 +682,12 @@ const saveChanges = (item) => {
                             />
                             <input
                               type="datetime-local"
-                              value={subTask.startDate.slice(0, -1)}
+                               value={subTask.startDate ? subTask.startDate.slice(0, -1) : ''}
                               onChange={()=>{}}
                             />
                             <input
                               type="datetime-local"
-                              value={subTask.dueDate.slice(0, -1)}
+                               value={subTask.dueDate ? subTask.dueDate.slice(0, -1) : ''}
                               onChange={()=>{}}
                             />
                             <select
