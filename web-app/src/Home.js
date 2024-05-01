@@ -11,7 +11,8 @@ import { ReactComponent as SVGflag } from "./img/flag.svg";
 import { ReactComponent as SVGimport } from "./img/Google_Calendar_icon_(2020).svg";
 import { useCookies } from "react-cookie";
 import { useNavigate } from "react-router-dom";
-import NewTask from "./components/NewTask";
+
+
 
 import {
   TASK_API_URL,
@@ -98,7 +99,10 @@ const redirectToEditTask = (item) => {
 
   const redirectToNewTask = () => {
     navigate("/NewTask");
+
   };
+
+
 
   const toggleMenu = () => {
     setMenuVisible(!menuVisible);
@@ -216,7 +220,7 @@ const saveChanges = (item) => {
     setPageNumber(0);
     setShowArchived((prevShowArchived) => {
       if (!prevShowArchived) {
-        fetchArchivedTasks(selectedOption)
+        fetchArchivedTasks()
           .then((archivedTasks) => {
             setArchivedItems(archivedTasks);
           })
@@ -342,10 +346,10 @@ const saveChanges = (item) => {
 
   // Task retrieval and submission
 
-  const fetchTasks = async (sortParam) => {
+  const fetchTasks = async () => {
     try {
       let paginatedWithparams =
-        PAGINATED_TASKS_API_URL + `?size=10&page=${pageNumber}` + (sortParam ? sortParam : selectedOption);
+        PAGINATED_TASKS_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
       const response = await axios.get(
         isListView ? paginatedWithparams : TOP_TASK_API_URL,
         { withCredentials: true }
@@ -368,9 +372,9 @@ const saveChanges = (item) => {
     }
   };
 
-  const fetchArchivedTasks = async (sortParam) => {
+  const fetchArchivedTasks = async () => {
     try {
-        let paginatedWithParameters = ARCHIVED_API_URL + `?size=10&page=${pageNumber}` + (sortParam ? sortParam : selectedOption);
+        let paginatedWithParameters = ARCHIVED_API_URL + `?size=10&page=${pageNumber}` + selectedOption;
         const response = await axios.get(paginatedWithParameters, {
         withCredentials: true,
         headers: {
@@ -495,261 +499,104 @@ const saveChanges = (item) => {
         </button>
       </div>
 
-      {/* Task List */}
-      {!menuVisible && (
-        <div className={`List ${isListView ? "listView" : ""}`}>
-                  <button onClick={() => previousPage()}>previous</button>
-                  <button onClick={() => nextPage()}>next</button>
-          {showArchived
-            ? archivedItems.map((item, index) => (
-                <div
-                  className="item"
-                  key={index}
-                  style={
-                    showArchived
-                      ? archivedStyle
-                      : priorityGradientStyles[item.priority - 1]
-                  }
-                >
-                  {editItemId === item.id ? (
-                    <div>
-                      <input
-                        value={editableTitle}
-                        onChange={handleTitleEdit}
-                        onBlur={() => saveChanges(item)}
-                        onKeyPress={(e) =>
-                          e.key === "Enter" && saveChanges(item)
-                        }
-                        autoFocus
-                      />
-                      <textarea
-                        value={editableDescription}
-                        onChange={handleDescriptionEdit}
-                        onBlur={() => saveChanges(item)}
-                      />
-                    </div>
-                  ) : (
-                    <div onDoubleClick={() => handleEdit(item)}>
-                      <h2 className="title">{item.title}</h2>
-                      <p className="description">
-                        {item.description || "Not set"}
-                      </p>
-                      <ul className="subTasks-list">
-                        {item.subTasks &&
-                          item.subTasks.map((subTask, subindex) => (
-                            <li key={subindex}>
-                              {subTask.title} -{" "}
-                              {subTask.archived ? "Done" : "Pending"}
-                            </li>
-                          ))}
-                      </ul>
-                      <p className="duration">
-                        Duration: {item.duration || "Not set"}
-                      </p>
-                      <p className="dueDate">
-                        Start:{" "}
-                        {item.startDate
-                          ? new Date(Date.parse(item.startDate)).toLocaleString(
-                              [],
-                              {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )
-                          : "Not set"}
-                      </p>
-                      <p className="dueDate">
-                        Due:{" "}
-                        {item.dueDate
-                          ? new Date(Date.parse(item.dueDate)).toLocaleString(
-                              [],
-                              {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )
-                          : "Not set"}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              ))
-            : items.map((item, index) => (
-                <div
-                  className="item"
-                  key={index}
-                  style={priorityGradientStyles[item.priority - 1]}
-                >
-                  {editItemId === item.id ? (
-                    <div>
-                      <input
-                        value={editableTitle}
-                        onChange={handleTitleEdit}
-                        onBlur={() => saveChanges(item)}
-                        onKeyPress={(e) =>
-                          e.key === "Enter" && saveChanges(item)
-                        }
-                        autoFocus
-                      />
-                      <textarea
-                        value={editableDescription}
-                        onChange={handleDescriptionEdit}
-                        onBlur={() => saveChanges(item)}
-                      />
-                    </div>
-                  ) : (
-                    <>
-                      <div onDoubleClick={() => handleEdit(item)}>
-                        <div className="title-container">
-                          <h2 className="title">{item.title}</h2>
-                          <p className="duration">
-                            Duration: {item.duration || "Not set"}
-                          </p>
-                          <div className="info-container">
-                            <p className="dueDate">
-                              {/* Include "Overdue" text with the flag */}
-                              Start:{" "}
-                              {item.startDate
-                                ? new Date(
-                                    Date.parse(item.startDate)
-                                  ).toLocaleString([], {
-                                    year: "numeric",
-                                    month: "2-digit",
-                                    day: "2-digit",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })
-                                : "Not set"}
-                              <br />
-                              {isOverdue(item.dueDate) && (
-                                <>
-                                  <SVGflag /> Over
-                                </>
-                              )}
-                              Due:{" "}
-                              {item.dueDate
-                                ? new Date(
-                                    Date.parse(item.dueDate)
-                                  ).toLocaleString([], {
-                                    year: "numeric",
-                                    month: "2-digit",
-                                    day: "2-digit",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })
-                                : "Not set"}
-                            </p>
-                            <div className="buttonGroup">
-                              {" "}
-                              {/* Existing class for button styling */}
+
+
+{!menuVisible && (
+  <div className={`List ${isListView ? "listView" : ""}`}>
+    <button onClick={() => previousPage()}>previous</button>
+    <button onClick={() => nextPage()}>next</button>
+    {showArchived ? archivedItems.map((item, index) => (
+      <div
+        className="item"
+        key={index}
+        style={showArchived ? archivedStyle : priorityGradientStyles[item.priority - 1]}
+      >
+        <h2 className="title">{item.title}</h2>
+        <p className="description">{item.description || "Not set"}</p>
+
+        <p className="duration">Duration: {item.duration || "Not set"}</p>
+        <p className="dueDate">Start: {item.startDate ? new Date(Date.parse(item.startDate)).toLocaleString() : "Not set"}</p>
+        <p className="dueDate">Due: {item.dueDate ? new Date(Date.parse(item.dueDate)).toLocaleString() : "Not set"}</p>
+        <div className="subTasks-list">
+          {item.subTasks && item.subTasks.map((subTask, subIndex) => (
+            <div key={subIndex} className="subTask-text">
+              <p>Title: {subTask.title}</p>
+              <p>Description: {subTask.description}</p>
+              <p>Start Date: {subTask.startDate}</p>
+              <p>Due Date: {subTask.dueDate}</p>
+              <p>Priority: {subTask.priority}</p>
+              <p>Duration: {subTask.duration}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    )) : items.map((item, index) => (
+      <div
+        className="item"
+        key={index}
+        style={priorityGradientStyles[item.priority - 1]}
+      >
+        <h2 className="title">{item.title}</h2>
+        <p className="duration">Duration: {item.duration || "Not set"}</p>
+         <div className="buttonGroup">
+
                               <button
                                 className="skipButton"
                                 onClick={() => skipTask(item.id)}
                               >
                                 Do Tomorrow
                               </button>
-                              <button
-                                className="doneButton"
-                                onClick={() => doneTask(item.id)}
-                              >
-                                Done
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                        <label>Description:</label>
-                        <p className="description">
-                          {item.description || "Not set"}
-                        </p>
-                      </div>
-                      <button type="button" onClick={toggleSubtasksVisibility}>
-                        {showSubtasks ? 'Hide Subtasks' : 'Show Subtasks'}
-                      </button>
-                      <div className="subTasks-section">
-                        {item.subTasks.map((subTask, index) => (
-                          <div key={index} className="subTask-input">
-                            <input
-                              type="text"
-                              value={subTask.title}
-                              onChange={()=>{}}
-                              placeholder="Subtask title"
-                            />
-                            <textarea
-                              className="subTasks-description"
-                              value={subTask.description}
-                              onChange={()=>{}}
-                              placeholder="Description"
-                            />
-                            <input
-                              type="datetime-local"
-                               value={subTask.startDate ? subTask.startDate.slice(0, -1) : ''}
-                              onChange={()=>{}}
-                            />
-                            <input
-                              type="datetime-local"
-                               value={subTask.dueDate ? subTask.dueDate.slice(0, -1) : ''}
-                              onChange={()=>{}}
-                            />
-                            <select
-                              onChange={()=>{}}
-                              value={subTask.priority}
-                            >
-                                    <option value={1}>1</option>
-                                    <option value={2}>2</option>
-                                    <option value={3}>3</option>
-                                    <option value={4}>4</option>
-                                    <option value={5}>5</option>
-                            </select>
-                            <select
-                              onChange={()=>{}}
-                              value={subTask.duration}
-                            >
-                              <option value="S">Small</option>
-                              <option value="M">Medium</option>
-                              <option value="L">Large</option>
-                              <option value="XL">XLarge</option>
-                            </select>
-                            <button
-                              type="button"
-                              onClick={(item) => removeSubtask(item, index)}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        ))}
-                        <button type="button" onClick={(item) => addSubtask(item)}>
-                          Add Subtask
-                        </button>
-                      </div>
-                    </>
-                  )}
-
-                 <div className="buttonGroup">
-                    <button
-                      className="archiveButton"
-                      onClick={() => removeTask(item.id)}
-                    >
-                      Remove
-                    </button>
-                      <button
-                      className="editButton"
-                      onClick={() => redirectToEditTask(item)}
-                    >
-                     Edit
-                    </button>
-                  </div>
-                </div>
-              ))}
+                                <button
+                                        className="archiveButton"
+                                        onClick={() => removeTask(item.id)}
+                                    >
+                                        Remove
+                                    </button>
+                               <button
+                                 className="doneButton"
+                                 onClick={() => doneTask(item.id)}
+                               >
+                                 Done
+                               </button>
+                               </div>
+        <div className="info-container">
+          <p className="dueDate">Start: {item.startDate ? new Date(Date.parse(item.startDate)).toLocaleString() : "Not set"}</p>
+          <p className="dueDate">Due: {item.dueDate ? new Date(Date.parse(item.dueDate)).toLocaleString() : "Not set"}</p>
+          {isOverdue(item.dueDate) && <p><SVGflag /> Overdue</p>}
         </div>
-      )}
+        <label>Description:</label>
+        <p className="description">{item.description || "Not set"}</p>
+        <div className="subTasks-list">
+          {item.subTasks && item.subTasks.map((subTask, subIndex) => (
+            <div key={subIndex} className="subTask-text">
+              <p>Title: {subTask.title}</p>
+              <p>Description: {subTask.description}</p>
+              <p>Start Date: {subTask.startDate}</p>
+              <p>Due Date: {subTask.dueDate}</p>
+              <p>Priority: {subTask.priority}</p>
+              <p>Duration: {subTask.duration}</p>
+            </div>
+          ))}
+        </div>
+        {isListView && (
+          <div className="buttonGroup">
 
-      {/* SideBar */}
+            <button
+              className="editButton"
+              onClick={() => redirectToEditTask(item)}
+            >
+              Edit
+            </button>
+          </div>
+        )}
+      </div>
+    ))}
+  </div>
+)}
+
+
+
+
       <div className="sideBar">
         <p htmlFor="historyButton">History</p>
         <button className="historyButton" onClick={handleArchiveClick}>
