@@ -75,17 +75,6 @@ function Calendar() {
         }
     }
 
-    const handleTestButton = () => {
-        // console.log(events);
-        // console.log(nextPageToken);
-        // console.log(curPageToken);
-        // console.log(prevPageToken);
-        // console.log(pageTokens);
-        // console.log(pageTokens);
-        // console.log(window.gapi);
-        // handleFetchEvents();
-    }
-
     const handleSubmit = async (task) => {
         await fetch(TASK_API_URL, {
             body: JSON.stringify([task]),
@@ -108,7 +97,6 @@ function Calendar() {
 
     return (
        <div className="google-calendar-container">
-            {/* <button onClick={handleTestButton}>Test</button> */}
             <ul>{eventsList}</ul>
             <div>
                 {pageTokens.length > 0 &&
