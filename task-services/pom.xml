@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.1taat</groupId>
 	<artifactId>task-services</artifactId>
-	<version>0.1.0</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>task-services</name>
 	<description>One Thing at a Time (1TaaT) is a to-do list management project created for CS 673 in the Metropolitan College at Boston University</description>
 	<properties>
