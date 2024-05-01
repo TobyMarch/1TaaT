@@ -376,19 +376,6 @@ const fetchTasks = async () => {
   }
 };
 
-
-const fetchTopTask = async () => {
-  try {
-    const response = await axios.get(TOP_TASK_API_URL, { withCredentials: true });
-    console.log(response.data);
-    setItems(response.data.content);
-  } catch (error) {
-    console.error("Error fetching top task:", error);
-    alert("Failed to fetch top task");
-  }
-};
-
-
   const fetchArchivedTasks = async () => {
     try {
       const response = await axios.get(ARCHIVED_API_URL, {
@@ -450,8 +437,7 @@ const handleSubmit = async (e) => {
     setSubtasks([{ title: '' }]);
     toggleMenu();
     alert("Task added successfully");
-    fetchTopTask();
-      fetchTasks();
+    fetchTasks();
   } catch (error) {
     console.error("Error submitting data:", error);
     alert("Failed to add task" + error.message);
@@ -552,11 +538,11 @@ const handleSubmit = async (e) => {
                       </ul>
                       <p className="duration">Duration: {item.duration || 'Not set'}</p>
                       <p className="dueDate">
-  Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
-</p>
-<p className="dueDate">
-  Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
-</p>
+                        Start: {item.startDate ? item.startDate.split("T")[0] : 'Not set'}
+                      </p>
+                      <p className="dueDate">
+                        Due: {item.dueDate ? item.dueDate.split("T")[0] : 'Not set'}
+                      </p>
                       <div className="buttonGroup">
                         <button
                           className="shareTaskButton"
