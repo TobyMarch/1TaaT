@@ -305,18 +305,7 @@ function Home() {
       console.error("Error removing the task:", error);
     }
   };
-useEffect(() => {
-  async function fetchSubTasks() {
-    try {
-      const response = await axios.get('url_to_fetch_subTasks');
-      setSubtasks(response.data);
-    } catch (error) {
-      console.error('Failed to fetch subTasks:', error);
-    }
-  }
 
-  fetchSubTasks();
-}, []);
 
   useEffect(() => {
     fetchTasks();

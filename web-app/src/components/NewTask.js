@@ -70,10 +70,6 @@ function NewTask() {
     },
   ];
 
-  const redirectToCalendar = () => {
-    navigate('/calendar');
-  };
-
 
   const isOverdue = (dueDateString) => {
     const today = new Date();
@@ -252,47 +248,6 @@ const saveChanges = (item) => {
       console.error("Error skipping the task:", error);
     }
   };
-
-
- const doneTask = async (taskId) => {
-  try {
-    const response = await axios.put(
-      `${TASK_API_URL}/${taskId}/archive`,
-      {},
-      {
-        withCredentials: true,
-        headers: {
-          "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-        },
-      }
-    );
-    if (response.status === 200) {
-      console.log("Task marked as done:", response.data);
-      fetchTasks();
-    }
-    setItems((items) => items.filter((item) => item.id !== taskId));
-  } catch (error) {
-    console.error("Error finishing the task:", error);
-  }
-};
-
- const removeTask = async (taskId) => {
-  try {
-    const response = await axios.delete(`${TASK_API_URL}/${taskId}`, {
-      withCredentials: true,
-      headers: {
-        "X-XSRF-TOKEN": cookies["XSRF-TOKEN"],
-      },
-    });
-    if (response.status === 200) {
-      console.log("Task removed successfully:", response.data);
-      fetchTasks();
-    }
-    setItems((items) => items.filter((item) => item.id !== taskId));
-  } catch (error) {
-    console.error("Error removing the task:", error);
-  }
-};
 
 
   useEffect(() => {
